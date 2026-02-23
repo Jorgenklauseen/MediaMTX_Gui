@@ -1,9 +1,20 @@
-function Dashboard() {
+// App.tsx
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import RootLayout from './layouts/RootLayout';
+import Dashboard from './pages/Dashboard';
+import Recordings from './pages/Recordings';
+
+function App() {
   return (
-    <div>
-      <h1>Dashboard Page</h1>
-      <p>This is the dashboard page.</p>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<RootLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="/recordings" element={<Recordings />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-export default Dashboard;
+
+export default App;
