@@ -1,0 +1,6 @@
+@MediaMTX_Gui.Server_HostAddress = http://localhost:5062
+
+GET {{MediaMTX_Gui.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

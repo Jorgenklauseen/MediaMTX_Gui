@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="mediamtx_gui.client/mediamtx_gui.client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
+  <Project Path="MediaMTX_Gui.Server/MediaMTX_Gui.Server.csproj" />
+</Solution>
