@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.Models;
+using MediaMTX_Gui.Server.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,9 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
+builder.Services.AddCustomOidc(builder.Configuration);
+
+builder.Services.AddAuthorization();
 
 builder.Services.AddHttpClient<IMediaMtxService, MediaMtxService>();
 
@@ -30,6 +34,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
