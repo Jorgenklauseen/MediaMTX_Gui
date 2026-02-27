@@ -1,8 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.Models;
+using MediaMTX_Gui.Server.Services;
+using MediaMTX_Gui.Server.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSignalR();
 
 // Add services to the container.
 
@@ -12,6 +16,7 @@ builder.Services.AddOpenApi();
 
 
 builder.Services.AddHttpClient<IMediaMtxService, MediaMtxService>();
+
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -27,14 +32,18 @@ app.MapStaticAssets();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHub<StreamHub>("/hubs/streams");
+
 app.MapFallbackToFile("/index.html");
+
 
 app.Run();

@@ -51,7 +51,7 @@ export default defineConfig({
                 target,
                 secure: false
             },
-            '^/(.*hub)': {
+            '^/hubs': {
                 target,
                 secure: false,
                 ws: true
