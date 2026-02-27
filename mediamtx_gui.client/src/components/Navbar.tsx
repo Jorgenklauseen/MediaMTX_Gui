@@ -26,6 +26,22 @@ function Navbar() {
             Recordings
           </NavLink>
         </li>
+        <li>
+          <NavLink
+            to="/projects"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Projects
+          </NavLink>
+        </li>
+        <li>
+          <NavLink
+            to="/users"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Users
+          </NavLink>
+        </li>
       </ul>
       <ToggleTheme />
     </nav>

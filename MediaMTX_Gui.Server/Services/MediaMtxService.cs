@@ -1,3 +1,5 @@
+namespace MediaMTX_Gui.Server.Services;
+
 public class MediaMtxService : IMediaMtxService
 {
     private readonly HttpClient _httpClient;
@@ -11,6 +13,14 @@ public class MediaMtxService : IMediaMtxService
     public async Task<string> GetPathsAsync()
     {
         var response = await _httpClient.GetAsync("/v3/paths/list");
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<string> GetPathDetailsAsync(string name)
+    {
+        var response = await _httpClient.GetAsync($"/v3/paths/get/{name}");
         response.EnsureSuccessStatusCode();
 
         return await response.Content.ReadAsStringAsync();
