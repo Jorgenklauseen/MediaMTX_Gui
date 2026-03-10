@@ -35,7 +35,7 @@ if (!fs.existsSync(certFilePath) || !fs.existsSync(keyFilePath)) {
 }
 
 const target = env.ASPNETCORE_HTTPS_PORT ? `https://localhost:${env.ASPNETCORE_HTTPS_PORT}` :
-    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7095';
+    env.ASPNETCORE_URLS ? env.ASPNETCORE_URLS.split(';')[0] : 'https://localhost:7096';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -55,9 +55,13 @@ export default defineConfig({
                 target,
                 secure: false,
                 ws: true
+            },
+            '^/signin-oidc': {
+                target,
+                secure: false
             }
         },
-        port: parseInt(env.DEV_SERVER_PORT || '8207'),
+        port: parseInt(env.DEV_SERVER_PORT || '7095'),
         https: {
             key: fs.readFileSync(keyFilePath),
             cert: fs.readFileSync(certFilePath),
