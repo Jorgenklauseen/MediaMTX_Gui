@@ -1,7 +1,10 @@
 import { NavLink } from "react-router";
 import reactLogo from "../assets/react.svg";
+import LogoutButton from "./LogoutButton";
 import "../index.css";
 import ToggleTheme from "../components/ThemeToggle";
+
+
 
 function Navbar() {
   return (
@@ -42,7 +45,8 @@ function Navbar() {
             Users
           </NavLink>
         </li>
-      </ul>
+      </ul> 
+      <LogoutButton />
       <ToggleTheme />
     </nav>
   );
