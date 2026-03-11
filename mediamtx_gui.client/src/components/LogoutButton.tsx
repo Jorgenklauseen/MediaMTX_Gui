@@ -1,18 +1,22 @@
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from "../context/AuthContext";
 
 function LogoutButton() {
-    const { user } = useAuth();
+  const { user } = useAuth();
 
-    const handleLogout = () => {
-        window.location.href = "/api/users/logout";
-    };
+  const handleLogout = () => {
+    window.location.href = "/api/users/logout";
+  };
 
-    return (
-        <div>
-            <span className="navbar__user">Hello, {user?.name || user?.username}!</span>
-            <button className="navbar__logout" onClick={handleLogout}>Logout</button>
-        </div>
-    );
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+      <span className="navbar__user">
+        Hello, {user?.name || user?.username}
+      </span>
+      <button className="navbar__logout" onClick={handleLogout}>
+        Logout
+      </button>
+    </div>
+  );
 }
 
 export default LogoutButton;

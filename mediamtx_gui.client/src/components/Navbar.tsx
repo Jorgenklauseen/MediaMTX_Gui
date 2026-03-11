@@ -1,5 +1,4 @@
 import { NavLink } from "react-router";
-import reactLogo from "../assets/react.svg";
 import LogoutButton from "./LogoutButton";
 import "../index.css";
 import ToggleTheme from "../components/ThemeToggle";
@@ -9,9 +8,9 @@ import ToggleTheme from "../components/ThemeToggle";
 function Navbar() {
   return (
     <nav className="navbar">
-      <div className="navbar__logo">
-        <img src={reactLogo} alt="React Logo" className="navbar__logo-image" />
-      </div>
+    {/*   <div className="navbar__logo">
+        <img src={uiaLogo} alt="UIA Logo" className="navbar__logo-image" />
+      </div> */}
       <ul className="navbar__links">
         <li>
           <NavLink
@@ -46,8 +45,10 @@ function Navbar() {
           </NavLink>
         </li>
       </ul> 
-      <LogoutButton />
-      <ToggleTheme />
+      <div className="navbar__actions">
+        <LogoutButton />
+        <ToggleTheme />
+      </div>
     </nav>
   );
 }

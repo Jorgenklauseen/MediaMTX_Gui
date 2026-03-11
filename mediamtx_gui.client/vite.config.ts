@@ -59,7 +59,13 @@ export default defineConfig({
             '^/signin-oidc': {
                 target,
                 secure: false
+            },
+            '^/hls': {
+                target: 'http://localhost:8888',
+                secure: false,
+                rewrite: (path) => path.replace(/^\/hls/, '')
             }
+
         },
         port: parseInt(env.DEV_SERVER_PORT || '7095'),
         https: {

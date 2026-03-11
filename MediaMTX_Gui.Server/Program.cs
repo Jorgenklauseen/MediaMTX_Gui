@@ -22,6 +22,7 @@ builder.Services.AddOpenApi();
 
 
 builder.Services.AddHttpClient<IMediaMtxService, MediaMtxService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -53,6 +54,7 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new OpenIdConnectEvents
     {
+        
         OnAuthorizationCodeReceived = context =>
         {
             var clientId = context.Options.ClientId!;
@@ -67,7 +69,14 @@ builder.Services.AddAuthentication(options =>
                 new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
 
             return Task.CompletedTask;
+        },
+        OnTokenValidated = async context =>
+        {
+            var userService = context.HttpContext.RequestServices
+                .GetRequiredService<IUserService>();
+            await userService.SyncUserAsync(context.Principal!);
         }
+
     };
 });
 
