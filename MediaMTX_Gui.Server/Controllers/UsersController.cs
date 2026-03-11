@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using MediaMTX_Gui.Server.Services;
+using MediaMTX_Gui.Server.DTOs;
+
 
 
 namespace MediaMTX_Gui.Server.Controllers;
@@ -11,16 +14,28 @@ namespace MediaMTX_Gui.Server.Controllers;
 [Route("api/[controller]")]
 public class UsersController : ControllerBase
 {
+
+    private readonly IUserService _userService; 
+
+    public UsersController(IUserService userService)
+    {
+        _userService = userService;
+    }
+
+
     [HttpGet("me")]
     [Authorize]
-    public IActionResult GetCurrentUser()
+    public async Task<IActionResult> GetCurrentUser()
     {
-        var name = User.FindFirst("name")?.Value;
-        var username = User.FindFirst("preferred_username")?.Value;
-        var email = User.FindFirst("email")?.Value;
-        var sub = User.FindFirst("sub")?.Value;
-
-        return Ok(new { name, username, email, sub });
+        var users = _userService.GetCurrentUser(User);
+        return Ok(users);
+    }
+    
+    [Authorize]
+    public async Task<IActionResult> GetAllUsers()
+    {
+        var users = await _userService.GetAllUsersAsync();
+        return Ok(users);
     }
 
     [HttpGet("login")]
