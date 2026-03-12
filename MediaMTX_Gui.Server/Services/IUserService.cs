@@ -7,9 +7,10 @@ namespace MediaMTX_Gui.Server.Services
 {
     public interface IUserService
     {
-        UserDto GetCurrentUser(ClaimsPrincipal principal);
+        Task<UserDto> GetCurrentUser(ClaimsPrincipal principal);
         Task<IEnumerable<UserDto>> GetAllUsersAsync();
-
         Task<UserDto> SyncUserAsync(ClaimsPrincipal principal);
+        Task BanUserAsync(int id);
+        Task UnbanUserAsync(int id);
     }
 }

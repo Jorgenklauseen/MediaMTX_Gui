@@ -7,6 +7,8 @@ type User = {
     email: string;
     createdAt: string;
     lastLogin: string | null;
+    isBanned: boolean;
+    role: string;
 }
 
 export function useUsers() {
@@ -30,5 +32,15 @@ export function useUsers() {
             });
     }, []);
 
-    return { users, loading, error };
+    const banUser = async (id: number) => {
+        await fetch(`/api/users/${id}/ban`, { method: 'POST' });
+        setUsers(users.map(u => u.id === id ? { ...u, isBanned: true } : u));
+    };
+
+    const unbanUser = async (id: number) => {
+        await fetch(`/api/users/${id}/unban`, { method: 'POST' });
+        setUsers(users.map(u => u.id === id ? { ...u, isBanned: false } : u));
+    };
+
+    return { users, loading, error, banUser, unbanUser };
 }

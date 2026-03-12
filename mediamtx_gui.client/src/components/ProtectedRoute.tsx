@@ -1,4 +1,6 @@
+import type React from 'react';
 import {useAuth} from '../context/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     const { isAuthenticated, loading } = useAuth();
@@ -13,4 +15,10 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
 
     return <>{children}</>;
+}
+
+export function AdminRoute({ children }: {children: React.ReactNode}) {
+    const { user } = useAuth();
+    if (user?.role !== 'admin') return <Navigate to="/" />;
+    return <>{children}</>
 }

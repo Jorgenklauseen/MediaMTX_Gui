@@ -27,15 +27,32 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var users = _userService.GetCurrentUser(User);
+        var users = await _userService.GetCurrentUser(User);
         return Ok(users);
     }
     
-    [Authorize]
+    [HttpGet]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAllUsers()
     {
         var users = await _userService.GetAllUsersAsync();
         return Ok(users);
+    }
+
+    [HttpPost("{id}/ban")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> BanUser(int id)
+    {
+        await _userService.BanUserAsync(id);
+        return Ok();
+    }
+
+    [HttpPost("{id}/unban")]
+    [Authorize(Roles = "admin")]
+    public async Task<IActionResult> UnbanUser(int id)
+    {
+        await _userService.UnbanUserAsync(id);
+        return Ok();
     }
 
     [HttpGet("login")]

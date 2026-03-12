@@ -1,7 +1,7 @@
 import { useUsers } from '../hooks/useUsers';
 
 function Users() {
-    const { users, loading, error } = useUsers();
+    const { users, loading, error, banUser, unbanUser } = useUsers();
 
     if (loading) return <div>Laster...</div>;
     if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
@@ -17,6 +17,9 @@ function Users() {
                         <th style={{ padding: '0.5rem' }}>E-post</th>
                         <th style={{ padding: '0.5rem' }}>Sist innlogget</th>
                         <th style={{ padding: '0.5rem' }}>Opprettet</th>
+                        <th style={{ padding: '0.5rem' }}>Rolle</th>
+                        <th style={{ padding: '0.5rem' }}>Status</th>
+                        <th style={{ padding: '0.5rem' }}>Handling</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,6 +35,21 @@ function Users() {
                             </td>
                             <td style={{ padding: '0.5rem' }}>
                                 {new Date(user.createdAt).toLocaleString('nb-NO')}
+                            </td>
+                            <td style={{ padding: '0.5rem' }}>{user.role}</td>
+                            <td style={{ padding: '0.5rem' }}>
+                                {user.isBanned ? '🚫 Bannet' : '✅ Aktiv'}
+                            </td>
+                            <td style={{ padding: '0.5rem' }}>
+                                {user.isBanned ? (
+                                    <button onClick={() => unbanUser(user.id)}>
+                                        Unban
+                                    </button>
+                                ) : (
+                                    <button onClick={() => banUser(user.id)} style={{ color: 'red' }}>
+                                        Ban
+                                    </button>
+                                )}
                             </td>
                         </tr>
                     ))}

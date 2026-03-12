@@ -11,6 +11,8 @@ namespace MediaMTX_Gui.Server.Models
         public string? SubId { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLogin { get; set; }
+        public bool IsBanned { get; set; } = false;
+        public string Role { get; set; } = "student";
  
     }
 }
