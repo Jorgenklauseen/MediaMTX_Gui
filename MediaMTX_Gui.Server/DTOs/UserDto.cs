@@ -8,5 +8,7 @@ namespace MediaMTX_Gui.Server.DTOs
         public string? Email { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? LastLogin { get; set; }
+        public bool IsBanned { get; set; }
+        public string Role { get; set; } = "student";
     }
 }

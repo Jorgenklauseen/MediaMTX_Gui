@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using MediaMTX_Gui.Server.DTOs;
 using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,7 +54,7 @@ builder.Services.AddAuthentication(options =>
 
     options.MapInboundClaims = false;
     options.TokenValidationParameters.NameClaimType = JwtRegisteredClaimNames.Name;
-    options.TokenValidationParameters.RoleClaimType = "roles";
+    options.TokenValidationParameters.RoleClaimType = ClaimTypes.Role;
 
     options.Events = new OpenIdConnectEvents
     {
@@ -76,7 +78,18 @@ builder.Services.AddAuthentication(options =>
         {
             var userService = context.HttpContext.RequestServices
                 .GetRequiredService<IUserService>();
-            await userService.SyncUserAsync(context.Principal!);
+
+            var userDto = await userService.SyncUserAsync(context.Principal!);
+
+            if(userDto.IsBanned)
+            {
+                context.Fail("User is banned");
+                return;
+            }
+
+            var identity = new ClaimsIdentity();
+            identity.AddClaim(new Claim(ClaimTypes.Role, userDto.Role));
+            context.Principal!.AddIdentity(identity);
         }
 
     };

@@ -6,7 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Recordings from './pages/Recordings';
 import Users from './pages/Users';
 import Projects from './pages/Projects';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 
 function App() {
@@ -21,7 +21,11 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="/recordings" element={<Recordings />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/users" element={<Users />} />
+            <Route path="/users" element={
+              <AdminRoute>
+                <Users />
+              </AdminRoute>
+            } />
           </Route>
         </Routes>
       </BrowserRouter>

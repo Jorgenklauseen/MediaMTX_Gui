@@ -16,9 +16,11 @@ namespace MediaMTX_Gui.Server.Services
             _db = db;
         }
 
-        public UserDto GetCurrentUser(ClaimsPrincipal principal)
+        public async Task<UserDto> GetCurrentUser(ClaimsPrincipal principal)
         {
-            return MapToUserDto(ClaimsToUser(principal));
+            var sub = principal.FindFirstValue("sub")!;
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
+            return MapToUserDto(user!);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
@@ -45,6 +47,27 @@ namespace MediaMTX_Gui.Server.Services
             return MapToUserDto(user);
         }
 
+        public async Task BanUserAsync(int id)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.IsBanned = true;
+                await _db.SaveChangesAsync();
+            }
+        }
+
+        public async Task UnbanUserAsync(int id)
+        {
+            var user = await _db.Users.FindAsync(id);
+            if (user != null)
+            {
+                user.IsBanned = false;
+                await _db.SaveChangesAsync();
+            }
+        }
+        
+
 
         private static User ClaimsToUser(ClaimsPrincipal principal) => new()
         {
@@ -60,7 +83,9 @@ namespace MediaMTX_Gui.Server.Services
             Username = user.Username,
             Email = user.Email,
             CreatedAt = user.CreatedAt,
-            LastLogin = user.LastLogin
+            LastLogin = user.LastLogin,
+            IsBanned = user.IsBanned,
+            Role = user.Role
         };
     }
 }
