@@ -1,62 +1,152 @@
-import { useUsers } from '../hooks/useUsers';
+import { useState, useMemo } from "react";
+import { useUsers } from "../hooks/useUsers";
+import { UserModal } from "../components/UserModal";
+import { SearchBar } from "../components/SearchBar";
+import { getInitials, formatDate } from "../utils";
+import "../styles/Users.css";
 
-function Users() {
-    const { users, loading, error, banUser, unbanUser } = useUsers();
 
-    if (loading) return <div>Laster...</div>;
-    if (error) return <div style={{ color: 'red' }}>Error: {error}</div>;
 
+
+type StatusFilter = "alle" | "aktiv" | "bannet";
+
+export function Users() {
+  const { users, loading, error, banUser, unbanUser } = useUsers();
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const selectedUser = users.find((u) => u.id === selectedUserId) ?? null;
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("alle");
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return users.filter((u) => {
+      const matchSearch =
+        !q ||
+        u.name.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.username.toLowerCase().includes(q);
+      const matchStatus =
+        statusFilter === "alle" ||
+        (statusFilter === "bannet" && u.isBanned) ||
+        (statusFilter === "aktiv" && !u.isBanned);
+      return matchSearch && matchStatus;
+    });
+  }, [users, search, statusFilter]);
+
+  if (loading)
     return (
-        <div style={{ padding: '1rem' }}>
-            <h2>Brukere ({users.length})</h2>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                    <tr style={{ borderBottom: '2px solid #ccc', textAlign: 'left' }}>
-                        <th style={{ padding: '0.5rem' }}>Navn</th>
-                        <th style={{ padding: '0.5rem' }}>Brukernavn</th>
-                        <th style={{ padding: '0.5rem' }}>E-post</th>
-                        <th style={{ padding: '0.5rem' }}>Sist innlogget</th>
-                        <th style={{ padding: '0.5rem' }}>Opprettet</th>
-                        <th style={{ padding: '0.5rem' }}>Rolle</th>
-                        <th style={{ padding: '0.5rem' }}>Status</th>
-                        <th style={{ padding: '0.5rem' }}>Handling</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {users.map(user => (
-                        <tr key={user.id} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '0.5rem' }}>{user.name}</td>
-                            <td style={{ padding: '0.5rem' }}>{user.username}</td>
-                            <td style={{ padding: '0.5rem' }}>{user.email}</td>
-                            <td style={{ padding: '0.5rem' }}>
-                                {user.lastLogin
-                                    ? new Date(user.lastLogin).toLocaleString('nb-NO')
-                                    : 'Aldri'}
-                            </td>
-                            <td style={{ padding: '0.5rem' }}>
-                                {new Date(user.createdAt).toLocaleString('nb-NO')}
-                            </td>
-                            <td style={{ padding: '0.5rem' }}>{user.role}</td>
-                            <td style={{ padding: '0.5rem' }}>
-                                {user.isBanned ? '🚫 Bannet' : '✅ Aktiv'}
-                            </td>
-                            <td style={{ padding: '0.5rem' }}>
-                                {user.isBanned ? (
-                                    <button onClick={() => unbanUser(user.id)}>
-                                        Unban
-                                    </button>
-                                ) : (
-                                    <button onClick={() => banUser(user.id)} style={{ color: 'red' }}>
-                                        Ban
-                                    </button>
-                                )}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+      <div className="users-page">
+        <p>Laster brukere...</p>
+      </div>
     );
+  if (error)
+    return (
+      <div className="users-page">
+        <p>Feil: {error}</p>
+      </div>
+    );
+
+  return (
+    <div className="users-page">
+      <div className="users-header">
+        <div>
+          <p className="users-eyebrow">Administrasjon</p>
+          <h1>Brukere</h1>
+        </div>
+      </div>
+
+      <div className="users-toolbar">
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Søk på navn, e-post eller brukernavn..."
+        />
+
+        <div className="users-status-filter">
+          {(["alle", "aktiv", "bannet"] as StatusFilter[]).map((s) => (
+            <button
+              key={s}
+              data-status={s}
+              className={`users-status-filter__btn ${statusFilter === s ? "active" : ""}`}
+              onClick={() => setStatusFilter(s)}
+            >
+              {s === "alle" ? "Alle" : s === "aktiv" ? "Aktive" : "Bannede"}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="users-results-info">
+        {filtered.length} av {users.length} brukere
+      </div>
+      <div className="users-table-wrapper">
+        <table className="users-table">
+          <thead>
+            <tr>
+              <th>Bruker</th>
+              <th>E-post</th>
+              <th>Rolle</th>
+              <th>Sist innlogget</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="users-table__empty">
+                  Ingen brukere matcher søket
+                </td>
+              </tr>
+            ) : (
+              filtered.map((user) => (
+                <tr
+                  key={user.id}
+                  className="users-table__row"
+                  onClick={() => setSelectedUserId(user.id)}
+                >
+                  <td>
+                    <div className="users-table__user-cell">
+                      <div className="users-table__avatar">
+                        {getInitials(user.name)}
+                      </div>
+                      <div>
+                        <div className="users-table__name">{user.name}</div>
+                        <div className="users-table__username">
+                          @{user.username}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="users-table__email">{user.email}</td>
+                  <td>
+                    <span className={`role-badge role-badge--${user.role}`}>
+                      {user.role}
+                    </span>
+                  </td>
+                  <td className="users-table__muted">
+                    {formatDate(user.lastLogin)}
+                  </td>
+                  <td>
+                    <span
+                      className={`badge ${user.isBanned ? "badge--banned" : "badge--active"}`}
+                    >
+                      {user.isBanned ? "🚫 Bannet" : "✅ Aktiv"}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <UserModal
+        user={selectedUser}
+        onClose={() => setSelectedUserId(null)}
+        onBan={banUser}
+        onUnban={unbanUser}
+      />
+    </div>
+  );
 }
 
 export default Users;

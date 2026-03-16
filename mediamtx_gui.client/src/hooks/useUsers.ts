@@ -1,15 +1,7 @@
-import { useEffect, useState } from 'react';
-
-type User = {
-    id: number;
-    name: string;
-    username: string;
-    email: string;
-    createdAt: string;
-    lastLogin: string | null;
-    isBanned: boolean;
-    role: string;
-}
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { getUsers, banUser as apiBanUser, unbanUser as apiUnbanUser } from "../api/usersApi";
+import type { User } from "../types/users";
 
 export function useUsers() {
     const [users, setUsers] = useState<User[]>([]);
@@ -17,29 +9,30 @@ export function useUsers() {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetch('/api/users')
-            .then(res => {
-                if (!res.ok) throw new Error('Could not load users');
-                return res.json();
-            })
-            .then(data => {
-                setUsers(data);
-                setLoading(false);
-            })
-            .catch(err => {
-                setError(err.message);
-                setLoading(false);
-            });
+        getUsers()
+            .then(setUsers)
+            .catch(err => setError(err.message))
+            .finally(() => setLoading(false));
     }, []);
 
     const banUser = async (id: number) => {
-        await fetch(`/api/users/${id}/ban`, { method: 'POST' });
-        setUsers(users.map(u => u.id === id ? { ...u, isBanned: true } : u));
+        try {
+            await apiBanUser(id);
+            setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: true } : u));
+            toast.error("Bruker er bannet 🚫");
+        } catch {
+            toast.error("Kunne ikke banne bruker");
+        }
     };
 
     const unbanUser = async (id: number) => {
-        await fetch(`/api/users/${id}/unban`, { method: 'POST' });
-        setUsers(users.map(u => u.id === id ? { ...u, isBanned: false } : u));
+        try {
+            await apiUnbanUser(id);
+            setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: false } : u));
+            toast.success("Bruker er unbannet ✅");
+        } catch {
+            toast.error("Kunne ikke unbanne bruker");
+        }
     };
 
     return { users, loading, error, banUser, unbanUser };

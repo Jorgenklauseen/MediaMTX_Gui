@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {FaMoon, FaSun} from "react-icons/fa";
 
-function ThemeToggle() {
+export function ThemeToggle() {
   const [theme, setTheme] = useState(() =>
       localStorage.getItem("theme") ??
       (window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -24,4 +24,3 @@ function ThemeToggle() {
   );
 }
 
-export default ThemeToggle;
