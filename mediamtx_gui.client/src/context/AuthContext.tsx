@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-interface User {
+interface AuthUser {
     name: string;
     username: string;
     email: string;
@@ -9,7 +9,7 @@ interface User {
 }
 
 interface AuthContextType {
-    user: User | null;
+    user: AuthUser | null;
     isAuthenticated: boolean;
     loading: boolean;
 }
@@ -20,30 +20,34 @@ const AuthContext = createContext<AuthContextType>({
     loading: true,
 });
 
+export async function fetchCurrentUser(): Promise<AuthUser | null> {
+    const response = await fetch("/api/users/me");
+
+    if (!response.ok) {
+        throw new Error("Could not load streams");
+    }
+    return response.json();
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<AuthUser | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetch("/api/users/me")
-            .then(res => {
-                if (res.ok) return res.json();
-                setIsAuthenticated(false);
-                setLoading(false);
-            })
-            .then(data => {
-                if (data) {
-                    setUser(data);
-                    setIsAuthenticated(true);
-                    setLoading(false);
-                }
-            })
-            .catch(() => {
-                setIsAuthenticated(false);
-                setLoading(false);
-            });
-    }, []);
+    
+useEffect(() => {
+    fetchCurrentUser()
+        .then(data => {
+            setUser(data);
+            setIsAuthenticated(data !== null);
+        })
+        .catch(() => {
+            setIsAuthenticated(false);
+        })
+        .finally(() => {
+            setLoading(false);
+        });
+}, []);
 
     return (
         <AuthContext.Provider value={{ user, isAuthenticated: !!isAuthenticated, loading }}>

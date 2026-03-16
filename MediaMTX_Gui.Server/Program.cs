@@ -46,6 +46,8 @@ builder.Services.AddAuthentication(options =>
     options.ClientId = builder.Configuration["Oidc:ClientId"];
     options.ClientSecret = builder.Configuration["Oidc:ClientSecret"];
 
+    options.Scope.Add("email");
+
     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.ResponseType = OpenIdConnectResponseType.Code;
 
@@ -90,7 +92,7 @@ builder.Services.AddAuthentication(options =>
             var identity = new ClaimsIdentity();
             identity.AddClaim(new Claim(ClaimTypes.Role, userDto.Role));
             context.Principal!.AddIdentity(identity);
-        }
+        },
 
     };
 });

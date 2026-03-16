@@ -1,6 +1,6 @@
 import { useAuth } from "../context/AuthContext";
 
-function LogoutButton() {
+export function LogoutButton() {
   const { user } = useAuth();
 
   const handleLogout = () => {
@@ -19,4 +19,3 @@ function LogoutButton() {
   );
 }
 
-export default LogoutButton;

@@ -1,10 +1,10 @@
 import { NavLink } from "react-router";
-import LogoutButton from "./LogoutButton";
+import { LogoutButton } from "../components/LogoutButton";
 import "../index.css";
-import ToggleTheme from "../components/ThemeToggle";
+import { ThemeToggle } from "../components/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
 
-function Navbar() {
+export function Navbar() {
   const { user } = useAuth();
 
   return (
@@ -50,9 +50,9 @@ function Navbar() {
       </ul>
       <div className="navbar__actions">
         <LogoutButton />
-        <ToggleTheme />
+        <ThemeToggle />
       </div>
     </nav>
   );
 }
-export default Navbar;
+

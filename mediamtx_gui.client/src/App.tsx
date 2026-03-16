@@ -6,6 +6,8 @@ import Dashboard from './pages/Dashboard';
 import Recordings from './pages/Recordings';
 import Users from './pages/Users';
 import Projects from './pages/Projects';
+import { ToastContainer } from 'react-toastify';
+
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 
@@ -13,6 +15,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+      <ToastContainer position="bottom-right" />
         <Routes>
           <Route path="/" element={
             <ProtectedRoute>
