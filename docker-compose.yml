@@ -1,6 +1,6 @@
 services:
   app:
-    build: .
+    image: jorgenklausen/mediamtx_bachelor:latest
     restart: unless-stopped
     ports:
       - "5000:5000"
@@ -29,6 +29,13 @@ services:
       - ./mediamtx/mediamtx.yml:/mediamtx.yml
     networks:
       - internal
+  
+  watchtower:
+    image: containrrr/watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 30
 
 volumes:
   app-data:
