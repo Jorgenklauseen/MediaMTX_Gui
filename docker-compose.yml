@@ -17,7 +17,9 @@ services:
       - internal
 
   mediamtx:
-    image: bluenviron/mediamtx:latest
+    build:
+      context: .
+      dockerfile: dockerfile.mediamtx
     restart: unless-stopped
     ports:
       - "8888:8888"
