@@ -1,0 +1,7 @@
+mediamtx_gui.client/node_modules
+mediamtx_gui.client/dist
+MediaMTX_Gui.Server/bin
+MediaMTX_Gui.Server/obj
+MediaMTX_Gui.Server/dev.db
+MediaMTX_Gui.Server/*.user
+.env
