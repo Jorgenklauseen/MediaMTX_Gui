@@ -1,6 +1,6 @@
 import type { User } from "../types/users";
 import { getInitials, formatDate } from "../utils";
-import "../styles/Users.css";
+import "../styles/users.css";
 
 interface UserCardProps {
   user: User;

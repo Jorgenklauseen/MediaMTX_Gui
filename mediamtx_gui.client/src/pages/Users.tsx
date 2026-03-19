@@ -3,7 +3,7 @@ import { useUsers } from "../hooks/useUsers";
 import { UserModal } from "../components/UserModal";
 import { SearchBar } from "../components/SearchBar";
 import { getInitials, formatDate } from "../utils";
-import "../styles/Users.css";
+import "../styles/users.css";
 
 
 
