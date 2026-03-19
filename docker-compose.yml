@@ -1,0 +1,35 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Data Source=/data/app.db
+      - Oidc__Authority=https://thurs.uia.no:4444
+      - Oidc__ClientId=${OIDC_CLIENT_ID}
+      - Oidc__ClientSecret=${OIDC_CLIENT_SECRET}
+    volumes:
+      - app-data:/data
+    networks:
+      - internal
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+      - "8554:8554"
+      - "1935:1935"
+    volumes:
+      - ./mediamtx/mediamtx.yml:/mediamtx.yml
+    networks:
+      - internal
+
+volumes:
+  app-data:
+
+networks:
+  internal:
