@@ -51,7 +51,7 @@ export function Users() {
       <div className="users-header">
         <div>
           <p className="users-eyebrow">Administrasjon</p>
-          <h1>Alle brukere:</h1>
+          <h1>Brukere</h1>
         </div>
       </div>
 
