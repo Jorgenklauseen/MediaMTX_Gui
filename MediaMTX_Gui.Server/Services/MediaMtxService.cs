@@ -4,10 +4,10 @@ public class MediaMtxService : IMediaMtxService
 {
     private readonly HttpClient _httpClient;
 
-    public MediaMtxService(HttpClient httpClient)
+    public MediaMtxService(HttpClient httpClient, IConfiguration configuration)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("http://localhost:9997");
+        _httpClient.BaseAddress = new Uri(configuration["MediaMtx:BaseUrl"]!);
     }
     
     public async Task<string> GetPathsAsync()
