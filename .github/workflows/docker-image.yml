@@ -3,7 +3,7 @@ name: Build and push to Docker Hub
 on:
   push:
     branches:
-      - main
+      - emailService_test
 
 jobs:
   docker-build:
