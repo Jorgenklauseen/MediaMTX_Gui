@@ -17,7 +17,7 @@ public class TestEmailController : ControllerBase
         message.Body = new TextPart("plain") { Text = "Testmelding" };
 
         using var client = new SmtpClient();
-        await client.ConnectAsync("smtp.uia.no", 587, MailKit.Security.SecureSocketOptions.StartTls);
+        await client.ConnectAsync("smtp.uia.no", 25, MailKit.Security.SecureSocketOptions.None);
         await client.SendAsync(message);
         await client.DisconnectAsync(true);
 
