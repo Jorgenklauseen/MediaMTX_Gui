@@ -21,6 +21,8 @@ services:
       context: .
       dockerfile: dockerfile.mediamtx
     restart: unless-stopped
+    labels:
+      - com.centurylinklabs.watchtower.enable=false
     ports:
       - "8888:8888"
       - "8554:8554"
@@ -37,7 +39,7 @@ services:
       - DOCKER_API_VERSION=1.44
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30
+    command: --interval 30 --label-enable
 
 volumes:
   app-data:
