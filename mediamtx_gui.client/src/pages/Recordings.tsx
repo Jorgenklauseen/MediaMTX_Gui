@@ -2,7 +2,7 @@ function Recordings() {
   return (
     <div>
       <h1>Recordings Page</h1>
-      <p>This is the recordings page</p>
+      <p>This is a test</p>
     </div>
   );
 }
