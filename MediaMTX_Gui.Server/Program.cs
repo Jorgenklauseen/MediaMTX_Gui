@@ -32,7 +32,16 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(connectionString));
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        options.UseSqlite(connectionString);
+    }
+    else
+    {
+        options.UseNpgsql(connectionString);
+    }
+});
 
 builder.Services.AddAuthentication(options =>
 {

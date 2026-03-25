@@ -7,12 +7,24 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Data Source=/data/app.db
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=mediamtx;Username=${POSTGRES_USERNAME};Password=${POSTGRES_PASSWORD}
       - Oidc__Authority=https://thurs.uia.no:4444
       - Oidc__ClientId=${OIDC_CLIENT_ID}
       - Oidc__ClientSecret=${OIDC_CLIENT_SECRET}
+    depends_on:
+      - db
+    networks:
+      - internal
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=${POSTGRES_USERNAME}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=mediamtx
     volumes:
-      - app-data:/data
+      - postgres-data:/var/lib/postgresql/data
     networks:
       - internal
 
@@ -42,7 +54,7 @@ services:
     command: --interval 30 --label-enable
 
 volumes:
-  app-data:
+  postgres-data:
 
 networks:
   internal:
