@@ -13,7 +13,6 @@ authInternalUsers:
     pass:
     ips: []
     permissions:
-      - action: publish
       - action: read
       - action: playback
       - action: api
