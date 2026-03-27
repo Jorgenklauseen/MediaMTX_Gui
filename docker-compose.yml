@@ -31,7 +31,7 @@ services:
       - "8554:8554"
       - "1936:1936"
     volumes:
-      - ./mediamtx/mediamtx.yml:/mediamtx.yml #config file
+      - ../data/mediamtx/mediamtx.yml:/mediamtx.yml
     networks:
       - internal
   
