@@ -12,3 +12,21 @@ export type CreateProjectPayload = {
     name: string;
     description?: string;
 };
+
+export type ProjectStream = {
+    id: string;
+    projectId: number;
+    name: string;
+    path: string;
+    publishUser: string;
+    maskedStreamKey: string;
+    obsServerUrl: string;
+    obsStreamKey: string;
+    createdAt: string;
+    hasVisibleSecret: boolean;
+    canRotateKey: boolean;
+};
+
+export type CreateProjectStreamPayload = {
+    name: string;
+};

@@ -1,5 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  createProjectStream,
+  getProjectStreams,
+  regenerateProjectStreamKey,
+} from "../api/projectsApi";
 import { useProjects } from "../hooks/useProjects";
+import type { ProjectStream } from "../types/projects";
 import "../styles/projects.css";
 
 function Projects() {
@@ -10,6 +16,40 @@ function Projects() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [projectStreams, setProjectStreams] = useState<Record<number, ProjectStream[]>>({});
+  const [streamNames, setStreamNames] = useState<Record<number, string>>({});
+  const [streamErrors, setStreamErrors] = useState<Record<number, string | null>>({});
+  const [loadingStreams, setLoadingStreams] = useState<Record<number, boolean>>({});
+  const [creatingStreamForProjectId, setCreatingStreamForProjectId] = useState<number | null>(null);
+  const [regeneratingStreamId, setRegeneratingStreamId] = useState<string | null>(null);
+  const [copiedValue, setCopiedValue] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (projects.length === 0) {
+      setProjectStreams({});
+      return;
+    }
+
+    void Promise.all(projects.map((project) => loadProjectStreams(project.id)));
+  }, [projects]);
+
+  const loadProjectStreams = async (projectId: number) => {
+    try {
+      setLoadingStreams((current) => ({ ...current, [projectId]: true }));
+      setStreamErrors((current) => ({ ...current, [projectId]: null }));
+
+      const streams = await getProjectStreams(projectId);
+
+      setProjectStreams((current) => ({ ...current, [projectId]: streams }));
+    } catch {
+      setStreamErrors((current) => ({
+        ...current,
+        [projectId]: "Could not load project streams.",
+      }));
+    } finally {
+      setLoadingStreams((current) => ({ ...current, [projectId]: false }));
+    }
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -47,6 +87,71 @@ function Projects() {
       await removeProject(projectId);
     } catch {
       setFormError("Could not delete project.");
+    }
+  };
+
+  const handleCreateStream = async (projectId: number) => {
+    const streamName = streamNames[projectId]?.trim() ?? "";
+
+    if (!streamName) {
+      setStreamErrors((current) => ({
+        ...current,
+        [projectId]: "Stream name is required.",
+      }));
+      return;
+    }
+
+    try {
+      setCreatingStreamForProjectId(projectId);
+      setStreamErrors((current) => ({ ...current, [projectId]: null }));
+
+      const stream = await createProjectStream(projectId, { name: streamName });
+
+      setProjectStreams((current) => ({
+        ...current,
+        [projectId]: [stream, ...(current[projectId] ?? [])],
+      }));
+      setStreamNames((current) => ({ ...current, [projectId]: "" }));
+    } catch {
+      setStreamErrors((current) => ({
+        ...current,
+        [projectId]: "Could not create stream.",
+      }));
+    } finally {
+      setCreatingStreamForProjectId(null);
+    }
+  };
+
+  const handleCopy = async (value: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedValue(label);
+      window.setTimeout(() => setCopiedValue(null), 2000);
+    } catch {
+      setFormError(`Could not copy ${label}.`);
+    }
+  };
+
+  const handleRegenerateKey = async (projectId: number, streamId: string) => {
+    try {
+      setRegeneratingStreamId(streamId);
+      setStreamErrors((current) => ({ ...current, [projectId]: null }));
+
+      const updatedStream = await regenerateProjectStreamKey(projectId, streamId);
+
+      setProjectStreams((current) => ({
+        ...current,
+        [projectId]: (current[projectId] ?? []).map((stream) =>
+          stream.id === streamId ? updatedStream : stream,
+        ),
+      }));
+    } catch {
+      setStreamErrors((current) => ({
+        ...current,
+        [projectId]: "Could not regenerate stream key.",
+      }));
+    } finally {
+      setRegeneratingStreamId(null);
     }
   };
 
@@ -215,6 +320,139 @@ function Projects() {
                       </button>
                     </div>
                   )}
+
+                  <section className="project-streams-section">
+                    <div className="project-streams-header">
+                      <div>
+                        <span className="project-meta-label">OBS Ingest</span>
+                        <h4>Project streams</h4>
+                      </div>
+                      <span className="projects-count">
+                        {(projectStreams[project.id] ?? []).length} streams
+                      </span>
+                    </div>
+
+                    <div className="project-stream-create">
+                      <input
+                        type="text"
+                        value={streamNames[project.id] ?? ""}
+                        onChange={(event) =>
+                          setStreamNames((current) => ({
+                            ...current,
+                            [project.id]: event.target.value,
+                          }))
+                        }
+                        placeholder="New stream name"
+                        disabled={creatingStreamForProjectId === project.id}
+                      />
+                      <button
+                        type="button"
+                        className="projects-primary-button"
+                        onClick={() => void handleCreateStream(project.id)}
+                        disabled={creatingStreamForProjectId === project.id}
+                      >
+                        {creatingStreamForProjectId === project.id
+                          ? "Generating..."
+                          : "Create stream"}
+                      </button>
+                    </div>
+
+                    {streamErrors[project.id] && (
+                      <p className="projects-message projects-message-error">
+                        {streamErrors[project.id]}
+                      </p>
+                    )}
+
+                    {loadingStreams[project.id] ? (
+                      <p className="project-streams-empty">Loading project streams...</p>
+                    ) : (projectStreams[project.id] ?? []).length === 0 ? (
+                      <p className="project-streams-empty">
+                        No streams yet. Create one to get the OBS publish details.
+                      </p>
+                    ) : (
+                      <div className="project-stream-list">
+                        {(projectStreams[project.id] ?? []).map((stream) => (
+                          <article key={stream.id} className="project-stream-card">
+                            <div className="project-stream-card-header">
+                              <div>
+                                <h4>{stream.name}</h4>
+                                <p className="project-stream-created">
+                                  Created {new Date(stream.createdAt).toLocaleString()}
+                                </p>
+                              </div>
+                              {stream.hasVisibleSecret && (
+                                <span className="project-stream-secret-badge">Key visible now</span>
+                              )}
+                            </div>
+
+                            <div className="project-stream-detail-grid">
+                              <div className="project-stream-detail">
+                                <span className="project-meta-label">OBS Server</span>
+                                <code>{stream.obsServerUrl}</code>
+                              </div>
+                              <div className="project-stream-detail">
+                                <span className="project-meta-label">Publish Path</span>
+                                <code>{stream.path}</code>
+                              </div>
+                              <div className="project-stream-detail">
+                                <span className="project-meta-label">Publish User</span>
+                                <code>{stream.publishUser}</code>
+                              </div>
+                              <div className="project-stream-detail">
+                                <span className="project-meta-label">Stream Key</span>
+                                <code>
+                                  {stream.hasVisibleSecret
+                                    ? stream.obsStreamKey
+                                    : stream.maskedStreamKey}
+                                </code>
+                              </div>
+                            </div>
+
+                            <div className="project-stream-actions">
+                              <button
+                                type="button"
+                                className="projects-secondary-button"
+                                onClick={() =>
+                                  void handleCopy(stream.obsServerUrl, "OBS server URL")
+                                }
+                              >
+                                Copy server
+                              </button>
+                              {stream.canRotateKey && (
+                                <button
+                                  type="button"
+                                  className="projects-secondary-button"
+                                  onClick={() =>
+                                    void handleRegenerateKey(project.id, stream.id)
+                                  }
+                                  disabled={regeneratingStreamId === stream.id}
+                                >
+                                  {regeneratingStreamId === stream.id
+                                    ? "Regenerating..."
+                                    : "Regenerate key"}
+                                </button>
+                              )}
+                              {stream.hasVisibleSecret && (
+                                <button
+                                  type="button"
+                                  className="projects-secondary-button"
+                                  onClick={() =>
+                                    void handleCopy(stream.obsStreamKey, "stream key")
+                                  }
+                                >
+                                  Copy stream key
+                                </button>
+                              )}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    )}
+
+                    {copiedValue && (
+                      <p className="project-copy-feedback">{copiedValue} copied.</p>
+                    )}
+                  </section>
                 </article>
               ))}
             </div>
