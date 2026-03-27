@@ -8,5 +8,6 @@ namespace MediaMTX_Gui.Server.Models
         public int CreatedByUserId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
+        public ICollection<ProjectStream> Streams { get; set; } = new List<ProjectStream>();
     }
 }

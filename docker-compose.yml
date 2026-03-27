@@ -13,6 +13,7 @@ services:
       - Oidc__Authority=https://thurs.uia.no:4444
       - Oidc__ClientId=${OIDC_CLIENT_ID}
       - Oidc__ClientSecret=${OIDC_CLIENT_SECRET}
+      - MediaMtx__PublishBaseUrl=rtmp://ikt302-g25.internal.uia.no:1936
     volumes:
       - app-data:/data
     networks:
