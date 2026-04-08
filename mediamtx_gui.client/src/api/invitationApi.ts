@@ -2,6 +2,7 @@ export async function inviteUserToProject(projectId: number, email: string): Pro
     const response = await fetch(`/api/invitation/${projectId}/invite`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ email }),
     });
 
@@ -12,6 +13,7 @@ export async function acceptInvitation(token: string): Promise<void> {
     const response = await fetch(`/api/invitation/accept`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ token }),
     });
 
