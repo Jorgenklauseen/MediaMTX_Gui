@@ -27,7 +27,8 @@ namespace MediaMTX_Gui.Server.Controllers
                 var streams = await _projectStreamService.GetProjectStreamsForCurrentUserAsync(
                     projectId,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolvePublishBaseUrl(),
+                    ResolvePlaybackBaseUrl());
 
                 return Ok(streams);
             }
@@ -51,7 +52,8 @@ namespace MediaMTX_Gui.Server.Controllers
                     projectId,
                     request,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolvePublishBaseUrl(),
+                    ResolvePlaybackBaseUrl());
 
                 return Ok(stream);
             }
@@ -74,7 +76,8 @@ namespace MediaMTX_Gui.Server.Controllers
                     projectId,
                     streamId,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolvePublishBaseUrl(),
+                    ResolvePlaybackBaseUrl());
 
                 return Ok(stream);
             }
@@ -101,6 +104,21 @@ namespace MediaMTX_Gui.Server.Controllers
             var port = _configuration.GetValue<int?>("MediaMtx:PublishPort") ?? 1936;
 
             return $"rtmp://{host}:{port}";
+        }
+
+        private string ResolvePlaybackBaseUrl()
+        {
+            var configuredUrl = _configuration["MediaMtx:PlaybackBaseUrl"];
+
+            if (!string.IsNullOrWhiteSpace(configuredUrl))
+            {
+                return configuredUrl.TrimEnd('/');
+            }
+
+            var host = Request.Host.Host;
+            var port = _configuration.GetValue<int?>("MediaMtx:PlaybackPort") ?? 8888;
+
+            return $"http://{host}:{port}";
         }
     }
 }

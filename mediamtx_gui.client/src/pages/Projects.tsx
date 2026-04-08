@@ -375,7 +375,7 @@ function Projects() {
                           <article key={stream.id} className="project-stream-card">
                             <div className="project-stream-card-header">
                               <div>
-                                <h4>{stream.name}</h4>
+                                <h4>{stream.displayPath}</h4>
                                 <p className="project-stream-created">
                                   Created {new Date(stream.createdAt).toLocaleString()}
                                 </p>
@@ -393,6 +393,10 @@ function Projects() {
                               <div className="project-stream-detail">
                                 <span className="project-meta-label">Publish Path</span>
                                 <code>{stream.path}</code>
+                              </div>
+                              <div className="project-stream-detail">
+                                <span className="project-meta-label">Playback URL</span>
+                                <code>{stream.obsPlaybackUrl}</code>
                               </div>
                               <div className="project-stream-detail">
                                 <span className="project-meta-label">Publish User</span>
