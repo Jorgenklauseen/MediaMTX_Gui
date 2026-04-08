@@ -7,7 +7,7 @@ import Recordings from './pages/Recordings';
 import Users from './pages/Users';
 import Projects from './pages/Projects';
 import { ToastContainer } from 'react-toastify';
-
+import AcceptInvitation from './pages/sidePages/AcceptInvitation';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 
@@ -30,6 +30,11 @@ function App() {
               </AdminRoute>
             } />
           </Route>
+          <Route path="/invitations/accept" element={
+            <ProtectedRoute>
+              <AcceptInvitation />
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
