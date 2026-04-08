@@ -19,16 +19,19 @@ public class InvitationController : ControllerBase
     }
 
     [HttpPost("{projectId:int}/invite")]
-    public async Task<IActionResult> InviteUser([FromQuery] int projectId, [FromQuery] string email)
+    public async Task<IActionResult> InviteUser(int projectId, [FromBody] InviteRequest request)
     {
-        await _invitationService.InviteUserAsync(projectId, email, User);
+        await _invitationService.InviteUserAsync(projectId, request.Email, User);
         return Ok();
     }
 
     [HttpPost("accept")]
-    public async Task<IActionResult> AcceptInvitation([FromQuery] string token)
+    public async Task<IActionResult> AcceptInvitation([FromBody] AcceptInvitationRequest request)
     {
-        await _invitationService.AcceptInvitationAsync(token, User);
+        await _invitationService.AcceptInvitationAsync(request.Token, User);
         return Ok();
     }
+
+    public record InviteRequest(string Email);
+    public record AcceptInvitationRequest(string Token);
 }
