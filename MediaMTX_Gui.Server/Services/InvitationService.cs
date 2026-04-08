@@ -87,6 +87,8 @@ public class InvitationService : IInvitationService
         
         var emailClaim = principal.FindFirstValue("email");
 
+        Console.WriteLine($"DEBUG - InvitedEmail: '{invitation.InvitedEmail}', EmailClaim: '{emailClaim}'");
+
         if (!string.Equals(invitation.InvitedEmail, emailClaim, StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException("This invitation was not sent to your email.");
