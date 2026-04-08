@@ -7,6 +7,7 @@ import {
 import { useProjects } from "../hooks/useProjects";
 import type { ProjectStream } from "../types/projects";
 import "../styles/projects.css";
+import { inviteUserToProject } from "../api/invitationApi";
 
 function Projects() {
   const { projects, loading, creating, error, submitProject, removeProject } =
@@ -16,13 +17,33 @@ function Projects() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
-  const [projectStreams, setProjectStreams] = useState<Record<number, ProjectStream[]>>({});
+  const [projectStreams, setProjectStreams] = useState<
+    Record<number, ProjectStream[]>
+  >({});
   const [streamNames, setStreamNames] = useState<Record<number, string>>({});
-  const [streamErrors, setStreamErrors] = useState<Record<number, string | null>>({});
-  const [loadingStreams, setLoadingStreams] = useState<Record<number, boolean>>({});
-  const [creatingStreamForProjectId, setCreatingStreamForProjectId] = useState<number | null>(null);
-  const [regeneratingStreamId, setRegeneratingStreamId] = useState<string | null>(null);
+  const [streamErrors, setStreamErrors] = useState<
+    Record<number, string | null>
+  >({});
+  const [loadingStreams, setLoadingStreams] = useState<Record<number, boolean>>(
+    {},
+  );
+  const [creatingStreamForProjectId, setCreatingStreamForProjectId] = useState<
+    number | null
+  >(null);
+  const [regeneratingStreamId, setRegeneratingStreamId] = useState<
+    string | null
+  >(null);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [inviteEmails, setInviteEmails] = useState<Record<number, string>>({});
+  const [inviteErrors, setInviteErrors] = useState<
+    Record<number, string | null>
+  >({});
+  const [inviteSuccess, setInviteSuccess] = useState<Record<number, boolean>>(
+    {},
+  );
+  const [invitingProjectId, setInvitingProjectId] = useState<number | null>(
+    null,
+  );
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -137,7 +158,10 @@ function Projects() {
       setRegeneratingStreamId(streamId);
       setStreamErrors((current) => ({ ...current, [projectId]: null }));
 
-      const updatedStream = await regenerateProjectStreamKey(projectId, streamId);
+      const updatedStream = await regenerateProjectStreamKey(
+        projectId,
+        streamId,
+      );
 
       setProjectStreams((current) => ({
         ...current,
@@ -152,6 +176,40 @@ function Projects() {
       }));
     } finally {
       setRegeneratingStreamId(null);
+    }
+  };
+
+  const handleInvite = async (projectId: number) => {
+    const email = inviteEmails[projectId]?.trim() ?? "";
+
+    if (!email) {
+      setInviteErrors((current) => ({
+        ...current,
+        [projectId]: "Email is required.",
+      }));
+      return;
+    }
+
+    try {
+      setInvitingProjectId(projectId);
+      setInviteErrors((current) => ({ ...current, [projectId]: null }));
+
+      await inviteUserToProject(projectId, email);
+
+      setInviteEmails((current) => ({ ...current, [projectId]: "" }));
+      setInviteSuccess((current) => ({ ...current, [projectId]: true }));
+      window.setTimeout(
+        () =>
+          setInviteSuccess((current) => ({ ...current, [projectId]: false })),
+        3000,
+      );
+    } catch {
+      setInviteErrors((current) => ({
+        ...current,
+        [projectId]: "Could not send invitation.",
+      }));
+    } finally {
+      setInvitingProjectId(null);
     }
   };
 
@@ -309,6 +367,48 @@ function Projects() {
 
                   {project.role.toLowerCase() === "owner" && (
                     <div className="project-card-actions">
+                      {project.role.toLowerCase() === "owner" && (
+                        <section className="project-invite-section">
+                          <span className="project-meta-label">
+                            Invite member
+                          </span>
+                          <div className="project-stream-create">
+                            <input
+                              type="email"
+                              value={inviteEmails[project.id] ?? ""}
+                              onChange={(event) =>
+                                setInviteEmails((current) => ({
+                                  ...current,
+                                  [project.id]: event.target.value,
+                                }))
+                              }
+                              placeholder="Email address"
+                              disabled={invitingProjectId === project.id}
+                            />
+                            <button
+                              type="button"
+                              className="projects-primary-button"
+                              onClick={() => void handleInvite(project.id)}
+                              disabled={invitingProjectId === project.id}
+                            >
+                              {invitingProjectId === project.id
+                                ? "Sending..."
+                                : "Send invite"}
+                            </button>
+                          </div>
+
+                          {inviteErrors[project.id] && (
+                            <p className="projects-message projects-message-error">
+                              {inviteErrors[project.id]}
+                            </p>
+                          )}
+                          {inviteSuccess[project.id] && (
+                            <p className="projects-message projects-message-success">
+                              Invitation sent!
+                            </p>
+                          )}
+                        </section>
+                      )}
                       <button
                         type="button"
                         className="project-delete-button"
@@ -364,42 +464,59 @@ function Projects() {
                     )}
 
                     {loadingStreams[project.id] ? (
-                      <p className="project-streams-empty">Loading project streams...</p>
+                      <p className="project-streams-empty">
+                        Loading project streams...
+                      </p>
                     ) : (projectStreams[project.id] ?? []).length === 0 ? (
                       <p className="project-streams-empty">
-                        No streams yet. Create one to get the OBS publish details.
+                        No streams yet. Create one to get the OBS publish
+                        details.
                       </p>
                     ) : (
                       <div className="project-stream-list">
                         {(projectStreams[project.id] ?? []).map((stream) => (
-                          <article key={stream.id} className="project-stream-card">
+                          <article
+                            key={stream.id}
+                            className="project-stream-card"
+                          >
                             <div className="project-stream-card-header">
                               <div>
                                 <h4>{stream.name}</h4>
                                 <p className="project-stream-created">
-                                  Created {new Date(stream.createdAt).toLocaleString()}
+                                  Created{" "}
+                                  {new Date(stream.createdAt).toLocaleString()}
                                 </p>
                               </div>
                               {stream.hasVisibleSecret && (
-                                <span className="project-stream-secret-badge">Key visible now</span>
+                                <span className="project-stream-secret-badge">
+                                  Key visible now
+                                </span>
                               )}
                             </div>
 
                             <div className="project-stream-detail-grid">
                               <div className="project-stream-detail">
-                                <span className="project-meta-label">OBS Server</span>
+                                <span className="project-meta-label">
+                                  OBS Server
+                                </span>
                                 <code>{stream.obsServerUrl}</code>
                               </div>
                               <div className="project-stream-detail">
-                                <span className="project-meta-label">Publish Path</span>
+                                <span className="project-meta-label">
+                                  Publish Path
+                                </span>
                                 <code>{stream.path}</code>
                               </div>
                               <div className="project-stream-detail">
-                                <span className="project-meta-label">Publish User</span>
+                                <span className="project-meta-label">
+                                  Publish User
+                                </span>
                                 <code>{stream.publishUser}</code>
                               </div>
                               <div className="project-stream-detail">
-                                <span className="project-meta-label">Stream Key</span>
+                                <span className="project-meta-label">
+                                  Stream Key
+                                </span>
                                 <code>
                                   {stream.hasVisibleSecret
                                     ? stream.obsStreamKey
@@ -413,7 +530,10 @@ function Projects() {
                                 type="button"
                                 className="projects-secondary-button"
                                 onClick={() =>
-                                  void handleCopy(stream.obsServerUrl, "OBS server URL")
+                                  void handleCopy(
+                                    stream.obsServerUrl,
+                                    "OBS server URL",
+                                  )
                                 }
                               >
                                 Copy server
@@ -423,7 +543,10 @@ function Projects() {
                                   type="button"
                                   className="projects-secondary-button"
                                   onClick={() =>
-                                    void handleRegenerateKey(project.id, stream.id)
+                                    void handleRegenerateKey(
+                                      project.id,
+                                      stream.id,
+                                    )
                                   }
                                   disabled={regeneratingStreamId === stream.id}
                                 >
@@ -437,7 +560,10 @@ function Projects() {
                                   type="button"
                                   className="projects-secondary-button"
                                   onClick={() =>
-                                    void handleCopy(stream.obsStreamKey, "stream key")
+                                    void handleCopy(
+                                      stream.obsStreamKey,
+                                      "stream key",
+                                    )
                                   }
                                 >
                                   Copy stream key
@@ -450,7 +576,9 @@ function Projects() {
                     )}
 
                     {copiedValue && (
-                      <p className="project-copy-feedback">{copiedValue} copied.</p>
+                      <p className="project-copy-feedback">
+                        {copiedValue} copied.
+                      </p>
                     )}
                   </section>
                 </article>
