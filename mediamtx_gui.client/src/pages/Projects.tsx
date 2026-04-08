@@ -23,6 +23,8 @@ function Projects() {
   const [creatingStreamForProjectId, setCreatingStreamForProjectId] = useState<number | null>(null);
   const [regeneratingStreamId, setRegeneratingStreamId] = useState<string | null>(null);
   const [copiedValue, setCopiedValue] = useState<string | null>(null);
+  const [selectedPublishProto, setSelectedPublishProto] = useState<Record<string, string>>({});
+  const [selectedPlaybackProto, setSelectedPlaybackProto] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (projects.length === 0) {
@@ -385,43 +387,60 @@ function Projects() {
                               )}
                             </div>
 
-                            <div className="project-stream-detail-grid">
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">OBS Server</span>
-                                <code>{stream.obsServerUrl}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">Publish Path</span>
-                                <code>{stream.path}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">Playback URL</span>
-                                <code>{stream.obsPlaybackUrl}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">Publish User</span>
-                                <code>{stream.publishUser}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">Stream Key</span>
-                                <code>
-                                  {stream.hasVisibleSecret
-                                    ? stream.obsStreamKey
-                                    : stream.maskedStreamKey}
-                                </code>
-                              </div>
-                            </div>
+                            {(() => {
+                              const publishProto = selectedPublishProto[stream.id] ?? stream.publishOptions[0]?.protocol;
+                              const playbackProto = selectedPlaybackProto[stream.id] ?? stream.playbackOptions[0]?.protocol;
+                              const publishOption = stream.publishOptions.find(o => o.protocol === publishProto);
+                              const playbackOption = stream.playbackOptions.find(o => o.protocol === playbackProto);
+
+                              return (
+                                <>
+                                  <div className="project-stream-proto-row">
+                                    <span className="project-meta-label">Publish via</span>
+                                    <select
+                                      value={publishProto}
+                                      onChange={e => setSelectedPublishProto(prev => ({ ...prev, [stream.id]: e.target.value }))}
+                                    >
+                                      {stream.publishOptions.map(o => (
+                                        <option key={o.protocol} value={o.protocol}>{o.protocol} — {o.note}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="project-stream-detail-grid">
+                                    <div className="project-stream-detail">
+                                      <span className="project-meta-label">OBS Server</span>
+                                      <code>{publishOption?.serverUrl}</code>
+                                    </div>
+                                    <div className="project-stream-detail">
+                                      <span className="project-meta-label">Stream Key</span>
+                                      <code>{publishOption?.streamKey}</code>
+                                    </div>
+                                  </div>
+
+                                  <div className="project-stream-proto-row">
+                                    <span className="project-meta-label">Playback via</span>
+                                    <select
+                                      value={playbackProto}
+                                      onChange={e => setSelectedPlaybackProto(prev => ({ ...prev, [stream.id]: e.target.value }))}
+                                    >
+                                      {stream.playbackOptions.map(o => (
+                                        <option key={o.protocol} value={o.protocol}>{o.protocol} — {o.note}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+
+                                  <div className="project-stream-detail-grid">
+                                    <div className="project-stream-detail">
+                                      <span className="project-meta-label">Playback URL</span>
+                                      <code>{playbackOption?.url}</code>
+                                    </div>
+                                  </div>
+                                </>
+                              );
+                            })()}
 
                             <div className="project-stream-actions">
-                              <button
-                                type="button"
-                                className="projects-secondary-button"
-                                onClick={() =>
-                                  void handleCopy(stream.obsServerUrl, "OBS server URL")
-                                }
-                              >
-                                Copy server
-                              </button>
                               {stream.canRotateKey && (
                                 <button
                                   type="button"
@@ -440,9 +459,11 @@ function Projects() {
                                 <button
                                   type="button"
                                   className="projects-secondary-button"
-                                  onClick={() =>
-                                    void handleCopy(stream.obsStreamKey, "stream key")
-                                  }
+                                  onClick={() => {
+                                    const proto = selectedPublishProto[stream.id] ?? stream.publishOptions[0]?.protocol;
+                                    const option = stream.publishOptions.find(o => o.protocol === proto);
+                                    void handleCopy(option?.streamKey ?? "", "stream key");
+                                  }}
                                 >
                                   Copy stream key
                                 </button>
