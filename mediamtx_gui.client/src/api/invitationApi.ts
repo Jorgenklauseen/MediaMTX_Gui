@@ -1,27 +1,19 @@
-
 export async function inviteUserToProject(projectId: number, email: string): Promise<void> {
-    const response = await fetch(`/api/projects/${projectId}/invite`, {
+    const response = await fetch(`/api/invitation/${projectId}/invite`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(email),
     });
 
-    if (!response.ok) {
-        throw new Error("Could not send invitation");
-    }
+    if (!response.ok) throw new Error("Could not send invitation");
 }
 
 export async function acceptInvitation(token: string): Promise<void> {
-    const response = await fetch(`/api/invitations/accept`, {
+    const response = await fetch(`/api/invitation/accept`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ token }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(token),
     });
-    if (!response.ok) {
-        throw new Error("Could not accept invitation");
-    }
+
+    if (!response.ok) throw new Error("Could not accept invitation");
 }
