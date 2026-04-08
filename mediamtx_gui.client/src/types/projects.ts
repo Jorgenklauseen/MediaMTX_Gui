@@ -18,10 +18,12 @@ export type ProjectStream = {
     projectId: number;
     name: string;
     path: string;
+    displayPath: string;
     publishUser: string;
     maskedStreamKey: string;
     obsServerUrl: string;
     obsStreamKey: string;
+    obsPlaybackUrl: string;
     createdAt: string;
     hasVisibleSecret: boolean;
     canRotateKey: boolean;

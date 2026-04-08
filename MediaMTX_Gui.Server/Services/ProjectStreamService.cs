@@ -17,7 +17,7 @@ namespace MediaMTX_Gui.Server.Services
             _db = db;
         }
 
-        public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal, string publishBaseUrl)
+        public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal, string publishBaseUrl, string playbackBaseUrl)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -26,10 +26,10 @@ namespace MediaMTX_Gui.Server.Services
                 .OrderByDescending(stream => stream.CreatedAt)
                 .ToListAsync();
 
-            return streams.Select(stream => MapToDto(stream, publishBaseUrl, null, stream.CreatedByUserId == currentUser.Id));
+            return streams.Select(stream => MapToDto(stream, publishBaseUrl, playbackBaseUrl, null, stream.CreatedByUserId == currentUser.Id));
         }
 
-        public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal, string publishBaseUrl)
+        public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal, string publishBaseUrl, string playbackBaseUrl)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -58,10 +58,10 @@ namespace MediaMTX_Gui.Server.Services
             _db.ProjectStreams.Add(stream);
             await _db.SaveChangesAsync();
 
-            return MapToDto(stream, publishBaseUrl, rawStreamKey, true);
+            return MapToDto(stream, publishBaseUrl, playbackBaseUrl, rawStreamKey, true);
         }
 
-        public async Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal, string publishBaseUrl)
+        public async Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal, string publishBaseUrl, string playbackBaseUrl)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -84,7 +84,7 @@ namespace MediaMTX_Gui.Server.Services
 
             await _db.SaveChangesAsync();
 
-            return MapToDto(stream, publishBaseUrl, rawStreamKey, true);
+            return MapToDto(stream, publishBaseUrl, playbackBaseUrl, rawStreamKey, true);
         }
 
         public async Task<bool> ValidatePublishCredentialsAsync(MediaMtxAuthRequestDto request)
@@ -156,7 +156,7 @@ namespace MediaMTX_Gui.Server.Services
 
             for (var attempt = 0; attempt < 10; attempt++)
             {
-                var suffix = RandomNumberGenerator.GetHexString(4).ToLowerInvariant();
+                var suffix = RandomNumberGenerator.GetHexString(6).ToLowerInvariant();
                 var path = $"{projectPrefix}/{baseSlug}-{suffix}";
 
                 var exists = await _db.ProjectStreams.AnyAsync(stream => stream.Path == path);
@@ -226,7 +226,7 @@ namespace MediaMTX_Gui.Server.Services
             return $"{secret[..4]}****{secret[^4..]}";
         }
 
-        private static ProjectStreamDto MapToDto(ProjectStream stream, string publishBaseUrl, string? rawStreamKey, bool canRotateKey)
+        private static ProjectStreamDto MapToDto(ProjectStream stream, string publishBaseUrl, string playbackBaseUrl, string? rawStreamKey, bool canRotateKey)
         {
             var displaySecret = rawStreamKey is null ? "STREAM_KEY_SHOWN_ON_CREATE" : rawStreamKey;
 
@@ -236,10 +236,12 @@ namespace MediaMTX_Gui.Server.Services
                 ProjectId = stream.ProjectId,
                 Name = stream.Name,
                 Path = stream.Path,
+                DisplayPath = $"project-{stream.ProjectId}/{stream.Name}",
                 PublishUser = stream.PublishUser,
                 MaskedStreamKey = rawStreamKey is null ? "Shown only when created" : MaskSecret(rawStreamKey),
                 ObsServerUrl = publishBaseUrl,
                 ObsStreamKey = $"{stream.Path}?user={Uri.EscapeDataString(stream.PublishUser)}&pass={Uri.EscapeDataString(displaySecret)}",
+                ObsPlaybackUrl = $"{playbackBaseUrl}/{stream.Path}/index.m3u8",
                 CreatedAt = stream.CreatedAt,
                 HasVisibleSecret = rawStreamKey is not null,
                 CanRotateKey = canRotateKey
