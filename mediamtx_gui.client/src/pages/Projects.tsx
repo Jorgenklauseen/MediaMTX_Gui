@@ -496,50 +496,6 @@ function Projects() {
                               )}
                             </div>
 
-                            <div className="project-stream-detail-grid">
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">
-                                  OBS Server
-                                </span>
-                                <code>{stream.obsServerUrl}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">
-                                  Publish Path
-                                </span>
-                                <code>{stream.path}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">
-                                  Publish User
-                                </span>
-                                <code>{stream.publishUser}</code>
-                              </div>
-                              <div className="project-stream-detail">
-                                <span className="project-meta-label">
-                                  Stream Key
-                                </span>
-                                <code>
-                                  {stream.hasVisibleSecret
-                                    ? stream.obsStreamKey
-                                    : stream.maskedStreamKey}
-                                </code>
-                              </div>
-                            </div>
-
-                            <div className="project-stream-actions">
-                              <button
-                                type="button"
-                                className="projects-secondary-button"
-                                onClick={() =>
-                                  void handleCopy(
-                                    stream.obsServerUrl,
-                                    "OBS server URL",
-                                  )
-                                }
-                              >
-                                Copy server
-                              </button>
                             {(() => {
                               const publishProto = selectedPublishProto[stream.id] ?? stream.publishOptions[0]?.protocol;
                               const playbackProto = selectedPlaybackProto[stream.id] ?? stream.playbackOptions[0]?.protocol;
@@ -615,12 +571,6 @@ function Projects() {
                                 <button
                                   type="button"
                                   className="projects-secondary-button"
-                                  onClick={() =>
-                                    void handleCopy(
-                                      stream.obsStreamKey,
-                                      "stream key",
-                                    )
-                                  }
                                   onClick={() => {
                                     const proto = selectedPublishProto[stream.id] ?? stream.publishOptions[0]?.protocol;
                                     const option = stream.publishOptions.find(o => o.protocol === proto);
