@@ -19,10 +19,4 @@ namespace MediaMTX_Gui.Server.DTOs
         public int CreatedById { get; set; }
         public string CreatedByName { get; set; } = string.Empty;
     }
-    public class CreateRecordingRequest
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public int StreamId { get; set; }
-    }
 }
