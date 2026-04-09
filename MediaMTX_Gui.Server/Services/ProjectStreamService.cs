@@ -87,6 +87,27 @@ namespace MediaMTX_Gui.Server.Services
             return MapToDto(stream, urls, rawStreamKey, true);
         }
 
+        public async Task DeleteStreamAsync(int projectId, Guid streamId, ClaimsPrincipal principal)
+        {
+            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+
+            var stream = await _db.ProjectStreams
+                .FirstOrDefaultAsync(candidate => candidate.Id == streamId && candidate.ProjectId == projectId);
+
+            if (stream is null)
+            {
+                throw new KeyNotFoundException("Stream was not found.");
+            }
+
+            if (stream.CreatedByUserId != currentUser.Id)
+            {
+                throw new UnauthorizedAccessException("Only the stream owner can delete this stream.");
+            }
+
+            _db.ProjectStreams.Remove(stream);
+            await _db.SaveChangesAsync();
+        }
+
         public async Task<bool> ValidatePublishCredentialsAsync(MediaMtxAuthRequestDto request)
         {
             if (!string.Equals(request.Action, "publish", StringComparison.OrdinalIgnoreCase))

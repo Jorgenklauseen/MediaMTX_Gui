@@ -70,6 +70,20 @@ export async function createProjectStream(
     return response.json();
 }
 
+export async function deleteProjectStream(
+    projectId: number,
+    streamId: string,
+): Promise<void> {
+    const response = await fetch(
+        `/api/projects/${projectId}/streams/${streamId}`,
+        { method: "DELETE" },
+    );
+
+    if (!response.ok) {
+        throw new Error("Could not delete stream");
+    }
+}
+
 export async function regenerateProjectStreamKey(
     projectId: number,
     streamId: string,
