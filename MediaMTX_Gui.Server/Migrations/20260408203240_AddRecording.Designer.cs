@@ -3,6 +3,7 @@ using System;
 using MediaMTX_Gui.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaMTX_Gui.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260408203240_AddRecording")]
+    partial class AddRecording
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
@@ -95,11 +98,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-            modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
@@ -137,29 +135,6 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.Property<string>("StreamId")
                         .IsRequired()
-                    b.Property<int>("CreatedByUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("PublishUser")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StreamKeyHash")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
@@ -169,12 +144,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.HasIndex("StreamId");
 
                     b.ToTable("Recordings");
-                    b.HasIndex("Path")
-                        .IsUnique();
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("ProjectStreams");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.User", b =>
@@ -230,54 +199,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.Navigation("CreatedBy");
 
                     b.Navigation("Stream");
-            modelBuilder.Entity("ProjectInvitation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("InvitedByUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("InvitedEmail")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ProjectInvitations");
-                });
-
-            modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
-                {
-                    b.HasOne("MediaMTX_Gui.Server.Models.Project", "Project")
-                        .WithMany("Streams")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("MediaMTX_Gui.Server.Models.Project", b =>
-                {
-                    b.Navigation("Streams");
                 });
 #pragma warning restore 612, 618
         }
