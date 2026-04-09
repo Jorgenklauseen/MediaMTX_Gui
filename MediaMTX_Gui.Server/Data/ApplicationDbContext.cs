@@ -11,6 +11,8 @@ namespace MediaMTX_Gui.Server.Data
         public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
         public DbSet<ProjectStream> ProjectStreams => Set<ProjectStream>();
 
+        public DbSet<ProjectInvitation> ProjectInvitations => Set<ProjectInvitation>();
+
         // Configure composite primary key for Project memberships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
