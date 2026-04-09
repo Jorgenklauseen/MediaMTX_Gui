@@ -162,6 +162,10 @@ namespace MediaMTX_Gui.Server.Services
 
             recording.Status = "completed";
             recording.EndedAt = DateTime.UtcNow;
+            if (recording.StartedAt.HasValue)
+            {
+                recording.Duration = recording.EndedAt.Value - recording.StartedAt.Value;
+            }
             await _context.SaveChangesAsync();
             return true;
         }

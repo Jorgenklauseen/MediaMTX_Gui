@@ -9,7 +9,7 @@ namespace MediaMTX_Gui.Server.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
-
+        public DbSet<Recording> Recordings => Set<Recording>();
         // Configure composite primary key for Project memberships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

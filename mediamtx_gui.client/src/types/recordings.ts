@@ -9,7 +9,7 @@ export interface Recording {
     filePath: string;
     fileSize: number;
     duration: string; // ISO 8601 duration
-    streamId: number;
+    streamId: string;
     streamName: string;
     createdById: number;
     createdByName: string;
@@ -18,5 +18,5 @@ export interface Recording {
 export interface CreateRecordingPayload {
     name: string;
     description: string;
-    streamId: number;
+    streamId: string;
 }

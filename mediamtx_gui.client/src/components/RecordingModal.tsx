@@ -6,14 +6,14 @@ interface RecordingModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (payload: CreateRecordingPayload) => Promise<void>;
-    streams: Array<{ id: number; name: string }>;
+    streams: Array<{ id: string; name: string }>;
 }
 
 export function RecordingModal({ isOpen, onClose, onSubmit, streams }: RecordingModalProps) {
     const [formData, setFormData] = useState<CreateRecordingPayload>({
         name: "",
         description: "",
-        streamId: 0,
+        streamId: "",
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -22,7 +22,7 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
         setSubmitting(true);
         try {
             await onSubmit(formData);
-            setFormData({ name: "", description: "", streamId: 0 });
+            setFormData({ name: "", description: "", streamId: "" });
             onClose();
         } catch (err) {
             // Error handled by hook
@@ -67,11 +67,11 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
                         <select
                             id="streamId"
                             value={formData.streamId}
-                            onChange={(e) => setFormData(prev => ({ ...prev, streamId: parseInt(e.target.value) }))}
+                            onChange={(e) => setFormData(prev => ({ ...prev, streamId: e.target.value }))}
                             className="recording-modal__select"
                             required
                         >
-                            <option value={0}>Select a stream</option>
+                            <option value="">Select a stream</option>
                             {streams.map(stream => (
                                 <option key={stream.id} value={stream.id}>{stream.name}</option>
                             ))}

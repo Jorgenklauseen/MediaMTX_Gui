@@ -27,6 +27,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddHttpClient<IMediaMtxService, MediaMtxService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IRecordingService, RecordingService>();
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
