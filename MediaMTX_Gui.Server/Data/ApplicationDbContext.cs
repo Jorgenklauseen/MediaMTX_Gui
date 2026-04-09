@@ -10,6 +10,10 @@ namespace MediaMTX_Gui.Server.Data
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();
         public DbSet<Recording> Recordings => Set<Recording>();
+        public DbSet<ProjectStream> ProjectStreams => Set<ProjectStream>();
+
+        public DbSet<ProjectInvitation> ProjectInvitations => Set<ProjectInvitation>();
+
         // Configure composite primary key for Project memberships
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,6 +21,16 @@ namespace MediaMTX_Gui.Server.Data
 
             modelBuilder.Entity<ProjectMember>()
                 .HasKey(pm => new { pm.ProjectId, pm.UserId });
+
+            modelBuilder.Entity<ProjectStream>()
+                .HasIndex(stream => stream.Path)
+                .IsUnique();
+
+            modelBuilder.Entity<ProjectStream>()
+                .HasOne(stream => stream.Project)
+                .WithMany(project => project.Streams)
+                .HasForeignKey(stream => stream.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

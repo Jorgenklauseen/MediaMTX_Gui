@@ -10,7 +10,8 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     }
 
     if (!isAuthenticated) {
-        window.location.href = "/api/users/login";
+        const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/api/users/login?returnUrl=${returnUrl}`;
         return null;
     }
 

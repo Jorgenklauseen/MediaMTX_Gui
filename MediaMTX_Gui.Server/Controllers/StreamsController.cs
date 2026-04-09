@@ -5,6 +5,8 @@ using MediaMTX_Gui.Server.Services;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.Models;
 using System.Text.Json;
+using MediaMTX_Gui.Server.DTOs;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MediaMTX_Gui.Server.Controllers;
 
@@ -67,6 +69,22 @@ public class StreamsController : ControllerBase
             }
             await _context.SaveChangesAsync();
         }
+    private readonly IProjectStreamService _projectStreamService;
+
+    // temporary logger
+    private readonly ILogger<StreamsController> _logger;
+    
+    public StreamsController(
+        IMediaMtxService mediaService,
+        IHubContext<StreamHub> hubContext,
+        IProjectStreamService projectStreamService,
+        ILogger<StreamsController> logger
+        )
+    {
+        _mediaService = mediaService;
+        _hubContext = hubContext;
+        _projectStreamService = projectStreamService;
+        _logger = logger;
     }
 
     [HttpGet("status")]
@@ -95,6 +113,17 @@ public class StreamsController : ControllerBase
         Console.WriteLine($"Sending StreamsUpdated to all clients for stream: {name}");
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
         return Ok();
+    }
+
+    [AllowAnonymous]
+    [HttpPost("authenticate")]
+    public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
+    {
+        _logger.LogInformation("MediaMTX auth request: Path={Path}, Action={Action}, Protocol={Protocol}, User={User}, PasswordPresent={PasswordPresent}, Query={Query}",
+            request.Path, request.Action, request.Protocol, request.User, !string.IsNullOrWhiteSpace(request.Password), request.Query);
+            
+        var isAllowed = await _projectStreamService.ValidatePublishCredentialsAsync(request);
+        return isAllowed ? Ok() : Unauthorized();
     }
 
 }

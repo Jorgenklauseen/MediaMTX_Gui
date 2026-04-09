@@ -3,6 +3,7 @@ using System;
 using MediaMTX_Gui.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaMTX_Gui.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260408115523_AddProjectInvitations")]
+    partial class AddProjectInvitations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
@@ -90,11 +93,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.ToTable("ProjectMembers");
                 });
 
-            modelBuilder.Entity("MediaMTX_Gui.Server.Models.Recording", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
                 {
                     b.Property<Guid>("Id")
@@ -104,39 +102,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("EndedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("StartedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("StreamId")
-                        .IsRequired()
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("INTEGER");
 
@@ -164,11 +129,6 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CreatedById");
-
-                    b.HasIndex("StreamId");
-
-                    b.ToTable("Recordings");
                     b.HasIndex("Path")
                         .IsUnique();
 
@@ -213,23 +173,6 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("MediaMTX_Gui.Server.Models.Recording", b =>
-                {
-                    b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MediaMTX_Gui.Server.Models.MediaStream", "Stream")
-                        .WithMany()
-                        .HasForeignKey("StreamId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CreatedBy");
-
-                    b.Navigation("Stream");
             modelBuilder.Entity("ProjectInvitation", b =>
                 {
                     b.Property<int>("Id")
