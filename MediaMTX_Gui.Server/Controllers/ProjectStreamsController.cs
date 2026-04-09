@@ -65,6 +65,24 @@ namespace MediaMTX_Gui.Server.Controllers
             }
         }
 
+        [HttpDelete("{streamId:guid}")]
+        public async Task<IActionResult> DeleteStream(int projectId, Guid streamId)
+        {
+            try
+            {
+                await _projectStreamService.DeleteStreamAsync(projectId, streamId, User);
+                return NoContent();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
+
         [HttpPost("{streamId:guid}/regenerate-key")]
         public async Task<IActionResult> RegenerateKey(int projectId, Guid streamId)
         {

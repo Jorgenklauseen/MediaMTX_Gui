@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   createProjectStream,
+  deleteProjectStream,
   getProjectStreams,
   regenerateProjectStreamKey,
 } from "../api/projectsApi";
@@ -178,6 +179,24 @@ function Projects() {
       }));
     } finally {
       setRegeneratingStreamId(null);
+    }
+  };
+
+  const handleDeleteStream = async (projectId: number, streamId: string, streamName: string) => {
+    const confirmed = window.confirm(`Delete stream "${streamName}"? This cannot be undone.`);
+    if (!confirmed) return;
+
+    try {
+      await deleteProjectStream(projectId, streamId);
+      setProjectStreams((current) => ({
+        ...current,
+        [projectId]: (current[projectId] ?? []).filter((s) => s.id !== streamId),
+      }));
+    } catch {
+      setStreamErrors((current) => ({
+        ...current,
+        [projectId]: "Could not delete stream.",
+      }));
     }
   };
 
@@ -554,17 +573,10 @@ function Projects() {
                                 <button
                                   type="button"
                                   className="projects-secondary-button"
-                                  onClick={() =>
-                                    void handleRegenerateKey(
-                                      project.id,
-                                      stream.id,
-                                    )
-                                  }
+                                  onClick={() => void handleRegenerateKey(project.id, stream.id)}
                                   disabled={regeneratingStreamId === stream.id}
                                 >
-                                  {regeneratingStreamId === stream.id
-                                    ? "Regenerating..."
-                                    : "Regenerate key"}
+                                  {regeneratingStreamId === stream.id ? "Regenerating..." : "Regenerate key"}
                                 </button>
                               )}
                               {stream.hasVisibleSecret && (
@@ -578,6 +590,37 @@ function Projects() {
                                   }}
                                 >
                                   Copy stream key
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                className="projects-secondary-button"
+                                onClick={() => {
+                                  const proto = selectedPublishProto[stream.id] ?? stream.publishOptions[0]?.protocol;
+                                  const option = stream.publishOptions.find(o => o.protocol === proto);
+                                  void handleCopy(option?.serverUrl ?? "", "OBS server URL");
+                                }}
+                              >
+                                Copy OBS server
+                              </button>
+                              <button
+                                type="button"
+                                className="projects-secondary-button"
+                                onClick={() => {
+                                  const proto = selectedPlaybackProto[stream.id] ?? stream.playbackOptions[0]?.protocol;
+                                  const option = stream.playbackOptions.find(o => o.protocol === proto);
+                                  void handleCopy(option?.url ?? "", "playback URL");
+                                }}
+                              >
+                                Copy playback URL
+                              </button>
+                              {stream.canRotateKey && (
+                                <button
+                                  type="button"
+                                  className="project-delete-button"
+                                  onClick={() => void handleDeleteStream(project.id, stream.id, stream.displayPath)}
+                                >
+                                  Delete stream
                                 </button>
                               )}
                             </div>
