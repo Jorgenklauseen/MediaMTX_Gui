@@ -13,15 +13,23 @@ export type CreateProjectPayload = {
     description?: string;
 };
 
+export type StreamProtocolOption = {
+    protocol: string;
+    serverUrl?: string;
+    streamKey?: string;
+    url?: string;
+    note: string;
+};
+
 export type ProjectStream = {
     id: string;
     projectId: number;
     name: string;
     path: string;
+    displayPath: string;
     publishUser: string;
-    maskedStreamKey: string;
-    obsServerUrl: string;
-    obsStreamKey: string;
+    publishOptions: StreamProtocolOption[];
+    playbackOptions: StreamProtocolOption[];
     createdAt: string;
     hasVisibleSecret: boolean;
     canRotateKey: boolean;

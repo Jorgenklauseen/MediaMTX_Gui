@@ -27,7 +27,7 @@ namespace MediaMTX_Gui.Server.Controllers
                 var streams = await _projectStreamService.GetProjectStreamsForCurrentUserAsync(
                     projectId,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolveUrls());
 
                 return Ok(streams);
             }
@@ -51,7 +51,7 @@ namespace MediaMTX_Gui.Server.Controllers
                     projectId,
                     request,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolveUrls());
 
                 return Ok(stream);
             }
@@ -74,7 +74,7 @@ namespace MediaMTX_Gui.Server.Controllers
                     projectId,
                     streamId,
                     User,
-                    ResolvePublishBaseUrl());
+                    ResolveUrls());
 
                 return Ok(stream);
             }
@@ -88,19 +88,28 @@ namespace MediaMTX_Gui.Server.Controllers
             }
         }
 
-        private string ResolvePublishBaseUrl()
+        private MediaMtxUrls ResolveUrls()
         {
-            var configuredUrl = _configuration["MediaMtx:PublishBaseUrl"];
+            var host = Request.Host.Host;
+            return new MediaMtxUrls(
+                RtmpBaseUrl:   ResolveUrl("MediaMtx:RtmpBaseUrl",   "rtmp", host, 1936),
+                RtspBaseUrl:   ResolveUrl("MediaMtx:RtspBaseUrl",   "rtsp", host, 8554),
+                HlsBaseUrl:    ResolveUrl("MediaMtx:HlsBaseUrl",    "http", host, 8888),
+                SrtBaseUrl:    ResolveUrl("MediaMtx:SrtBaseUrl",    "srt",  host, 8890),
+                WebRtcBaseUrl: ResolveUrl("MediaMtx:WebRtcBaseUrl", "http", host, 8889)
+            );
+        }
 
-            if (!string.IsNullOrWhiteSpace(configuredUrl))
+        private string ResolveUrl(string configKey, string scheme, string host, int defaultPort)
+        {
+            var configured = _configuration[configKey];
+            if (!string.IsNullOrWhiteSpace(configured))
             {
-                return configuredUrl.TrimEnd('/');
+                return configured.TrimEnd('/');
             }
 
-            var host = Request.Host.Host;
-            var port = _configuration.GetValue<int?>("MediaMtx:PublishPort") ?? 1936;
-
-            return $"rtmp://{host}:{port}";
+            var port = _configuration.GetValue<int?>(configKey + "Port") ?? defaultPort;
+            return $"{scheme}://{host}:{port}";
         }
     }
 }
