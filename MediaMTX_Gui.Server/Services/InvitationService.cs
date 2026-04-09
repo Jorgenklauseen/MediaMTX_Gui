@@ -85,15 +85,6 @@ public class InvitationService : IInvitationService
             throw new InvalidOperationException("Invitation has expired.");
         }
         
-        var emailClaim = principal.FindFirstValue("email");
-
-        Console.WriteLine($"DEBUG - InvitedEmail: '{invitation.InvitedEmail}', EmailClaim: '{emailClaim}'");
-
-        if (!string.Equals(invitation.InvitedEmail, emailClaim, StringComparison.OrdinalIgnoreCase))
-        {
-            throw new InvalidOperationException("This invitation was not sent to your email.");
-        }
-
         
         var membership = new ProjectMember
         {
