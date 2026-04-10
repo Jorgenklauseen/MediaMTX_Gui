@@ -1,5 +1,5 @@
 import { NavLink } from "react-router";
-import { LogoutButton } from "../components/LogoutButton";
+/* import { LogoutButton } from "../components/LogoutButton"; */
 import "../index.css";
 import { ThemeToggle } from "../components/ThemeToggle";
 import { useAuth } from "../context/AuthContext";
