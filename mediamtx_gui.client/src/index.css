@@ -87,6 +87,7 @@ body {
   align-items: center;
   gap: 12px;
   margin-left: auto;
+  margin-right: 1rem;
 }
 
 .navbar__logout {
@@ -111,6 +112,87 @@ body {
   font-size: 0.9rem;
   margin-right: 8px;
 }
+
+
+.navbar__avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--uia-red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 2px solid;
+    border-color: rgba(255, 255, 255, 0.6);
+    transition: border-color 0.2s;
+}
+
+.navbar__avatar:hover {
+    border-color: #fff
+}
+
+.user-menu {
+    position: relative;
+}
+
+.user-menu__dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--bg-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    min-width: 200px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    overflow: hidden;
+}
+
+.user-menu__header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.user-menu__name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.user-menu__email {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.user-menu__item {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.user-menu__item:hover {
+    background: var(--border-color);
+}
+
+.user-menu__item--danger {
+    color: var(--uia-red);
+}
+
+
 .theme-toggle {
   background: none;
   border: none;
@@ -176,3 +258,4 @@ body {
 .search-bar__clear:hover {
     color: var(--text-color);
 }
+
