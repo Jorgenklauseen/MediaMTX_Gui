@@ -1,0 +1,152 @@
+.profile-page {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.profile-card {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.profile-avatar {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--uia-red);
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.profile-username {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.profile-meta {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.profile-meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.profile-meta-row:first-child {
+    border-top: 1px solid var(--border-color);
+}
+
+.profile-meta-row:last-child {
+    border-bottom: none;
+}
+
+.profile-meta-label {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.profile-meta-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.profile-projects {
+    width: 100%;
+    margin-top: 1.5rem;
+}
+
+.profile-section-title {
+    margin: 0 0 0.75rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.profile-project-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-project-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.profile-project-item:first-child {
+    border-top: 1px solid var(--border-color);
+}
+
+.profile-project-item:hover {
+    opacity: 0.7;
+}
+
+.profile-project-name {
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.profile-project-role {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.profile-danger-zone {
+    width: 100%;
+    margin-top: 1.5rem;
+    border: 1px solid rgba(200, 16, 46, 0.3);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+}
+
+.profile-danger-zone h3 {
+    margin: 0 0 0.25rem;
+    color: var(--uia-red);
+    font-size: 0.95rem;
+}
+
+.profile-danger-zone p {
+    margin: 0 0 1rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.profile-delete-btn {
+    background: var(--uia-red);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.profile-delete-btn:hover {
+    background: var(--uia-red-dark);
+}

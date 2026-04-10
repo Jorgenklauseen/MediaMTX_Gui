@@ -26,3 +26,12 @@ export async function unbanUser(id: number): Promise<void> {
         throw new Error("Could not unban user");
     }
 }
+
+export async function deleteCurrentUser(): Promise<void> {
+    const response = await fetch(`/api/users/me`, 
+        { method: "DELETE" });
+
+    if (!response.ok) {
+        throw new Error("Could not delete user");
+    }
+}

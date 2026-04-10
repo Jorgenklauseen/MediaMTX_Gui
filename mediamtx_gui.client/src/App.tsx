@@ -9,6 +9,7 @@ import Projects from './pages/Projects';
 import { ToastContainer } from 'react-toastify';
 import AcceptInvitation from './pages/sidePages/AcceptInvitation';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
+import Profile from './pages/Profile';
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="/recordings" element={<Recordings />} />
             <Route path="/projects" element={<Projects />} />
+            <Route path="/profile" element={<Profile />} />
             <Route path="/users" element={
               <AdminRoute>
                 <Users />

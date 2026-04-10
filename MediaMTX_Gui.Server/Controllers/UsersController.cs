@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using MediaMTX_Gui.Server.Services;
 using MediaMTX_Gui.Server.DTOs;
+using Microsoft.AspNetCore.Authentication;
 
 
 
@@ -15,7 +16,7 @@ namespace MediaMTX_Gui.Server.Controllers;
 public class UsersController : ControllerBase
 {
 
-    private readonly IUserService _userService; 
+    private readonly IUserService _userService;
 
     public UsersController(IUserService userService)
     {
@@ -30,7 +31,7 @@ public class UsersController : ControllerBase
         var users = await _userService.GetCurrentUser(User);
         return Ok(users);
     }
-    
+
     [HttpGet]
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> GetAllUsers()
@@ -55,12 +56,29 @@ public class UsersController : ControllerBase
         return Ok();
     }
 
+    [HttpDelete("me")]
+    [Authorize]
+    public async Task<IActionResult> DeleteCurrentUser()
+    {
+        await _userService.DeleteCurrentUserAsync(User);
+        return SignOut();
+         // DOES NOT WORK YET, AS THE ADMIN FOR OUR HYDRA INSTANCE HAS NOT ADDED THE LOGOUT URL
+        /* return SignOut(
+            new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                RedirectUri = "/"
+            },
+            OpenIdConnectDefaults.AuthenticationScheme,
+            CookieAuthenticationDefaults.AuthenticationScheme
+        ); */
+    }
+
     [HttpGet("login")]
-    public IActionResult Login(string returnUrl = "/")
+    public IActionResult Login()
     {
         return Challenge(new Microsoft.AspNetCore.Authentication.AuthenticationProperties
         {
-            RedirectUri = returnUrl
+            RedirectUri = "/"
         });
     }
 
@@ -68,5 +86,14 @@ public class UsersController : ControllerBase
     public IActionResult Logout()
     {
         return SignOut();
+        // DOES NOT WORK YET, AS THE ADMIN FOR OUR HYDRA INSTANCE HAS NOT ADDED THE LOGOUT URL
+        /* return SignOut(
+            new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                RedirectUri = "/"
+            },
+            OpenIdConnectDefaults.AuthenticationScheme,
+            CookieAuthenticationDefaults.AuthenticationScheme
+        ); */
     }
 }
