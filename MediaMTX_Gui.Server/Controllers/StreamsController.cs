@@ -17,12 +17,18 @@ public class StreamsController : ControllerBase
     private readonly IMediaMtxService _mediaService;
     private readonly IHubContext<StreamHub> _hubContext;
     private readonly ApplicationDbContext _context;
+    private readonly IProjectStreamService _projectStreamService;
 
-    public StreamsController(IMediaMtxService mediaService, IHubContext<StreamHub> hubContext, ApplicationDbContext context)
+    public StreamsController(
+        IMediaMtxService mediaService,
+        IHubContext<StreamHub> hubContext,
+        ApplicationDbContext context,
+        IProjectStreamService projectStreamService)
     {
         _mediaService = mediaService;
         _hubContext = hubContext;
         _context = context;
+        _projectStreamService = projectStreamService;
     }
 
     public class MediaMtxPathItem
@@ -69,23 +75,8 @@ public class StreamsController : ControllerBase
             }
             await _context.SaveChangesAsync();
         }
-    private readonly IProjectStreamService _projectStreamService;
-
-    // temporary logger
-    private readonly ILogger<StreamsController> _logger;
-    
-    public StreamsController(
-        IMediaMtxService mediaService,
-        IHubContext<StreamHub> hubContext,
-        IProjectStreamService projectStreamService,
-        ILogger<StreamsController> logger
-        )
-    {
-        _mediaService = mediaService;
-        _hubContext = hubContext;
-        _projectStreamService = projectStreamService;
-        _logger = logger;
     }
+   
 
     [HttpGet("status")]
     public async Task<IActionResult> GetStatus()
@@ -119,9 +110,6 @@ public class StreamsController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
     {
-        _logger.LogInformation("MediaMTX auth request: Path={Path}, Action={Action}, Protocol={Protocol}, User={User}, PasswordPresent={PasswordPresent}, Query={Query}",
-            request.Path, request.Action, request.Protocol, request.User, !string.IsNullOrWhiteSpace(request.Password), request.Query);
-            
         var isAllowed = await _projectStreamService.ValidatePublishCredentialsAsync(request);
         return isAllowed ? Ok() : Unauthorized();
     }
