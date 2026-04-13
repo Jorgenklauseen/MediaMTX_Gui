@@ -250,11 +250,11 @@ namespace MediaMTX_Gui.Server.Services
         private static ProjectStreamDto MapToDto(ProjectStream stream, MediaMtxUrls urls, string? rawStreamKey, bool canRotateKey)
         {
             var keyForDisplay = rawStreamKey is null ? "STREAM_KEY_SHOWN_ON_CREATE" : rawStreamKey;
-            var maskedKey = rawStreamKey is null ? "Shown only when created" : MaskSecret(rawStreamKey);
+            var maskedKey = rawStreamKey is null ? "Only shown when created, regenerate to get a new one." : MaskSecret(rawStreamKey);
 
             var rtmpStreamKey = $"{stream.Path}?user={Uri.EscapeDataString(stream.PublishUser)}&pass={Uri.EscapeDataString(keyForDisplay)}";
             var srtPublishUrl = rawStreamKey is null
-                ? maskedKey
+                ? null
                 : $"{urls.SrtBaseUrl}?streamid=publish:{stream.Path}:{stream.PublishUser}:{keyForDisplay}";
 
             return new ProjectStreamDto
@@ -278,7 +278,10 @@ namespace MediaMTX_Gui.Server.Services
                     {
                         Protocol = "SRT",
                         ServerUrl = srtPublishUrl,
-                        Note = "Lower latency, better on unstable networks"
+                        StreamKey = null,
+                        Note = rawStreamKey is null
+                            ? "Key only shown on create — regenerate to get a new one"
+                            : "Paste the full URL into OBS Server field — no separate stream key"
                     }
                 ],
                 PlaybackOptions =

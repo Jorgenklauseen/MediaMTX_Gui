@@ -15,6 +15,16 @@ export async function getProjects(): Promise<Project[]> {
     return response.json();
 }
 
+export async function getProjectById(projectId: number): Promise<Project> {
+    const response = await fetch(`/api/projects/${projectId}`);
+
+    if (!response.ok) {
+        throw new Error("Could not load project");
+    }
+
+    return response.json();
+}
+
 export async function createProject(payload: CreateProjectPayload): Promise<Project> {
     const response = await fetch("/api/projects", {
         method: "POST",
