@@ -5,19 +5,22 @@ using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace MediaMTX_Gui.Server.Services
 {
     public class ProjectStreamService : IProjectStreamService
     {
         private readonly ApplicationDbContext _db;
+        private readonly MediaMtxOptions _mediaMtxOptions;
 
-        public ProjectStreamService(ApplicationDbContext db)
+        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions)
         {
             _db = db;
+            _mediaMtxOptions = mediaMtxOptions.Value;
         }
 
-        public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal, MediaMtxUrls urls)
+        public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -26,10 +29,10 @@ namespace MediaMTX_Gui.Server.Services
                 .OrderByDescending(stream => stream.CreatedAt)
                 .ToListAsync();
 
-            return streams.Select(stream => MapToDto(stream, urls, null, stream.CreatedByUserId == currentUser.Id));
+            return streams.Select(stream => MapToDto(stream, null, stream.CreatedByUserId == currentUser.Id));
         }
 
-        public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal, MediaMtxUrls urls)
+        public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -58,10 +61,10 @@ namespace MediaMTX_Gui.Server.Services
             _db.ProjectStreams.Add(stream);
             await _db.SaveChangesAsync();
 
-            return MapToDto(stream, urls, rawStreamKey, true);
+            return MapToDto(stream, rawStreamKey, true);
         }
 
-        public async Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal, MediaMtxUrls urls)
+        public async Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal)
         {
             var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
 
@@ -84,7 +87,7 @@ namespace MediaMTX_Gui.Server.Services
 
             await _db.SaveChangesAsync();
 
-            return MapToDto(stream, urls, rawStreamKey, true);
+            return MapToDto(stream, rawStreamKey, true);
         }
 
         public async Task DeleteStreamAsync(int projectId, Guid streamId, ClaimsPrincipal principal)
@@ -247,7 +250,7 @@ namespace MediaMTX_Gui.Server.Services
             return $"{secret[..4]}****{secret[^4..]}";
         }
 
-        private static ProjectStreamDto MapToDto(ProjectStream stream, MediaMtxUrls urls, string? rawStreamKey, bool canRotateKey)
+        private ProjectStreamDto MapToDto(ProjectStream stream, string? rawStreamKey, bool canRotateKey)
         {
             var keyForDisplay = rawStreamKey is null ? "STREAM_KEY_SHOWN_ON_CREATE" : rawStreamKey;
             var maskedKey = rawStreamKey is null ? "Only shown when created, regenerate to get a new one." : MaskSecret(rawStreamKey);
@@ -255,7 +258,7 @@ namespace MediaMTX_Gui.Server.Services
             var rtmpStreamKey = $"{stream.Path}?user={Uri.EscapeDataString(stream.PublishUser)}&pass={Uri.EscapeDataString(keyForDisplay)}";
             var srtPublishUrl = rawStreamKey is null
                 ? null
-                : $"{urls.SrtBaseUrl}?streamid=publish:{stream.Path}:{stream.PublishUser}:{keyForDisplay}";
+                : $"{_mediaMtxOptions.SrtBaseUrl}?streamid=publish:{stream.Path}:{stream.PublishUser}:{keyForDisplay}";
 
             return new ProjectStreamDto
             {
@@ -270,7 +273,7 @@ namespace MediaMTX_Gui.Server.Services
                     new StreamProtocolOption
                     {
                         Protocol = "RTMP",
-                        ServerUrl = urls.RtmpBaseUrl,
+                        ServerUrl = _mediaMtxOptions.RtmpBaseUrl,
                         StreamKey = rawStreamKey is null ? maskedKey : rtmpStreamKey,
                         Note = "Recommended for OBS"
                     },
@@ -289,25 +292,25 @@ namespace MediaMTX_Gui.Server.Services
                     new StreamProtocolOption
                     {
                         Protocol = "WebRTC",
-                        Url = $"{urls.WebRtcBaseUrl}/{stream.Path}/whep",
+                        Url = $"{_mediaMtxOptions.WebRtcBaseUrl}/{stream.Path}/whep",
                         Note = "Sub-second latency, browser-native"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "RTSP",
-                        Url = $"{urls.RtspBaseUrl}/{stream.Path}",
+                        Url = $"{_mediaMtxOptions.RtspBaseUrl}/{stream.Path}",
                         Note = "~1–3s latency"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "SRT",
-                        Url = $"{urls.SrtBaseUrl}?streamid=read:{stream.Path}",
+                        Url = $"{_mediaMtxOptions.SrtBaseUrl}?streamid=read:{stream.Path}",
                         Note = "~1s latency"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "HLS",
-                        Url = $"{urls.HlsBaseUrl}/{stream.Path}/index.m3u8",
+                        Url = $"{_mediaMtxOptions.HlsBaseUrl}/{stream.Path}/index.m3u8",
                         Note = "~30s latency"
                     }
                 ],

@@ -5,9 +5,9 @@ namespace MediaMTX_Gui.Server.Services
 {
     public interface IProjectStreamService
     {
-        Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal, MediaMtxUrls urls);
-        Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal, MediaMtxUrls urls);
-        Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal, MediaMtxUrls urls);
+        Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal);
+        Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal);
+        Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal);
         Task DeleteStreamAsync(int projectId, Guid streamId, ClaimsPrincipal principal);
         Task<bool> ValidatePublishCredentialsAsync(MediaMtxAuthRequestDto request);
     }

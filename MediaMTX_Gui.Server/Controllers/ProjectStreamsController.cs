@@ -11,12 +11,10 @@ namespace MediaMTX_Gui.Server.Controllers
     public class ProjectStreamsController : ControllerBase
     {
         private readonly IProjectStreamService _projectStreamService;
-        private readonly IConfiguration _configuration;
 
-        public ProjectStreamsController(IProjectStreamService projectStreamService, IConfiguration configuration)
+        public ProjectStreamsController(IProjectStreamService projectStreamService)
         {
             _projectStreamService = projectStreamService;
-            _configuration = configuration;
         }
 
         [HttpGet]
@@ -26,8 +24,7 @@ namespace MediaMTX_Gui.Server.Controllers
             {
                 var streams = await _projectStreamService.GetProjectStreamsForCurrentUserAsync(
                     projectId,
-                    User,
-                    ResolveUrls());
+                    User);
 
                 return Ok(streams);
             }
@@ -50,8 +47,7 @@ namespace MediaMTX_Gui.Server.Controllers
                 var stream = await _projectStreamService.CreateProjectStreamAsync(
                     projectId,
                     request,
-                    User,
-                    ResolveUrls());
+                    User);
 
                 return Ok(stream);
             }
@@ -91,8 +87,7 @@ namespace MediaMTX_Gui.Server.Controllers
                 var stream = await _projectStreamService.RegenerateStreamKeyAsync(
                     projectId,
                     streamId,
-                    User,
-                    ResolveUrls());
+                    User);
 
                 return Ok(stream);
             }
@@ -106,28 +101,5 @@ namespace MediaMTX_Gui.Server.Controllers
             }
         }
 
-        private MediaMtxUrls ResolveUrls()
-        {
-            var host = Request.Host.Host;
-            return new MediaMtxUrls(
-                RtmpBaseUrl:   ResolveUrl("MediaMtx:RtmpBaseUrl",   "rtmp", host, 1936),
-                RtspBaseUrl:   ResolveUrl("MediaMtx:RtspBaseUrl",   "rtsp", host, 8554),
-                HlsBaseUrl:    ResolveUrl("MediaMtx:HlsBaseUrl",    "http", host, 8888),
-                SrtBaseUrl:    ResolveUrl("MediaMtx:SrtBaseUrl",    "srt",  host, 8890),
-                WebRtcBaseUrl: ResolveUrl("MediaMtx:WebRtcBaseUrl", "http", host, 8889)
-            );
-        }
-
-        private string ResolveUrl(string configKey, string scheme, string host, int defaultPort)
-        {
-            var configured = _configuration[configKey];
-            if (!string.IsNullOrWhiteSpace(configured))
-            {
-                return configured.TrimEnd('/');
-            }
-
-            var port = _configuration.GetValue<int?>(configKey + "Port") ?? defaultPort;
-            return $"{scheme}://{host}:{port}";
-        }
     }
 }
