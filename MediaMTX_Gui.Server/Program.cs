@@ -28,6 +28,7 @@ builder.Services.AddHttpClient<IMediaMtxService, MediaMtxService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IRecordingService, RecordingService>();
+builder.Services.Configure<MediaMtxOptions>(builder.Configuration.GetSection("MediaMtx"));
 builder.Services.AddScoped<IProjectStreamService, ProjectStreamService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IInvitationService, InvitationService>();
