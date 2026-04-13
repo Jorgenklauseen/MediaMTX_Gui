@@ -12,5 +12,7 @@ namespace MediaMTX_Gui.Server.Services
         Task<UserDto> SyncUserAsync(ClaimsPrincipal principal);
         Task BanUserAsync(int id);
         Task UnbanUserAsync(int id);
+
+        Task DeleteCurrentUserAsync(ClaimsPrincipal principal);
     }
 }

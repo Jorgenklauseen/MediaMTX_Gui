@@ -10,6 +10,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import { ToastContainer } from 'react-toastify';
 import AcceptInvitation from './pages/sidePages/AcceptInvitation';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
+import Profile from './pages/Profile';
 
 
 function App() {

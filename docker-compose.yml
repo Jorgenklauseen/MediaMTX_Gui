@@ -21,6 +21,7 @@ services:
       
     volumes:
       - app-data:/data
+      - ../data/recordings:/recordings
     networks:
       - internal
 
@@ -37,8 +38,10 @@ services:
       - "8890:8890"
       - "8554:8554"
       - "1936:1936"
+      - "9997:9997"
     volumes:
       - ../data/mediamtx/mediamtx.yml:/mediamtx.yml #config file
+      - ../data//recordings:/recordings #recordings
     networks:
       - internal
   

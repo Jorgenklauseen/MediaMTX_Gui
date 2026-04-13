@@ -1,4 +1,5 @@
 export type Stream = {
+    id: string;
     name: string;
     online: boolean;
     onlineTime: string;

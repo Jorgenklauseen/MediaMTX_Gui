@@ -66,6 +66,17 @@ namespace MediaMTX_Gui.Server.Services
                 await _db.SaveChangesAsync();
             }
         }
+    
+        public async Task DeleteCurrentUserAsync(ClaimsPrincipal principal)
+        {
+            var sub = principal.FindFirstValue("sub")!;
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
+            if (user != null)
+            {
+                _db.Users.Remove(user);
+                await _db.SaveChangesAsync();
+            }
+        }
         
 
 
