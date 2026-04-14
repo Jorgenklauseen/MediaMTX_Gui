@@ -52,10 +52,10 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ../etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ../etc/nginx/sites-available/streaming.conf:/etc/nginx/conf.d/streaming.conf:ro
-      - ../etc/nginx/certs:/etc/nginx/certs:ro
-      - ../var/www/errors:/var/www/errors:ro
+      - /etc/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/nginx/sites-available/streaming.conf:/etc/nginx/conf.d/streaming.conf:ro
+      - /etc/nginx/certs:/etc/nginx/certs:ro
+      - /var/www/errors:/var/www/errors:ro
     depends_on:
       - app
       - mediamtx
