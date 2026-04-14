@@ -314,6 +314,7 @@ namespace MediaMTX_Gui.Server.Services
                         Note = "~30s latency"
                     }
                 ],
+                RecordingEnabled = stream.RecordingEnabled,
                 CreatedAt = stream.CreatedAt,
                 HasVisibleSecret = rawStreamKey is not null,
                 CanRotateKey = canRotateKey
