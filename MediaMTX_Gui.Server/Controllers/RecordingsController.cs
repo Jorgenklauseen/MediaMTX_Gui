@@ -2,6 +2,7 @@ using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.IO;
 
 namespace MediaMTX_Gui.Server.Controllers
 {
@@ -62,6 +63,48 @@ namespace MediaMTX_Gui.Server.Controllers
             var stopped = await _recordingService.StopRecordingAsync(id, User);
             if (!stopped) return NotFound();
             return Ok();
+        }
+
+        [HttpGet("{id:int}/files")]
+        public async Task<IActionResult> GetRecordingFiles(int id)
+        {
+            var recording = await _recordingService.GetRecordingByIdForCurrentUserAsync(id, User);
+            if (recording is null) return NotFound();
+            if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
+                return NotFound(new { message = "Recording directory not found. Files may have been auto-deleted." });
+
+            var files = Directory.GetFiles(recording.FilePath, "*.mp4")
+                .OrderBy(f => f)
+                .Select(f => new
+                {
+                    name = Path.GetFileName(f),
+                    size = new FileInfo(f).Length,
+                    url = $"/api/recordings/{id}/files/{Uri.EscapeDataString(Path.GetFileName(f))}"
+                });
+
+            return Ok(files);
+        }
+
+        [HttpGet("{id:int}/files/{filename}")]
+        public async Task<IActionResult> DownloadFile(int id, string filename)
+        {
+            var recording = await _recordingService.GetRecordingByIdForCurrentUserAsync(id, User);
+            if (recording is null) return NotFound();
+            if (string.IsNullOrEmpty(recording.FilePath)) return NotFound();
+
+            var filePath = Path.Combine(recording.FilePath, filename);
+
+            // Prevent path traversal
+            var resolvedDir = Path.GetFullPath(recording.FilePath);
+            var resolvedFile = Path.GetFullPath(filePath);
+            if (!resolvedFile.StartsWith(resolvedDir + Path.DirectorySeparatorChar))
+                return BadRequest();
+
+            if (!System.IO.File.Exists(resolvedFile))
+                return NotFound(new { message = "File no longer exists. Recordings are auto-deleted after 1 day." });
+
+            var stream = System.IO.File.OpenRead(resolvedFile);
+            return File(stream, "video/mp4", filename);
         }
     }
 }
