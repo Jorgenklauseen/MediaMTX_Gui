@@ -184,6 +184,75 @@
     background: var(--color-error-hover);
 }
 
+.recording-card__btn--files {
+    background: var(--color-bg-secondary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+}
+
+.recording-card__btn--files:hover {
+    background: var(--color-bg-tertiary);
+}
+
+.recording-card__btn--download {
+    background: var(--color-primary);
+    color: white;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.recording-card__btn--download:hover {
+    background: var(--color-primary-hover);
+}
+
+.recording-card__files {
+    margin-top: 1rem;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+}
+
+.recording-card__file-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.recording-card__file-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+}
+
+.recording-card__file-name {
+    flex: 1;
+    font-family: monospace;
+    color: var(--color-text-secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.recording-card__file-size {
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.recording-card__files-empty,
+.recording-card__files-error {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0.5rem 0 0;
+}
+
+.recording-card__files-error {
+    color: var(--color-error);
+}
+
 /* Modal Styles */
 .recording-modal {
     position: fixed;

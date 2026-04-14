@@ -1,4 +1,6 @@
-import type { Recording } from "../types/recordings";
+import { useState } from "react";
+import type { Recording, RecordingFile } from "../types/recordings";
+import { getRecordingFiles } from "../api/recordingsApi";
 import "../styles/recordings.css";
 
 interface RecordingCardProps {
@@ -9,14 +11,37 @@ interface RecordingCardProps {
 }
 
 export function RecordingCard({ recording, onStart, onStop, onDelete }: RecordingCardProps) {
+    const [files, setFiles] = useState<RecordingFile[] | null>(null);
+    const [loadingFiles, setLoadingFiles] = useState(false);
+    const [filesError, setFilesError] = useState<string | null>(null);
+
     const formatDuration = (duration: string) => {
-        // Parse ISO 8601 duration and format nicely
-        return duration;
+        // Parse hh:mm:ss.fffffff format from TimeSpan
+        const match = duration.match(/^(\d+):(\d{2}):(\d{2})/);
+        if (!match) return duration;
+        const [, h, m, s] = match;
+        if (parseInt(h) > 0) return `${h}h ${m}m ${s}s`;
+        if (parseInt(m) > 0) return `${m}m ${s}s`;
+        return `${s}s`;
     };
 
     const formatFileSize = (bytes: number) => {
-        // Format bytes to human readable
-        return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
+        if (bytes === 0) return "0 B";
+        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+        return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    };
+
+    const handleLoadFiles = async () => {
+        try {
+            setLoadingFiles(true);
+            setFilesError(null);
+            const result = await getRecordingFiles(recording.id);
+            setFiles(result);
+        } catch {
+            setFilesError("Could not load files. They may have been auto-deleted after 1 day.");
+        } finally {
+            setLoadingFiles(false);
+        }
     };
 
     return (
@@ -30,28 +55,91 @@ export function RecordingCard({ recording, onStart, onStop, onDelete }: Recordin
 
             <div className="recording-card__meta">
                 <p className="recording-card__stream">Stream: {recording.streamName}</p>
-                <p className="recording-card__created">Created: {new Date(recording.createdAt).toLocaleDateString()}</p>
-                {recording.duration && <p className="recording-card__duration">Duration: {formatDuration(recording.duration)}</p>}
-                {recording.fileSize > 0 && <p className="recording-card__size">Size: {formatFileSize(recording.fileSize)}</p>}
+                <p className="recording-card__created">
+                    Created: {new Date(recording.createdAt).toLocaleDateString()}
+                </p>
+                {recording.startedAt && (
+                    <p className="recording-card__created">
+                        Started: {new Date(recording.startedAt).toLocaleTimeString()}
+                    </p>
+                )}
+                {recording.duration && recording.duration !== "00:00:00" && (
+                    <p className="recording-card__duration">
+                        Duration: {formatDuration(recording.duration)}
+                    </p>
+                )}
+                {recording.fileSize > 0 && (
+                    <p className="recording-card__size">
+                        Total size: {formatFileSize(recording.fileSize)}
+                    </p>
+                )}
             </div>
 
             <div className="recording-card__actions">
-                {recording.status === 'pending' && onStart && (
-                    <button onClick={() => onStart(recording.id)} className="recording-card__btn recording-card__btn--start">
+                {recording.status === "pending" && onStart && (
+                    <button
+                        onClick={() => onStart(recording.id)}
+                        className="recording-card__btn recording-card__btn--start"
+                    >
                         Start Recording
                     </button>
                 )}
-                {recording.status === 'recording' && onStop && (
-                    <button onClick={() => onStop(recording.id)} className="recording-card__btn recording-card__btn--stop">
+                {recording.status === "recording" && onStop && (
+                    <button
+                        onClick={() => onStop(recording.id)}
+                        className="recording-card__btn recording-card__btn--stop"
+                    >
                         Stop Recording
                     </button>
                 )}
+                {recording.status === "completed" && !files && (
+                    <button
+                        onClick={() => void handleLoadFiles()}
+                        className="recording-card__btn recording-card__btn--files"
+                        disabled={loadingFiles}
+                    >
+                        {loadingFiles ? "Loading..." : "View segments"}
+                    </button>
+                )}
                 {onDelete && (
-                    <button onClick={() => onDelete(recording.id)} className="recording-card__btn recording-card__btn--delete">
+                    <button
+                        onClick={() => onDelete(recording.id)}
+                        className="recording-card__btn recording-card__btn--delete"
+                    >
                         Delete
                     </button>
                 )}
             </div>
+
+            {filesError && (
+                <p className="recording-card__files-error">{filesError}</p>
+            )}
+
+            {files !== null && (
+                <div className="recording-card__files">
+                    {files.length === 0 ? (
+                        <p className="recording-card__files-empty">
+                            No segment files found. They may have been auto-deleted.
+                        </p>
+                    ) : (
+                        <ul className="recording-card__file-list">
+                            {files.map((file) => (
+                                <li key={file.name} className="recording-card__file-item">
+                                    <span className="recording-card__file-name">{file.name}</span>
+                                    <span className="recording-card__file-size">{formatFileSize(file.size)}</span>
+                                    <a
+                                        href={file.url}
+                                        download={file.name}
+                                        className="recording-card__btn recording-card__btn--download"
+                                    >
+                                        Download
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
