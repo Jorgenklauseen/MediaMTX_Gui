@@ -101,5 +101,27 @@ namespace MediaMTX_Gui.Server.Controllers
             }
         }
 
+        [HttpPatch("{streamId:guid}/recording")]
+        public async Task<IActionResult> ToggleRecording(int projectId, Guid streamId, [FromBody] ToggleRecordingRequest request)
+        {
+            try
+            {
+                var stream = await _projectStreamService.ToggleRecordingAsync(
+                    projectId,
+                    streamId,
+                    request.Enabled,
+                    User);
+
+                return Ok(stream);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Forbid();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+        }
     }
 }

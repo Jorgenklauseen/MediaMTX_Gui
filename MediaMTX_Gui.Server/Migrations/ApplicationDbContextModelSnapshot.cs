@@ -36,7 +36,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Streams");
+                    b.ToTable("Streams", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Project", b =>
@@ -64,7 +64,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects");
+                    b.ToTable("Projects", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectMember", b =>
@@ -87,7 +87,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("ProjectId", "UserId");
 
-                    b.ToTable("ProjectMembers");
+                    b.ToTable("ProjectMembers", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
@@ -134,7 +134,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectStreams");
+                    b.ToTable("ProjectStreams", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Recording", b =>
@@ -187,7 +187,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasIndex("StreamId");
 
-                    b.ToTable("Recordings");
+                    b.ToTable("Recordings", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.User", b =>
@@ -223,7 +223,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ProjectInvitation", b =>
@@ -257,7 +257,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectInvitations");
+                    b.ToTable("ProjectInvitations", (string)null);
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
