@@ -20,9 +20,3 @@ export interface CreateRecordingPayload {
     description: string;
     streamId: string;
 }
-
-export interface RecordingFile {
-    name: string;
-    size: number;
-    url: string;
-}
