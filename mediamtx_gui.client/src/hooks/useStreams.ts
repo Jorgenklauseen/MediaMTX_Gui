@@ -1,13 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import * as signalR from "@microsoft/signalr";
 import { getStreams } from "../api/streamsApi";
 import type { Stream } from "../types/streams";
-
-const connection = new signalR.HubConnectionBuilder()
-    .withUrl("/hubs/streams")
-    .withAutomaticReconnect()
-    .configureLogging(signalR.LogLevel.Error)
-    .build();
+import { streamsHubConnection, ensureConnected } from "../lib/streamsHub";
 
 export function useStreams() {
     const [streams, setStreams] = useState<Stream[]>([]);
@@ -24,15 +18,13 @@ export function useStreams() {
             .catch(err => setError(err.message))
             .finally(() => setLoading(false));
 
-        connection.on("StreamsUpdated", () => {
+        streamsHubConnection.on("StreamsUpdated", () => {
             getStreams()
                 .then(setStreams)
                 .catch(err => setError(err.message));
         });
 
-        if (connection.state === signalR.HubConnectionState.Disconnected) {
-            connection.start().catch(err => setError(err.message));
-        }
+        ensureConnected();
     }, []);
 
     return { streams, loading, error };

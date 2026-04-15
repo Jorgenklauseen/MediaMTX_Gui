@@ -94,6 +94,27 @@ export async function deleteProjectStream(
     }
 }
 
+export async function toggleStreamRecording(
+    projectId: number,
+    streamId: string,
+    enabled: boolean,
+): Promise<ProjectStream> {
+    const response = await fetch(
+        `/api/projects/${projectId}/streams/${streamId}/recording`,
+        {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ enabled }),
+        },
+    );
+
+    if (!response.ok) {
+        throw new Error("Could not toggle recording");
+    }
+
+    return response.json();
+}
+
 export async function regenerateProjectStreamKey(
     projectId: number,
     streamId: string,
