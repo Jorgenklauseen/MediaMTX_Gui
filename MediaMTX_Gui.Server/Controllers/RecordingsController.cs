@@ -41,6 +41,14 @@ namespace MediaMTX_Gui.Server.Controllers
             return CreatedAtAction(nameof(GetRecordingById), new { id = recording.Id }, recording);
         }
 
+        [HttpPatch("{id:int}")]
+        public async Task<IActionResult> UpdateRecording(int id, [FromBody] UpdateRecordingRequest request)
+        {
+            var recording = await _recordingService.UpdateRecordingAsync(id, request, User);
+            if (recording is null) return NotFound();
+            return Ok(recording);
+        }
+
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteRecording(int id)
         {

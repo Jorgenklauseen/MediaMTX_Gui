@@ -8,15 +8,20 @@ interface RecordingCardProps {
     onStart?: (id: number) => void;
     onStop?: (id: number) => void;
     onDelete?: (id: number) => void;
+    onEditDescription?: (id: number, description: string) => Promise<void>;
 }
 
-export function RecordingCard({ recording, onStart, onStop, onDelete }: RecordingCardProps) {
+export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDescription }: RecordingCardProps) {
     const [files, setFiles] = useState<RecordingFile[] | null>(null);
     const [loadingFiles, setLoadingFiles] = useState(false);
     const [filesError, setFilesError] = useState<string | null>(null);
 
+    const [editing, setEditing] = useState(false);
+    const [draft, setDraft] = useState(recording.description);
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+
     const formatDuration = (duration: string) => {
-        // Parse hh:mm:ss.fffffff format from TimeSpan
         const match = duration.match(/^(\d+):(\d{2}):(\d{2})/);
         if (!match) return duration;
         const [, h, m, s] = match;
@@ -44,6 +49,26 @@ export function RecordingCard({ recording, onStart, onStop, onDelete }: Recordin
         }
     };
 
+    const handleSaveDescription = async () => {
+        if (!onEditDescription) return;
+        try {
+            setSaving(true);
+            setSaveError(null);
+            await onEditDescription(recording.id, draft);
+            setEditing(false);
+        } catch {
+            setSaveError("Could not save description.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setDraft(recording.description);
+        setSaveError(null);
+        setEditing(false);
+    };
+
     return (
         <div className="recording-card">
             <div className="recording-card__header">
@@ -52,6 +77,53 @@ export function RecordingCard({ recording, onStart, onStop, onDelete }: Recordin
                     {recording.status}
                 </span>
             </div>
+
+            {!editing ? (
+                <div className="recording-card__description-row">
+                    <p className="recording-card__description">
+                        {recording.description
+                            ? recording.description
+                            : <span className="recording-card__description--empty">No description</span>}
+                    </p>
+                    {onEditDescription && (
+                        <button
+                            className="recording-card__edit-btn"
+                            onClick={() => { setDraft(recording.description); setEditing(true); }}
+                            title="Edit description"
+                        >
+                            Edit
+                        </button>
+                    )}
+                </div>
+            ) : (
+                <div className="recording-card__edit-form">
+                    <textarea
+                        className="recording-card__edit-textarea"
+                        value={draft}
+                        onChange={e => setDraft(e.target.value)}
+                        placeholder="Add a description..."
+                        rows={3}
+                        disabled={saving}
+                    />
+                    {saveError && <p className="recording-card__files-error">{saveError}</p>}
+                    <div className="recording-card__edit-actions">
+                        <button
+                            className="recording-card__btn recording-card__btn--save"
+                            onClick={() => void handleSaveDescription()}
+                            disabled={saving}
+                        >
+                            {saving ? "Saving..." : "Save"}
+                        </button>
+                        <button
+                            className="recording-card__btn recording-card__btn--cancel"
+                            onClick={handleCancelEdit}
+                            disabled={saving}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="recording-card__meta">
                 <p className="recording-card__stream">Stream: {recording.streamName}</p>

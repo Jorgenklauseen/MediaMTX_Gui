@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { createRecording, deleteRecording, getRecordings, startRecording, stopRecording } from "../api/recordingsApi";
+import { createRecording, deleteRecording, getRecordings, startRecording, stopRecording, updateRecording } from "../api/recordingsApi";
 import type { CreateRecordingPayload, Recording } from "../types/recordings";
 
 export function useRecordings() {
@@ -64,6 +64,13 @@ export function useRecordings() {
         }
     };
 
+    const editDescription = async (recordingId: number, description: string) => {
+        const updated = await updateRecording(recordingId, description);
+        setRecordings(current =>
+            current.map(r => r.id === recordingId ? updated : r)
+        );
+    };
+
     useEffect(() => {
         loadRecordings();
     }, []);
@@ -78,5 +85,6 @@ export function useRecordings() {
         removeRecording,
         startRecordingSession,
         stopRecordingSession,
+        editDescription,
     };
 }

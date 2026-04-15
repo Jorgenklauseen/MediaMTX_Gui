@@ -31,6 +31,16 @@ export async function stopRecording(recordingId: number): Promise<void> {
     if (!response.ok) throw new Error("Could not stop recording");
 }
 
+export async function updateRecording(recordingId: number, description: string): Promise<Recording> {
+    const response = await fetch(`/api/recordings/${recordingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description }),
+    });
+    if (!response.ok) throw new Error("Could not update recording");
+    return response.json();
+}
+
 export async function getRecordingFiles(recordingId: number): Promise<RecordingFile[]> {
     const response = await fetch(`/api/recordings/${recordingId}/files`);
     if (!response.ok) throw new Error("Could not load recording files");
