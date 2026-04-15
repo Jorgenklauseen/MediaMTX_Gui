@@ -16,6 +16,8 @@ export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDesc
     const [loadingFiles, setLoadingFiles] = useState(false);
     const [filesError, setFilesError] = useState<string | null>(null);
 
+    const [previewAvailable, setPreviewAvailable] = useState(true);
+
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(recording.description);
     const [saving, setSaving] = useState(false);
@@ -123,6 +125,16 @@ export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDesc
                         </button>
                     </div>
                 </div>
+            )}
+
+            {recording.status === "completed" && previewAvailable && (
+                <video
+                    className="recording-card__preview"
+                    src={`/api/recordings/${recording.id}/preview`}
+                    preload="metadata"
+                    controls
+                    onError={() => setPreviewAvailable(false)}
+                />
             )}
 
             <div className="recording-card__meta">

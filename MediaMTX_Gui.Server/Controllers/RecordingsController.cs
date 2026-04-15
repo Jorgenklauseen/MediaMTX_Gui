@@ -81,10 +81,42 @@ namespace MediaMTX_Gui.Server.Controllers
             if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
                 return NotFound(new { message = "Recording directory not found. Files may have been auto-deleted." });
 
+            var files = GetSessionSegments(recording)
+                .Select(path => new
+                {
+                    name = Path.GetFileName(path),
+                    size = new FileInfo(path).Length,
+                    url = $"/api/recordings/{id}/files/{Uri.EscapeDataString(Path.GetFileName(path))}"
+                });
+
+            return Ok(files);
+        }
+
+        [HttpGet("{id:int}/preview")]
+        public async Task<IActionResult> PreviewRecording(int id)
+        {
+            var recording = await _recordingService.GetRecordingByIdForCurrentUserAsync(id, User);
+            if (recording is null) return NotFound();
+            if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
+                return NotFound();
+
+            var firstSegment = GetSessionSegments(recording).FirstOrDefault();
+            if (firstSegment is null || !System.IO.File.Exists(firstSegment))
+                return NotFound();
+
+            var stream = System.IO.File.OpenRead(firstSegment);
+            return File(stream, "video/mp4", enableRangeProcessing: true);
+        }
+
+        private static IEnumerable<string> GetSessionSegments(DTOs.RecordingDto recording)
+        {
+            if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
+                return Enumerable.Empty<string>();
+
             var sessionStart = recording.StartedAt ?? recording.CreatedAt;
             var sessionEnd = recording.EndedAt ?? DateTime.UtcNow;
 
-            var files = Directory.GetFiles(recording.FilePath, "*.mp4")
+            return Directory.GetFiles(recording.FilePath, "*.mp4")
                 .Select(f =>
                 {
                     var stem = Path.GetFileNameWithoutExtension(f);
@@ -99,16 +131,9 @@ namespace MediaMTX_Gui.Server.Controllers
                 })
                 .Where(x =>
                     x.segmentTime >= sessionStart.AddSeconds(-5) &&
-                    x.segmentTime <= sessionEnd.AddSeconds(35)) // +35s covers the last open segment
+                    x.segmentTime <= sessionEnd.AddSeconds(35))
                 .OrderBy(x => x.segmentTime)
-                .Select(x => new
-                {
-                    name = Path.GetFileName(x.path),
-                    size = new FileInfo(x.path).Length,
-                    url = $"/api/recordings/{id}/files/{Uri.EscapeDataString(Path.GetFileName(x.path))}"
-                });
-
-            return Ok(files);
+                .Select(x => x.path);
         }
 
         [HttpGet("{id:int}/files/{filename}")]
