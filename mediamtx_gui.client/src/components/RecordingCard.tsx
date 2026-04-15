@@ -98,7 +98,15 @@ export function RecordingCard({ recording, onStart, onStop, onDelete }: Recordin
                         className="recording-card__btn recording-card__btn--files"
                         disabled={loadingFiles}
                     >
-                        {loadingFiles ? "Loading..." : "View segments"}
+                        {loadingFiles ? "Loading..." : "View download file"}
+                    </button>
+                )}
+                {recording.status === "completed" && files && (
+                    <button
+                        onClick={() => setFiles(null)}
+                        className="recording-card__btn recording-card__btn--files"
+                    >
+                        Hide download file
                     </button>
                 )}
                 {onDelete && (

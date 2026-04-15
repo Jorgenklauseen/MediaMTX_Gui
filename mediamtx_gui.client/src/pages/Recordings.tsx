@@ -57,13 +57,6 @@ function Recordings() {
               onChange={setSearch}
             />
           </div>
-          <button
-            className="recordings-create-button"
-            onClick={() => setShowCreateModal(true)}
-            disabled={creating}
-          >
-            {creating ? "Creating..." : "Create Recording"}
-          </button>
         </div>
 
         <div className="recordings-results-info">

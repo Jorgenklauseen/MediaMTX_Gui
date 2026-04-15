@@ -73,13 +73,31 @@ namespace MediaMTX_Gui.Server.Controllers
             if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
                 return NotFound(new { message = "Recording directory not found. Files may have been auto-deleted." });
 
+            var sessionStart = recording.StartedAt ?? recording.CreatedAt;
+            var sessionEnd = recording.EndedAt ?? DateTime.UtcNow;
+
             var files = Directory.GetFiles(recording.FilePath, "*.mp4")
-                .OrderBy(f => f)
-                .Select(f => new
+                .Select(f =>
                 {
-                    name = Path.GetFileName(f),
-                    size = new FileInfo(f).Length,
-                    url = $"/api/recordings/{id}/files/{Uri.EscapeDataString(Path.GetFileName(f))}"
+                    var stem = Path.GetFileNameWithoutExtension(f);
+                    DateTime.TryParseExact(
+                        stem,
+                        "yyyy-MM-dd_HH-mm-ss",
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AssumeUniversal |
+                        System.Globalization.DateTimeStyles.AdjustToUniversal,
+                        out var segmentTime);
+                    return (path: f, segmentTime);
+                })
+                .Where(x =>
+                    x.segmentTime >= sessionStart.AddSeconds(-5) &&
+                    x.segmentTime <= sessionEnd.AddSeconds(35)) // +35s covers the last open segment
+                .OrderBy(x => x.segmentTime)
+                .Select(x => new
+                {
+                    name = Path.GetFileName(x.path),
+                    size = new FileInfo(x.path).Length,
+                    url = $"/api/recordings/{id}/files/{Uri.EscapeDataString(Path.GetFileName(x.path))}"
                 });
 
             return Ok(files);
