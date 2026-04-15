@@ -7,7 +7,7 @@ import { SearchBar } from "../components/SearchBar";
 import "../styles/recordings.css";
 
 function Recordings() {
-  const { recordings, loading, creating, error, submitRecording, removeRecording, startRecordingSession, stopRecordingSession } = useRecordings();
+  const { recordings, loading, error, submitRecording, removeRecording, startRecordingSession, stopRecordingSession } = useRecordings();
   const { streams } = useStreams();
   const [search, setSearch] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
