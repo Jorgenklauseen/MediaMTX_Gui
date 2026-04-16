@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { createRecording, deleteRecording, getRecordings, startRecording, stopRecording } from "../api/recordingsApi";
+import { useEffect, useRef, useState } from "react";
+import { createRecording, deleteRecording, getRecordings, startRecording, stopRecording, updateRecording } from "../api/recordingsApi";
 import type { CreateRecordingPayload, Recording } from "../types/recordings";
+import { streamsHubConnection, ensureConnected } from "../lib/streamsHub";
 
 export function useRecordings() {
     const [recordings, setRecordings] = useState<Recording[]>([]);
@@ -64,8 +65,28 @@ export function useRecordings() {
         }
     };
 
+    const editDescription = async (recordingId: number, description: string) => {
+        const updated = await updateRecording(recordingId, description);
+        setRecordings(current =>
+            current.map(r => r.id === recordingId ? updated : r)
+        );
+    };
+
+    const hasStarted = useRef(false);
+
     useEffect(() => {
+        if (hasStarted.current) return;
+        hasStarted.current = true;
+
         loadRecordings();
+
+        // Reload whenever a stream starts or stops — the backend creates/completes
+        // Recording entries at those same moments.
+        streamsHubConnection.on("StreamsUpdated", () => {
+            void loadRecordings();
+        });
+
+        ensureConnected();
     }, []);
 
     return {
@@ -78,5 +99,6 @@ export function useRecordings() {
         removeRecording,
         startRecordingSession,
         stopRecordingSession,
+        editDescription,
     };
 }

@@ -12,5 +12,6 @@ namespace MediaMTX_Gui.Server.Services
         Task<bool> DeleteRecordingForCurrentUserAsync(int id, ClaimsPrincipal user);
         Task<bool> StartRecordingAsync(int id, ClaimsPrincipal user);
         Task<bool> StopRecordingAsync(int id, ClaimsPrincipal user);
+        Task<RecordingDto?> UpdateRecordingAsync(int id, UpdateRecordingRequest request, ClaimsPrincipal user);
     }
 }
