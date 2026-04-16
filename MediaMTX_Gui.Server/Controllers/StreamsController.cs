@@ -103,6 +103,47 @@ public class StreamsController : ControllerBase
         await SyncStreams(json);
         Console.WriteLine($"Sending StreamsUpdated to all clients for stream: {name}");
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+
+        // Complete any active recording for this stream
+        var activeRecording = await _context.Recordings
+            .FirstOrDefaultAsync(r => r.StreamId == name && r.Status == "recording");
+
+        if (activeRecording != null)
+        {
+            activeRecording.Status = "completed";
+            activeRecording.EndedAt = DateTime.UtcNow;
+            if (activeRecording.StartedAt.HasValue)
+            {
+                activeRecording.Duration = activeRecording.EndedAt.Value - activeRecording.StartedAt.Value;
+            }
+
+            // Sum file sizes only for segments written during this session
+            if (!string.IsNullOrEmpty(activeRecording.FilePath) && Directory.Exists(activeRecording.FilePath))
+            {
+                var sessionStart = activeRecording.StartedAt ?? activeRecording.CreatedAt;
+                var sessionEnd = activeRecording.EndedAt ?? DateTime.UtcNow;
+
+                activeRecording.FileSize = Directory.GetFiles(activeRecording.FilePath, "*.mp4")
+                    .Where(f =>
+                    {
+                        var stem = Path.GetFileNameWithoutExtension(f);
+                        if (!DateTime.TryParseExact(
+                            stem,
+                            "yyyy-MM-dd_HH-mm-ss",
+                            System.Globalization.CultureInfo.InvariantCulture,
+                            System.Globalization.DateTimeStyles.AssumeUniversal |
+                            System.Globalization.DateTimeStyles.AdjustToUniversal,
+                            out var segmentTime))
+                            return false;
+                        return segmentTime >= sessionStart.AddSeconds(-5) &&
+                               segmentTime <= sessionEnd.AddSeconds(35);
+                    })
+                    .Sum(f => new FileInfo(f).Length);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
         return Ok();
     }
 

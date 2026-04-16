@@ -7,10 +7,12 @@ type Props = {
   onRegenerate: (projectId: number, streamId: string) => Promise<void>;
   onDelete: (projectId: number, streamId: string, displayPath: string) => Promise<void>;
   onCopy: (value: string, label: string) => Promise<void>;
+  onToggleRecording: (projectId: number, streamId: string, enabled: boolean) => Promise<void>;
   regenerating: boolean;
+  togglingRecording: boolean;
 };
 
-export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, onCopy, regenerating }: Props) {
+export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, onCopy, onToggleRecording, regenerating, togglingRecording }: Props) {
   const [collapsed, setCollapsed] = useState(true);
   const [publishProto, setPublishProto] = useState(stream.publishOptions[0]?.protocol ?? "");
   const [playbackProto, setPlaybackProto] = useState(stream.playbackOptions[0]?.protocol ?? "");
@@ -89,6 +91,17 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
           </div>
 
           <div className="project-stream-actions">
+            {stream.canRotateKey && (
+              <button
+                type="button"
+                className={`stream-recording-toggle ${stream.recordingEnabled ? "stream-recording-toggle--on" : ""}`}
+                onClick={() => void onToggleRecording(projectId, stream.id, !stream.recordingEnabled)}
+                disabled={togglingRecording}
+                title={stream.recordingEnabled ? "Recording enabled — click to disable" : "Recording disabled — click to enable"}
+              >
+                {togglingRecording ? "Saving..." : stream.recordingEnabled ? "Recording ON" : "Recording OFF"}
+              </button>
+            )}
             {stream.canRotateKey && (
               <button
                 type="button"

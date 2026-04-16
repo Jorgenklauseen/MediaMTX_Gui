@@ -65,7 +65,7 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new OpenIdConnectEvents
     {
-        
+
         OnAuthorizationCodeReceived = context =>
         {
             var clientId = context.Options.ClientId!;
@@ -88,7 +88,7 @@ builder.Services.AddAuthentication(options =>
 
             var userDto = await userService.SyncUserAsync(context.Principal!);
 
-            if(userDto.IsBanned)
+            if (userDto.IsBanned)
             {
                 context.Fail("User is banned");
                 return;
@@ -142,5 +142,3 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
-
-
