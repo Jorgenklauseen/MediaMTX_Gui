@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MediaMTX_Gui.Server.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using MediaMTX_Gui.Server.Services;
