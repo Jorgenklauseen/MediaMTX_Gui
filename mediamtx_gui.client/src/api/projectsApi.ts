@@ -94,6 +94,7 @@ export async function deleteProjectStream(
     }
 }
 
+// Toggles recording on/off for a project stream
 export async function toggleStreamRecording(
     projectId: number,
     streamId: string,

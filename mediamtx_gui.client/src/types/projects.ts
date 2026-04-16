@@ -30,7 +30,7 @@ export type ProjectStream = {
     publishUser: string;
     publishOptions: StreamProtocolOption[];
     playbackOptions: StreamProtocolOption[];
-    recordingEnabled: boolean;
+    recordingEnabled: boolean; // whether this stream auto-records
     createdAt: string;
     hasVisibleSecret: boolean;
     canRotateKey: boolean;
