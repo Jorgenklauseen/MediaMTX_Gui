@@ -36,7 +36,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Streams", (string)null);
+                    b.ToTable("Streams");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Project", b =>
@@ -64,7 +64,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Projects", (string)null);
+                    b.ToTable("Projects");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectMember", b =>
@@ -87,7 +87,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("ProjectId", "UserId");
 
-                    b.ToTable("ProjectMembers", (string)null);
+                    b.ToTable("ProjectMembers");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
@@ -117,9 +117,6 @@ namespace MediaMTX_Gui.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("RecordingEnabled")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("StreamKeyHash")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -134,7 +131,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasIndex("ProjectId");
 
-                    b.ToTable("ProjectStreams", (string)null);
+                    b.ToTable("ProjectStreams");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Recording", b =>
@@ -187,7 +184,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasIndex("StreamId");
 
-                    b.ToTable("Recordings", (string)null);
+                    b.ToTable("Recordings");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.User", b =>
@@ -223,7 +220,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ProjectInvitation", b =>
@@ -257,7 +254,7 @@ namespace MediaMTX_Gui.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ProjectInvitations", (string)null);
+                    b.ToTable("ProjectInvitations");
                 });
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>

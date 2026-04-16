@@ -111,30 +111,6 @@ namespace MediaMTX_Gui.Server.Services
             await _db.SaveChangesAsync();
         }
 
-        public async Task<ProjectStreamDto> ToggleRecordingAsync(int projectId, Guid streamId, bool enabled, ClaimsPrincipal principal)
-        {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
-
-            var stream = await _db.ProjectStreams
-                .FirstOrDefaultAsync(candidate => candidate.Id == streamId && candidate.ProjectId == projectId);
-
-            if (stream is null)
-            {
-                throw new KeyNotFoundException("Stream was not found.");
-            }
-
-            if (stream.CreatedByUserId != currentUser.Id)
-            {
-                throw new UnauthorizedAccessException("Only the stream owner can toggle recording.");
-            }
-
-            stream.RecordingEnabled = enabled;
-            stream.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
-
-            return MapToDto(stream, null, true);
-        }
-
         public async Task<bool> ValidatePublishCredentialsAsync(MediaMtxAuthRequestDto request)
         {
             if (!string.Equals(request.Action, "publish", StringComparison.OrdinalIgnoreCase))
@@ -338,7 +314,6 @@ namespace MediaMTX_Gui.Server.Services
                         Note = "~30s latency"
                     }
                 ],
-                RecordingEnabled = stream.RecordingEnabled,
                 CreatedAt = stream.CreatedAt,
                 HasVisibleSecret = rawStreamKey is not null,
                 CanRotateKey = canRotateKey

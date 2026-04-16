@@ -7,7 +7,6 @@ using MediaMTX_Gui.Server.Models;
 using System.Text.Json;
 using MediaMTX_Gui.Server.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 
 namespace MediaMTX_Gui.Server.Controllers;
 
@@ -19,20 +18,17 @@ public class StreamsController : ControllerBase
     private readonly IHubContext<StreamHub> _hubContext;
     private readonly ApplicationDbContext _context;
     private readonly IProjectStreamService _projectStreamService;
-    private readonly ILogger<StreamsController> _logger;
 
     public StreamsController(
         IMediaMtxService mediaService,
         IHubContext<StreamHub> hubContext,
         ApplicationDbContext context,
-        IProjectStreamService projectStreamService,
-        ILogger<StreamsController> logger)
+        IProjectStreamService projectStreamService)
     {
         _mediaService = mediaService;
         _hubContext = hubContext;
         _context = context;
         _projectStreamService = projectStreamService;
-        _logger = logger;
     }
 
     public class MediaMtxPathItem
@@ -80,6 +76,7 @@ public class StreamsController : ControllerBase
             await _context.SaveChangesAsync();
         }
     }
+   
 
     [HttpGet("status")]
     public async Task<IActionResult> GetStatus()
@@ -94,27 +91,8 @@ public class StreamsController : ControllerBase
     {
         var json = await _mediaService.GetPathsAsync();
         await SyncStreams(json);
+        Console.WriteLine($"Sending StreamsUpdated to all clients for stream: {name}");
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
-
-        // Auto-create a recording entry if this stream has recording enabled
-        var projectStream = await _context.ProjectStreams
-            .FirstOrDefaultAsync(ps => ps.Path == name && ps.RecordingEnabled);
-
-        if (projectStream != null)
-        {
-            var recordingDir = Path.Combine("/recordings", name.Replace("/", Path.DirectorySeparatorChar.ToString()));
-            _context.Recordings.Add(new Recording
-            {
-                Name = $"{name} \u2014 {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
-                StreamId = name,
-                CreatedById = projectStream.CreatedByUserId,
-                Status = "recording",
-                StartedAt = DateTime.UtcNow,
-                FilePath = recordingDir
-            });
-            await _context.SaveChangesAsync();
-        }
-
         return Ok();
     }
 
@@ -123,6 +101,7 @@ public class StreamsController : ControllerBase
     {
         var json = await _mediaService.GetPathsAsync();
         await SyncStreams(json);
+        Console.WriteLine($"Sending StreamsUpdated to all clients for stream: {name}");
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
 
         // Complete any active recording for this stream
@@ -172,12 +151,8 @@ public class StreamsController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
     {
-        _logger.LogInformation(
-            "MediaMTX auth request: Path={Path}, Action={Action}, Protocol={Protocol}, User={User}, PasswordPresent={PasswordPresent}, Query={Query}",
-            request.Path, request.Action, request.Protocol, request.User,
-            !string.IsNullOrWhiteSpace(request.Password), request.Query);
-
         var isAllowed = await _projectStreamService.ValidatePublishCredentialsAsync(request);
         return isAllowed ? Ok() : Unauthorized();
     }
+
 }
