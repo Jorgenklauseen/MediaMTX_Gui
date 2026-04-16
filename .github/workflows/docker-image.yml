@@ -3,8 +3,8 @@ name: Build and push to Docker Hub
 on:
   push:
     branches:
-      - newTempBranch
-      
+      - main
+
 jobs:
   docker-build:
     runs-on: ubuntu-latest
