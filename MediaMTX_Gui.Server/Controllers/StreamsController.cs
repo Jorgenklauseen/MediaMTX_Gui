@@ -106,7 +106,8 @@ public class StreamsController : ControllerBase
 
         // Complete any active recording for this stream
         var activeRecording = await _context.Recordings
-            .FirstOrDefaultAsync(r => r.StreamId == name && r.Status == "recording");
+            .Where(r => r.StreamId == name && r.Status == "recording")
+            .FirstOrDefaultAsync();;
 
         if (activeRecording != null)
         {
