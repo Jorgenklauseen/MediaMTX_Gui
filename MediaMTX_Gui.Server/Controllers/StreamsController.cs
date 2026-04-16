@@ -7,7 +7,7 @@ using MediaMTX_Gui.Server.Models;
 using System.Text.Json;
 using MediaMTX_Gui.Server.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore; // required for FirstOrDefaultAsync on DbSet
 
 namespace MediaMTX_Gui.Server.Controllers;
 
