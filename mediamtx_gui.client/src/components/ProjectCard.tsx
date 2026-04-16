@@ -3,6 +3,7 @@ import {
   createProjectStream,
   deleteProjectStream,
   regenerateProjectStreamKey,
+  toggleStreamRecording,
 } from "../api/projectsApi";
 import { inviteUserToProject } from "../api/invitationApi";
 import type { Project, ProjectStream } from "../types/projects";
@@ -22,6 +23,7 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
   const [streamError, setStreamError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [regeneratingStreamId, setRegeneratingStreamId] = useState<string | null>(null);
+  const [togglingRecordingStreamId, setTogglingRecordingStreamId] = useState<string | null>(null);
 
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
@@ -60,6 +62,18 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
       setStreamError("Could not regenerate stream key.");
     } finally {
       setRegeneratingStreamId(null);
+    }
+  };
+
+  const handleToggleRecording = async (projectId: number, streamId: string, enabled: boolean) => {
+    try {
+      setTogglingRecordingStreamId(streamId);
+      const updated = await toggleStreamRecording(projectId, streamId, enabled);
+      onStreamsChange(projectId, streams.map(s => s.id === streamId ? updated : s));
+    } catch {
+      setStreamError("Could not toggle recording.");
+    } finally {
+      setTogglingRecordingStreamId(null);
     }
   };
 
@@ -208,7 +222,9 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
                     onRegenerate={handleRegenerate}
                     onDelete={handleDeleteStream}
                     onCopy={onCopy}
+                    onToggleRecording={handleToggleRecording}
                     regenerating={regeneratingStreamId === stream.id}
+                    togglingRecording={togglingRecordingStreamId === stream.id}
                   />
                 ))}
               </div>
