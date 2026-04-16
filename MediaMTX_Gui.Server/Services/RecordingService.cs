@@ -169,39 +169,5 @@ namespace MediaMTX_Gui.Server.Services
             await _context.SaveChangesAsync();
             return true;
         }
-
-        public async Task<RecordingDto?> UpdateRecordingAsync(int id, UpdateRecordingRequest request, ClaimsPrincipal user)
-        {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return null;
-
-            var recording = await _context.Recordings
-                .Include(r => r.Stream)
-                .Include(r => r.CreatedBy)
-                .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
-
-            if (recording == null) return null;
-
-            recording.Description = request.Description ?? string.Empty;
-            await _context.SaveChangesAsync();
-
-            return new RecordingDto
-            {
-                Id = recording.Id,
-                Name = recording.Name,
-                Description = recording.Description,
-                Status = recording.Status,
-                StreamName = recording.Stream!.Name,
-                CreatedAt = recording.CreatedAt,
-                StartedAt = recording.StartedAt,
-                EndedAt = recording.EndedAt,
-                FilePath = recording.FilePath,
-                FileSize = recording.FileSize,
-                Duration = recording.Duration,
-                StreamId = recording.StreamId,
-                CreatedById = recording.CreatedById,
-                CreatedByName = recording.CreatedBy!.Username ?? string.Empty
-            };
-        }
     }
 }

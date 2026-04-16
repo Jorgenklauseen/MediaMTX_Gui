@@ -10,7 +10,6 @@ namespace MediaMTX_Gui.Server.DTOs
         public string PublishUser { get; set; }
         public List<StreamProtocolOption> PublishOptions { get; set; }
         public List<StreamProtocolOption> PlaybackOptions { get; set; }
-        public bool RecordingEnabled { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool HasVisibleSecret { get; set; }
         public bool CanRotateKey { get; set; }

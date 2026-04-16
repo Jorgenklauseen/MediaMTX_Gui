@@ -451,38 +451,3 @@
         grid-template-columns: 1fr;
     }
 }
-
-/* Recording toggle button */
-.stream-recording-toggle {
-    padding: 0.45rem 1rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1.5px solid var(--border-color);
-    background: transparent;
-    color: var(--text-color);
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
-}
-
-.stream-recording-toggle:hover {
-    border-color: #16a34a;
-    color: #16a34a;
-}
-
-.stream-recording-toggle--on {
-    background: #16a34a;
-    border-color: #16a34a;
-    color: #fff;
-}
-
-.stream-recording-toggle--on:hover {
-    background: #15803d;
-    border-color: #15803d;
-    color: #fff;
-}
-
-.stream-recording-toggle:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
