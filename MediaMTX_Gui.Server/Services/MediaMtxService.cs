@@ -22,15 +22,16 @@ public class MediaMtxService : IMediaMtxService
 
     public async Task<string> GetPathDetailsAsync(string name)
     {
-        var response = await _httpClient.GetAsync($"/v3/paths/get/{Uri.EscapeDataString(name)}");
+        var encodedPath = string.Join("/", name.Split('/').Select(Uri.EscapeDataString));
+        var response = await _httpClient.GetAsync($"/v3/paths/get/{encodedPath}");
         response.EnsureSuccessStatusCode();
-
         return await response.Content.ReadAsStringAsync();
     }
 
     public async Task KickPathAsync(string path)
     {
-        var response = await _httpClient.PostAsync($"/v3/paths/kick/{Uri.EscapeDataString(path)}", null);
+        var encodedPath = string.Join("/", path.Split('/').Select(Uri.EscapeDataString));
+        var response = await _httpClient.PostAsync($"/v3/paths/kick/{encodedPath}", null);
         if (response.StatusCode != HttpStatusCode.NotFound)
             response.EnsureSuccessStatusCode();
     }
