@@ -233,7 +233,7 @@ namespace MediaMTX_Gui.Server.Services
 
             for (var attempt = 0; attempt < 10; attempt++)
             {
-                var suffix = RandomNumberGenerator.GetHexString(6).ToLowerInvariant();
+                var suffix = RandomNumberGenerator.GetHexString(12).ToLowerInvariant();
                 var path = $"{projectPrefix}/{baseSlug}-{suffix}";
 
                 var exists = await _db.ProjectStreams.AnyAsync(stream => stream.Path == path);
