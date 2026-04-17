@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Nodes;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
@@ -161,6 +162,34 @@ namespace MediaMTX_Gui.Server.Services
             }
 
             return SlowEquals(stream.StreamKeyHash, HashSecret(request.Password));
+        }
+
+        public async Task<string> FilterStreamJsonAsync(string json, ClaimsPrincipal principal)
+        {
+            var user = await GetCurrentPersistedUserAsync(principal);
+
+            if (user.Role == "admin")
+                return json;
+
+            var allowedPaths = await _db.ProjectMembers
+                .Where(pm => pm.UserId == user.Id)
+                .Join(_db.ProjectStreams,
+                    pm => pm.ProjectId,
+                    ps => ps.ProjectId,
+                    (pm, ps) => ps.Path)
+                .ToHashSetAsync();
+
+            var node = JsonNode.Parse(json);
+            if (node?["items"] is JsonArray items)
+            {
+                var filtered = items
+                    .Where(i => i?["name"]?.GetValue<string>() is string name && allowedPaths.Contains(name))
+                    .Select(i => i?.DeepClone())
+                    .ToArray();
+                node["items"] = new JsonArray(filtered);
+            }
+
+            return node?.ToJsonString() ?? json;
         }
 
         private async Task<User> EnsureProjectMembershipAsync(int projectId, ClaimsPrincipal principal)

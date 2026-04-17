@@ -8,8 +8,7 @@ using MediaMTX_Gui.Server.Models;
 using System.Text.Json;
 using MediaMTX_Gui.Server.DTOs;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore; // required for FirstOrDefaultAsync on DbSet
-
+using Microsoft.EntityFrameworkCore;
 namespace MediaMTX_Gui.Server.Controllers;
 
 [ApiController]
@@ -83,11 +82,14 @@ public class StreamsController : ControllerBase
     }
 
     [HttpGet("status")]
+    [Authorize]
     public async Task<IActionResult> GetStatus()
     {
         var json = await _mediaService.GetPathsAsync();
         await SyncStreams(json);
-        return Ok(json);
+
+        var filteredJson = await _projectStreamService.FilterStreamJsonAsync(json, User);
+        return Content(filteredJson, "application/json");
     }
 
     [HttpPost("started")]
