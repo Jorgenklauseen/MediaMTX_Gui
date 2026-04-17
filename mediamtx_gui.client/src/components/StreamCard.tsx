@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import type { Stream } from "../types/streams";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
 import { parseStreamName } from "../utils";
-import { FaVolumeMute } from "react-icons/fa";
+import { FaEye} from "react-icons/fa";
 import "../styles/streams.css";
 
 type Props = {
@@ -23,7 +23,7 @@ export function StreamCard({ stream }: Props) {
     >
       <div className="stream-thumbnail">
         {isLive && <span className="stream-badge stream-badge--live">● LIVE</span>}
-        <span className="stream-badge stream-badge--viewers"><FaVolumeMute /> {stream.readers.length}</span>
+        <span className="stream-badge stream-badge--viewers"><FaEye /> {stream.readers.length}</span>
         <video
           ref={videoRef}
           muted
