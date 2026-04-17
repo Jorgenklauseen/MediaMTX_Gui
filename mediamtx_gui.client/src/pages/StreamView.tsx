@@ -1,6 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
-import { FaVolumeUp, FaVolumeMute } from "react-icons/fa";
+import { FaVolumeUp, FaVolumeMute, FaEye } from "react-icons/fa";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
 import { useStreams } from "../hooks/useStreams";
@@ -95,6 +95,9 @@ function StreamView() {
                 ● LIVE {startTime ? `· ${formatElapsed(elapsed)}` : ""}
               </span>
               <span className="sv-stream-name">{streamName}</span>
+            </div>
+            <div className="sv-controls-center">
+              <span className="sv-badge-viewers"> <FaEye /> {stream?.readers.length ?? 0}</span>
             </div>
             <div className="sv-controls-right">
               <button className="sv-btn" onClick={toggleMute} title={muted ? "Unmute" : "Mute"}>
