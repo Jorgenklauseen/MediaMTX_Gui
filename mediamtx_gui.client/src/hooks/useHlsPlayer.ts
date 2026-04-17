@@ -1,3 +1,9 @@
+/* 
+
+This is not in use at the moment as WebRTC is integrated and HLS is not needed as WebRTC is more efficient, 
+but we keep it here for future use if we want to add HLS support in the future.
+
+*/
 import { useRef, useEffect } from "react";
 import Hls from "hls.js";
 

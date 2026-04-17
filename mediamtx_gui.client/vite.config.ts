@@ -66,6 +66,11 @@ export default defineConfig({
                 target: 'http://localhost:8888',
                 secure: false,
                 rewrite: (path) => path.replace(/^\/hls/, '')
+            },
+            '^/webrtc': {
+                target: 'http://localhost:18889',
+                secure: false,
+                rewrite: (path) => path.replace(/^\/webrtc/, '')
             }
         },
         port: parseInt(env.DEV_SERVER_PORT || '7095'),

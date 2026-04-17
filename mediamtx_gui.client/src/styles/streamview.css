@@ -1,0 +1,138 @@
+.sv-root {
+  position: relative;
+  background: #000;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sv-video {
+  width: 100%;
+  flex: 1;
+  object-fit: contain;
+  display: block;
+}
+
+/* Status overlay (loading / offline) */
+.sv-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 0.4rem;
+  z-index: 10;
+}
+
+.sv-overlay p {
+  margin: 0;
+}
+
+.sv-overlay-sub {
+  font-size: 0.8rem;
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+/* Controls overlay */
+.sv-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem 1.25rem 1rem;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.sv-controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sv-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sv-stream-name {
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sv-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sv-root:hover .sv-controls,
+.sv-root.sv-show-controls .sv-controls {
+  opacity: 1;
+}
+
+.sv-badge-live {
+  background: #e00;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 4px;
+}
+
+.sv-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  transition: background 140ms ease;
+}
+
+.sv-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.sv-back {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 200ms ease, background 140ms ease;
+}
+
+.sv-root:hover .sv-back,
+.sv-root.sv-show-controls .sv-back {
+  opacity: 1;
+}
+
+.sv-back:hover {
+  background: rgba(0, 0, 0, 0.8);
+}

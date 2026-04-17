@@ -10,6 +10,7 @@ import ProjectDetail from './pages/ProjectDetail';
 import { ToastContainer } from 'react-toastify';
 import AcceptInvitation from './pages/sidePages/AcceptInvitation';
 import Profile from './pages/Profile';
+import StreamView from './pages/StreamView';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 
@@ -39,6 +40,7 @@ function App() {
               <AcceptInvitation />
             </ProtectedRoute>
           } />
+          <Route path="/stream" element={<StreamView />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

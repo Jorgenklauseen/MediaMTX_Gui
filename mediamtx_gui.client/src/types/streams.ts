@@ -10,3 +10,5 @@ export type Stream = {
     readers: unknown[];
     source: { type: string; id: string } | null;
 };
+
+export type StreamStatus = "loading" | "online" | "offline";
