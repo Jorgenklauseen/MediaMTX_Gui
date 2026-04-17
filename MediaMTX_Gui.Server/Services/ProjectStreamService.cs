@@ -14,11 +14,13 @@ namespace MediaMTX_Gui.Server.Services
     {
         private readonly ApplicationDbContext _db;
         private readonly MediaMtxOptions _mediaMtxOptions;
+        private readonly IMediaMtxService _mediaMtx;
 
-        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions)
+        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions, IMediaMtxService mediaMtx)
         {
             _db = db;
             _mediaMtxOptions = mediaMtxOptions.Value;
+            _mediaMtx = mediaMtx;
         }
 
         public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
@@ -87,6 +89,7 @@ namespace MediaMTX_Gui.Server.Services
             stream.UpdatedAt = DateTime.UtcNow;
 
             await _db.SaveChangesAsync();
+            await _mediaMtx.KickPathAsync(stream.Path);
 
             return MapToDto(stream, rawStreamKey, true);
         }
@@ -338,33 +341,27 @@ namespace MediaMTX_Gui.Server.Services
                         Note = rawStreamKey is null
                             ? "Key only shown on create — regenerate to get a new one"
                             : "Paste the full URL into OBS Server field — no separate stream key"
-                    }
+                    },
                 ],
                 PlaybackOptions =
                 [
                     new StreamProtocolOption
                     {
-                        Protocol = "WebRTC",
-                        Url = $"{_mediaMtxOptions.WebRtcBaseUrl}/{stream.Path}/whep",
-                        Note = "Sub-second latency, browser-native"
-                    },
-                    new StreamProtocolOption
-                    {
                         Protocol = "RTSP",
                         Url = $"{_mediaMtxOptions.RtspBaseUrl}/{stream.Path}",
-                        Note = "~1–3s latency"
+                        Note = "~1–3s latency, use in OBS Media Source or VLC"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "SRT",
                         Url = $"{_mediaMtxOptions.SrtBaseUrl}?streamid=read:{stream.Path}",
-                        Note = "~1s latency"
+                        Note = "~1s latency, use in OBS Media Source or VLC"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "HLS",
                         Url = $"{_mediaMtxOptions.HlsBaseUrl}/{stream.Path}/index.m3u8",
-                        Note = "~30s latency"
+                        Note = "~30s latency, works in any browser"
                     }
                 ],
                 RecordingEnabled = stream.RecordingEnabled,
