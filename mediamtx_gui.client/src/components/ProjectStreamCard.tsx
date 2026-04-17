@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ProjectStream } from "../types/projects";
+import { useWhepPlayer } from "../hooks/useWhepPlayer";
 
 type Props = {
   stream: ProjectStream;
@@ -19,6 +20,9 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
 
   const publishOption = stream.publishOptions.find(o => o.protocol === publishProto);
   const playbackOption = stream.playbackOptions.find(o => o.protocol === playbackProto);
+
+  const whepUrl = playbackProto === "WebRTC" ? (playbackOption?.url ?? null) : null;
+  const whepVideoRef = useWhepPlayer(whepUrl);
 
   return (
     <article className="project-stream-card">
@@ -89,6 +93,16 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
               <code>{playbackOption?.url}</code>
             </div>
           </div>
+
+          {playbackProto === "WebRTC" && (
+            <video
+              ref={whepVideoRef}
+              muted
+              autoPlay
+              playsInline
+              className="project-stream-video"
+            />
+          )}
 
           <div className="project-stream-actions">
             {stream.canRotateKey && (

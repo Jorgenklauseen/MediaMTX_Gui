@@ -44,8 +44,16 @@
 
 .stream-name {
   margin: 0;
+  font-size: 1.2em;
   color: var(--text-color);
   font-weight: 600;
+}
+
+.stream-project {
+  font-size: 0.9em;
+  font-weight: 400;
+  color: var(--text-color);
+
 }
 
 .stream-tracks {
