@@ -172,6 +172,22 @@ public class StreamsController : ControllerBase
         return Ok();
     }
 
+    [HttpPost("reader-started")]
+    public async Task<IActionResult> ReaderStarted()
+    {
+        var json = await _mediaService.GetPathsAsync();
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        return Ok();
+    }
+
+    [HttpPost("reader-stopped")]
+    public async Task<IActionResult> ReaderStopped()
+    {
+        var json = await _mediaService.GetPathsAsync();
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        return Ok();
+    }
+
     [AllowAnonymous]
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
