@@ -3,4 +3,5 @@ public interface IMediaMtxService
 {
     Task<string> GetPathsAsync();
     Task<string> GetPathDetailsAsync(string name);
+    Task KickPathAsync(string path);
 }
