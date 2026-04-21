@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { ProjectStream } from "../types/projects";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
 
@@ -47,6 +48,7 @@ function CopyButton({ value }: { value: string }) {
 }
 
 export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onDelete, onToggleRecording, regenerating, togglingRecording }: Props) {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(true);
   const [publishProto, setPublishProto] = useState(stream.publishOptions[0]?.protocol ?? "");
   const [playbackProto, setPlaybackProto] = useState(stream.playbackOptions[0]?.protocol ?? "");
@@ -56,6 +58,11 @@ export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onD
 
   const whepUrl = playbackProto === "WebRTC" ? (playbackOption?.url ?? null) : null;
   const whepVideoRef = useWhepPlayer(whepUrl);
+
+  const previewUrl = isLive
+    ? (stream.playbackOptions.find(o => o.protocol === "WebRTC")?.url ?? null)
+    : null;
+  const previewRef = useWhepPlayer(previewUrl);
 
   return (
     <article className="project-stream-card">
@@ -78,6 +85,22 @@ export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onD
           <span>{collapsed ? "▼" : "▲"}</span>
         </div>
       </div>
+
+      {isLive && (
+        <div
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate(`/stream?name=${encodeURIComponent(stream.path)}`)}
+          title="Click to open stream view"
+        >
+          <video
+            ref={previewRef}
+            muted
+            autoPlay
+            playsInline
+            className="project-stream-video"
+          />
+        </div>
+      )}
 
       {!collapsed && (
         <>

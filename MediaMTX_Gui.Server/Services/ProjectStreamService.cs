@@ -112,6 +112,7 @@ namespace MediaMTX_Gui.Server.Services
             }
 
             _db.ProjectStreams.Remove(stream);
+            await _mediaMtx.KickPathAsync(stream.Path);
             await _db.SaveChangesAsync();
         }
 

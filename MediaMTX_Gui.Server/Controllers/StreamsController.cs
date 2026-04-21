@@ -189,6 +189,37 @@ public class StreamsController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpGet("view")]
+    public async Task<IActionResult> GetPublicStreamStatus([FromQuery] string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return BadRequest();
+
+        var exists = await _context.ProjectStreams.AnyAsync(s => s.Path == path);
+        if (!exists)
+            return NotFound();
+
+        try
+        {
+            var json = await _mediaService.GetPathDetailsAsync(path);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var ready = root.TryGetProperty("ready", out var readyProp) && readyProp.GetBoolean();
+            var onlineTime = root.TryGetProperty("readyTime", out var timeProp) ? timeProp.GetString() : null;
+            var readerCount = root.TryGetProperty("readers", out var readersProp)
+                ? readersProp.GetArrayLength()
+                : 0;
+
+            return Ok(new { online = ready, onlineTime, readerCount });
+        }
+        catch
+        {
+            return Ok(new { online = false, onlineTime = (string?)null, readerCount = 0 });
+        }
+    }
+
+    [AllowAnonymous]
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
     {

@@ -3,7 +3,7 @@ import { MdOutlineFullscreen, MdFullscreenExit } from "react-icons/md";
 import { FaVolumeUp, FaVolumeMute, FaEye } from "react-icons/fa";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
-import { useStreams } from "../hooks/useStreams";
+import { usePublicStreamStatus } from "../hooks/usePublicStreamStatus";
 import { formatElapsed, parseStreamName } from "../utils";
 import "../styles/streamview.css";
 
@@ -13,10 +13,9 @@ function StreamView() {
   const name = params.get("name") ?? "";
   const url = name ? `/webrtc/${name}/whep` : null;
 
-  const { streams, loading } = useStreams();
-  const stream = streams.find((s) => s.name === name);
-  const status = loading ? "loading" : stream ? "online" : "offline";
-  const startTime = stream?.onlineTime ? new Date(stream.onlineTime).getTime() : null;
+  const { status: streamStatus, loading } = usePublicStreamStatus(name || null);
+  const status = loading ? "loading" : streamStatus.online ? "online" : "offline";
+  const startTime = streamStatus.onlineTime ? new Date(streamStatus.onlineTime).getTime() : null;
   const { streamName } = parseStreamName(name);
   const [muted, setMuted] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);

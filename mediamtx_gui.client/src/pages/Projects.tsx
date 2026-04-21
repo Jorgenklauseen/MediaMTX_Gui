@@ -41,6 +41,16 @@ function Projects() {
             <p className="projects-subtitle">
               Every project you belong to is collected here. Click a project to open it.
             </p>
+            <p className="projects-guide-hint">
+              Not sure how to start a stream?{" "}
+              <button
+                type="button"
+                className="projects-guide-link"
+                onClick={() => navigate("/guides")}
+              >
+                View the user guide
+              </button>
+            </p>
           </div>
 
           <button
