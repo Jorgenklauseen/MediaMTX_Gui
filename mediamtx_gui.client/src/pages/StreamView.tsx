@@ -96,7 +96,7 @@ function StreamView() {
               <span className="sv-stream-name">{streamName}</span>
             </div>
             <div className="sv-controls-center">
-              <span className="sv-badge-viewers"> <FaEye /> {stream?.readers.length ?? 0}</span>
+              <span className="sv-badge-viewers"> <FaEye /> {streamStatus.readerCount}</span>
             </div>
             <div className="sv-controls-right">
               <button className="sv-btn" onClick={toggleMute} title={muted ? "Unmute" : "Mute"}>
