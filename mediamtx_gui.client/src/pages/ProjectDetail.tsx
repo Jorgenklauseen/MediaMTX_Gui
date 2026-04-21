@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 import { getProjectById, deleteProject, getProjectStreams } from "../api/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
 import type { Project, ProjectStream } from "../types/projects";
@@ -15,7 +16,6 @@ function ProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [loadingStreams, setLoadingStreams] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [copiedValue, setCopiedValue] = useState<string | null>(null);
 
   useEffect(() => {
     if (!projectId) return;
@@ -51,19 +51,10 @@ function ProjectDetail() {
 
     try {
       await deleteProject(pid);
+      toast.success(`Project "${projectName}" deleted.`);
       navigate("/projects");
     } catch {
       setError("Could not delete project.");
-    }
-  };
-
-  const handleCopy = async (value: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      setCopiedValue(label);
-      window.setTimeout(() => setCopiedValue(null), 2000);
-    } catch {
-      setError(`Could not copy ${label}.`);
     }
   };
 
@@ -115,17 +106,12 @@ function ProjectDetail() {
           </div>
         </header>
 
-        {copiedValue && (
-          <p className="project-copy-feedback">{copiedValue} copied.</p>
-        )}
-
         <ProjectCard
           project={project}
           streams={streams}
           loading={loadingStreams}
           onStreamsChange={handleStreamsChange}
           onDelete={handleDelete}
-          onCopy={handleCopy}
         />
       </div>
     </section>
