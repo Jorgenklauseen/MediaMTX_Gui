@@ -5,6 +5,7 @@ import { useWhepPlayer } from "../hooks/useWhepPlayer";
 type Props = {
   stream: ProjectStream;
   projectId: number;
+  isLive: boolean;
   onRegenerate: (projectId: number, streamId: string) => Promise<void>;
   onDelete: (projectId: number, streamId: string, displayPath: string) => Promise<void>;
   onToggleRecording: (projectId: number, streamId: string, enabled: boolean) => Promise<void>;
@@ -45,7 +46,7 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, onToggleRecording, regenerating, togglingRecording }: Props) {
+export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onDelete, onToggleRecording, regenerating, togglingRecording }: Props) {
   const [collapsed, setCollapsed] = useState(true);
   const [publishProto, setPublishProto] = useState(stream.publishOptions[0]?.protocol ?? "");
   const [playbackProto, setPlaybackProto] = useState(stream.playbackOptions[0]?.protocol ?? "");
@@ -70,6 +71,7 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          {isLive && <span className="stream-live-badge">LIVE</span>}
           {stream.hasVisibleSecret && (
             <span className="project-stream-secret-badge">Key visible now</span>
           )}

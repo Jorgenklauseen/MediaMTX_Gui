@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getProjectById, deleteProject, getProjectStreams } from "../api/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
+import { useStreams } from "../hooks/useStreams";
 import type { Project, ProjectStream } from "../types/projects";
 import "../styles/projects.css";
 
@@ -10,6 +11,9 @@ function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const projectId = Number(id);
+
+  const { streams: liveStreams } = useStreams();
+  const livePaths = new Set(liveStreams.filter(s => s.ready).map(s => s.name));
 
   const [project, setProject] = useState<Project | null>(null);
   const [streams, setStreams] = useState<ProjectStream[]>([]);
@@ -110,6 +114,7 @@ function ProjectDetail() {
           project={project}
           streams={streams}
           loading={loadingStreams}
+          livePaths={livePaths}
           onStreamsChange={handleStreamsChange}
           onDelete={handleDelete}
         />

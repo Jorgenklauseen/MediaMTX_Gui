@@ -408,6 +408,23 @@
     color: var(--text-color);
 }
 
+.stream-live-badge {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  background: #16a34a;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .project-stream-secret-badge {
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
