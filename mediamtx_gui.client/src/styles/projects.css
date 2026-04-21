@@ -145,6 +145,8 @@
 
 .projects-primary-button,
 .projects-secondary-button {
+    flex: 0 0 auto;        
+    white-space: nowrap;   
     border: none;
     border-radius: 999px;
     padding: 0.75rem 1.15rem;
@@ -285,27 +287,44 @@
     gap: 0.9rem;
 }
 
-.project-card-actions {
-    display: flex;
-    justify-content: flex-end;
+.project-invite-section {
+    display: grid;
+    gap: 0.45rem;
 }
 
-.project-delete-button {
-    border: 1px solid rgba(153, 27, 27, 0.2);
+.project-delete-stream-button {
+    border: none;
     border-radius: 999px;
-    padding: 0.3rem 0.85rem;
-    background: rgba(153, 27, 27, 0.07);
-    color: #991b1b;
+    padding: 0.75rem 1.15rem;
+    background: #dc2626;
+    color: #fff;
     font: inherit;
-    font-size: 0.8rem;
     font-weight: 700;
     cursor: pointer;
     transition: transform 140ms ease, background-color 140ms ease;
 }
 
-.project-delete-button:hover {
+.project-delete-stream-button:hover {
     transform: translateY(-1px);
-    background: rgba(153, 27, 27, 0.12);
+    background: #b91c1c;
+}
+
+.project-delete-project-button {
+    border: none;
+    border-radius: 999px;
+    padding: 0.75rem 1.15rem;
+    background: #dc2626;
+    color: #fff;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 140ms ease, background-color 140ms ease;
+}
+
+.project-delete-project-button:hover {
+    transform: translateY(-1px);
+    background: #b91c1c;
 }
 
 .project-meta-block {
@@ -337,7 +356,7 @@
 .project-stream-actions,
 .project-stream-create {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     gap: 0.75rem;
 }
 
@@ -357,8 +376,9 @@
 }
 
 .project-stream-create input {
-    flex: 1 1 auto;
-    width: 100%;
+    flex: 1 1 160px;
+    min-width: 0;
+    width: auto;
     padding: 0.85rem 1rem;
     border: 1px solid var(--border-color);
     border-radius: 16px;
@@ -416,6 +436,33 @@
     background: rgba(15, 23, 42, 0.06);
     color: var(--text-color);
     overflow-wrap: anywhere;
+    min-width: 0;
+}
+
+.project-stream-copyable {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.copy-icon-btn {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: background 140ms, border-color 140ms;
+}
+
+.copy-icon-btn:hover {
+    background: var(--border-color);
 }
 
 .project-stream-actions {
@@ -448,7 +495,6 @@
     .project-card-top,
     .project-streams-header,
     .project-stream-card-header,
-    .project-stream-create,
     .project-stream-actions,
     .projects-form-actions {
         flex-direction: column;
@@ -462,10 +508,10 @@
 
 /* Recording toggle button */
 .stream-recording-toggle {
-    padding: 0.45rem 1rem;
+    padding: 0.75rem 1.15rem;
     border-radius: 9999px;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font: inherit;
+    font-weight: 700;
     cursor: pointer;
     border: 1.5px solid var(--border-color);
     background: transparent;

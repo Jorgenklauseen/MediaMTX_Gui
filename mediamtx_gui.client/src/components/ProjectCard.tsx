@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import {
   createProjectStream,
   deleteProjectStream,
@@ -15,10 +16,9 @@ type Props = {
   loading: boolean;
   onStreamsChange: (projectId: number, streams: ProjectStream[]) => void;
   onDelete: (projectId: number, projectName: string) => Promise<void>;
-  onCopy: (value: string, label: string) => Promise<void>;
 };
 
-export function ProjectCard({ project, streams, loading, onStreamsChange, onDelete, onCopy }: Props) {
+export function ProjectCard({ project, streams, loading, onStreamsChange, onDelete }: Props) {
   const [streamName, setStreamName] = useState("");
   const [streamError, setStreamError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -53,11 +53,13 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
   };
 
   const handleRegenerate = async (projectId: number, streamId: string) => {
+    const stream = streams.find(s => s.id === streamId);
     try {
       setRegeneratingStreamId(streamId);
       setStreamError(null);
       const updated = await regenerateProjectStreamKey(projectId, streamId);
       onStreamsChange(projectId, streams.map(s => s.id === streamId ? updated : s));
+      toast.success(`Key regenerated for "${stream?.displayPath}". Any active publisher has been disconnected.`);
     } catch {
       setStreamError("Could not regenerate stream key.");
     } finally {
@@ -84,6 +86,7 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
     try {
       await deleteProjectStream(projectId, streamId);
       onStreamsChange(projectId, streams.filter(s => s.id !== streamId));
+      toast.success(`Stream "${displayPath}" deleted.`);
     } catch {
       setStreamError("Could not delete stream.");
     }
@@ -136,41 +139,39 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
       </div>
 
       {isOwner && (
-        <div className="project-card-actions">
-          <section className="project-invite-section">
-            <span className="project-meta-label">Invite member</span>
-            <div className="project-stream-create">
-              <input
-                type="email"
-                value={inviteEmail}
-                onChange={e => setInviteEmail(e.target.value)}
-                placeholder="Email address"
-                disabled={inviting}
-              />
-              <button
-                type="button"
-                className="projects-primary-button"
-                onClick={() => void handleInvite()}
-                disabled={inviting}
-              >
-                {inviting ? "Sending..." : "Send invite"}
-              </button>
-            </div>
-            {inviteError && (
-              <p className="projects-message projects-message-error">{inviteError}</p>
-            )}
-            {inviteSuccess && (
-              <p className="projects-message projects-message-success">Invitation sent!</p>
-            )}
-          </section>
-          <button
-            type="button"
-            className="project-delete-button"
-            onClick={() => void onDelete(project.id, project.name)}
-          >
-            Delete project
-          </button>
-        </div>
+        <section className="project-invite-section">
+          <span className="project-meta-label">Invite member</span>
+          <div className="project-stream-create">
+            <input
+              type="email"
+              value={inviteEmail}
+              onChange={e => setInviteEmail(e.target.value)}
+              placeholder="Email address"
+              disabled={inviting}
+            />
+            <button
+              type="button"
+              className="projects-primary-button"
+              onClick={() => void handleInvite()}
+              disabled={inviting}
+            >
+              {inviting ? "Sending..." : "Send invite"}
+            </button>
+            <button
+              type="button"
+              className="project-delete-project-button"
+              onClick={() => void onDelete(project.id, project.name)}
+            >
+              Delete project
+            </button>
+          </div>
+          {inviteError && (
+            <p className="projects-message projects-message-error">{inviteError}</p>
+          )}
+          {inviteSuccess && (
+            <p className="projects-message projects-message-success">Invitation sent!</p>
+          )}
+        </section>
       )}
 
       <section className="project-streams-section">
@@ -221,7 +222,6 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
                     projectId={project.id}
                     onRegenerate={handleRegenerate}
                     onDelete={handleDeleteStream}
-                    onCopy={onCopy}
                     onToggleRecording={handleToggleRecording}
                     regenerating={regeneratingStreamId === stream.id}
                     togglingRecording={togglingRecordingStreamId === stream.id}
