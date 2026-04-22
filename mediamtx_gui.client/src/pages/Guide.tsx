@@ -125,6 +125,7 @@ const viewSteps = [
     details: [
       'Make sure "Local File" is unchecked.',
       'Paste the playback URL you copied in step 1 into the "Input" field.',
+      'If "Mpgets appears in "Input format", just remove it.',
       'Click OK to confirm.',
     ],
     images: [

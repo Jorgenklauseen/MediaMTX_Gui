@@ -76,7 +76,10 @@ export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDesc
     return (
         <div className="recording-card">
             <div className="recording-card__header">
-                <h3 className="recording-card__title">{recording.name}</h3>
+                <div>
+                    <h3 className="recording-card__title">{streamName}</h3>
+                    {projectName && <p className="recording-card__project">{projectName}</p>}
+                </div>
                 <span className={`recording-card__status recording-card__status--${recording.status}`}>
                     {recording.status}
                 </span>
@@ -140,8 +143,6 @@ export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDesc
             )}
 
             <div className="recording-card__meta">
-                {projectName && <p className="recording-card__stream">{projectName}</p>}
-                <p className="recording-card__stream">{streamName}</p>
                 <p className="recording-card__created">
                     Created: {formatDate(recording.createdAt)}
                 </p>

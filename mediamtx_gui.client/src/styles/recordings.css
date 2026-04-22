@@ -123,6 +123,13 @@
     color: var(--text-color);
 }
 
+.recording-card__project {
+    margin: 0.15rem 0 0;
+    font-size: 0.78rem;
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
 .recording-card__status {
     flex: 0 0 auto;
     padding: 0.25rem 0.7rem;
