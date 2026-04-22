@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MediaMTX_Gui.Server.Models;
 
 namespace MediaMTX_Gui.Server.Data
@@ -13,6 +14,18 @@ namespace MediaMTX_Gui.Server.Data
         public DbSet<ProjectStream> ProjectStreams => Set<ProjectStream>();
 
         public DbSet<ProjectInvitation> ProjectInvitations => Set<ProjectInvitation>();
+
+
+        // Ensure all DateTime properties are stored as UTC in the database
+        private class UtcDateTimeConverter() : ValueConverter<DateTime, DateTime>
+        (
+            v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+            v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+        {
+            configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+        }
 
         // Configure composite primary key for Project memberships
         protected override void OnModelCreating(ModelBuilder modelBuilder)

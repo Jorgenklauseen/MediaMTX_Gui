@@ -9,16 +9,18 @@ import {
 import { inviteUserToProject } from "../api/invitationApi";
 import type { Project, ProjectStream } from "../types/projects";
 import { ProjectStreamCard } from "./ProjectStreamCard";
+import { formatDate } from "../utils";
 
 type Props = {
   project: Project;
   streams: ProjectStream[];
   loading: boolean;
+  livePaths: Set<string>;
   onStreamsChange: (projectId: number, streams: ProjectStream[]) => void;
   onDelete: (projectId: number, projectName: string) => Promise<void>;
 };
 
-export function ProjectCard({ project, streams, loading, onStreamsChange, onDelete }: Props) {
+export function ProjectCard({ project, streams, loading, livePaths, onStreamsChange, onDelete }: Props) {
   const [streamName, setStreamName] = useState("");
   const [streamError, setStreamError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -129,7 +131,7 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
         <div className="project-meta-block">
           <span className="project-meta-label">Created</span>
           <span className="project-meta-value">
-            {new Date(project.createdAt).toLocaleDateString()}
+            {formatDate(project.createdAt)}
           </span>
         </div>
         <div className="project-meta-block">
@@ -220,6 +222,7 @@ export function ProjectCard({ project, streams, loading, onStreamsChange, onDele
                     key={stream.id}
                     stream={stream}
                     projectId={project.id}
+                    isLive={livePaths.has(stream.path)}
                     onRegenerate={handleRegenerate}
                     onDelete={handleDeleteStream}
                     onToggleRecording={handleToggleRecording}

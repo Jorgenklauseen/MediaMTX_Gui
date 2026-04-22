@@ -1,0 +1,231 @@
+.guide-page {
+  min-height: 100%;
+  padding: 2rem;
+  color: var(--text-color);
+}
+
+.guide-shell {
+  max-width: 860px;
+  margin: 0 auto;
+  display: grid;
+  gap: 2rem;
+}
+
+/* Header */
+.guide-header {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.guide-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--uia-red);
+}
+
+.guide-header-copy h1 {
+  margin: 0.25rem 0 0;
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.05em;
+  color: var(--text-color);
+}
+
+.guide-subtitle {
+  margin: 0.85rem 0 0;
+  max-width: 42rem;
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* Tabs */
+.guide-tabs {
+  display: flex;
+  gap: 0.5rem;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.35rem;
+  width: fit-content;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.guide-tab {
+  padding: 0.55rem 1.25rem;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.guide-tab:hover:not(.guide-tab--active) {
+  background: var(--border-color);
+}
+
+.guide-tab--active {
+  background: linear-gradient(135deg, var(--uia-red), var(--uia-red-dark));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(200, 16, 46, 0.25);
+}
+
+/* Steps list */
+.guide-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.guide-step {
+  display: flex;
+  gap: 1.25rem;
+  align-items: flex-start;
+}
+
+/* Left column: number + connector line */
+.guide-step-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+  padding-top: 0.15rem;
+}
+
+.guide-step-number {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--uia-red), var(--uia-red-dark));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(200, 16, 46, 0.25);
+}
+
+.guide-step-connector {
+  flex: 1;
+  width: 2px;
+  min-height: 2rem;
+  background: var(--border-color);
+  margin-top: 0.5rem;
+}
+
+.guide-step:last-child .guide-step-connector {
+  display: none;
+}
+
+/* Right column: content card */
+.guide-step-body {
+  flex: 1;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 22px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  display: grid;
+  gap: 1rem;
+}
+
+.guide-step-title {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--text-color);
+}
+
+.guide-step-description {
+  margin: 0;
+  color: var(--text-color);
+  line-height: 1.65;
+}
+
+.guide-step-details {
+  margin: 0;
+  padding: 0 0 0 1.25rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.guide-step-details li {
+  color: var(--text-color);
+  line-height: 1.55;
+  font-size: 0.93rem;
+}
+
+/* Screenshot area */
+.guide-step-images {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.guide-step-image-wrap {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background: var(--bg-color);
+  min-height: 220px;
+}
+
+.guide-step-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 13px;
+}
+
+.guide-step-image-placeholder {
+  display: none;
+  position: absolute;
+  inset: 0;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--surface-color) 60%, var(--bg-color));
+  color: var(--text-color);
+  font-size: 0.9rem;
+  opacity: 0.6;
+  min-height: 220px;
+}
+
+@media (max-width: 600px) {
+  .guide-page {
+    padding: 1rem;
+  }
+
+  .guide-step {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .guide-step-meta {
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  .guide-step-connector {
+    width: auto;
+    height: 2px;
+    min-height: unset;
+    flex: 1;
+    margin-top: 0;
+  }
+
+  .guide-step:last-child .guide-step-connector {
+    display: none;
+  }
+}

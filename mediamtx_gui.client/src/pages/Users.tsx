@@ -36,13 +36,13 @@ export function Users() {
   if (loading)
     return (
       <div className="users-page">
-        <p>Laster brukere...</p>
+        <p>Loading users...</p>
       </div>
     );
   if (error)
     return (
       <div className="users-page">
-        <p>Feil: {error}</p>
+        <p>Error: {error}</p>
       </div>
     );
 
@@ -50,8 +50,8 @@ export function Users() {
     <div className="users-page">
       <div className="users-header">
         <div>
-          <p className="users-eyebrow">Administrasjon</p>
-          <h1>Brukere</h1>
+          <p className="users-eyebrow">Administration</p>
+          <h1>Users</h1>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export function Users() {
         <SearchBar
           value={search}
           onChange={setSearch}
-          placeholder="Søk på navn, e-post eller brukernavn..."
+          placeholder="Search by name, email or username..."
         />
 
         <div className="users-status-filter">
@@ -70,22 +70,22 @@ export function Users() {
               className={`users-status-filter__btn ${statusFilter === s ? "active" : ""}`}
               onClick={() => setStatusFilter(s)}
             >
-              {s === "alle" ? "Alle" : s === "aktiv" ? "Aktive" : "Bannede"}
+              {s === "alle" ? "All" : s === "aktiv" ? "Active" : "Banned"}
             </button>
           ))}
         </div>
       </div>
       <div className="users-results-info">
-        {filtered.length} av {users.length} brukere
+        {filtered.length} of {users.length} users
       </div>
       <div className="users-table-wrapper">
         <table className="users-table">
           <thead>
             <tr>
-              <th>Bruker</th>
-              <th>E-post</th>
-              <th>Rolle</th>
-              <th>Sist innlogget</th>
+              <th>User</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Last Login</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -93,7 +93,7 @@ export function Users() {
             {filtered.length === 0 ? (
               <tr>
                 <td colSpan={5} className="users-table__empty">
-                  Ingen brukere matcher søket
+                  No users match the search
                 </td>
               </tr>
             ) : (
@@ -129,7 +129,7 @@ export function Users() {
                     <span
                       className={`badge ${user.isBanned ? "badge--banned" : "badge--active"}`}
                     >
-                      {user.isBanned ? "🚫 Bannet" : "✅ Aktiv"}
+                      {user.isBanned ? "🚫 Banned" : "✅ Active"}
                     </span>
                   </td>
                 </tr>

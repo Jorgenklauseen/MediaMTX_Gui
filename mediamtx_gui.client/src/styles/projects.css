@@ -44,6 +44,30 @@
     color: var(--text-color);
 }
 
+.projects-guide-hint {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  color: var(--text-color);
+  opacity: 1;
+}
+
+.projects-guide-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: bold;
+
+  font-size: inherit;
+  color: var(--uia-red);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.projects-guide-link:hover {
+  opacity: 0.8;
+}
+
 .projects-subtitle {
     margin: 0.85rem 0 0;
     max-width: 42rem;
@@ -177,6 +201,12 @@
     cursor: not-allowed;
 }
 
+.projects-toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
 .projects-list-section {
     padding: 1.5rem;
     display: grid;
@@ -193,8 +223,9 @@
 .projects-count {
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(200, 16, 46, 0.1);
-    color: var(--uia-red);
+    background: var(--uia-red);
+    border-color: var(--uia-red);
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
 }
@@ -274,8 +305,9 @@
     flex: 0 0 auto;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(21, 128, 61, 0.1);
-    color: #166534;
+    background: #166534;
+    border-color: #166534;
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
@@ -296,7 +328,7 @@
     border: none;
     border-radius: 999px;
     padding: 0.75rem 1.15rem;
-    background: #dc2626;
+    background: var(--uia-red);
     color: #fff;
     font: inherit;
     font-weight: 700;
@@ -313,7 +345,7 @@
     border: none;
     border-radius: 999px;
     padding: 0.75rem 1.15rem;
-    background: #dc2626;
+    background: var(--uia-red);
     color: #fff;
     font: inherit;
     font-weight: 700;
@@ -363,6 +395,7 @@
 .project-streams-header,
 .project-stream-card-header {
     align-items: flex-start;
+    justify-content: space-between;
 }
 
 .project-streams-header h4,
@@ -408,14 +441,62 @@
     color: var(--text-color);
 }
 
+.stream-live-badge {
+   background: var(--uia-red);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
 .project-stream-secret-badge {
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(200, 16, 46, 0.1);
-    color: var(--uia-red);
+    background: var(--uia-red);
+    border-color: var(--uia-red);
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
+}
+
+.project-stream-proto-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.project-stream-proto-row select {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+    transition: border-color 140ms, background-color 140ms;
+}
+
+.project-stream-proto-row select:hover {
+    border-color: var(--primary-color, #6366f1);
+}
+
+.project-stream-proto-row select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .project-stream-detail-grid {

@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
@@ -21,6 +20,19 @@ namespace MediaMTX_Gui.Server.Services
             var sub = principal.FindFirstValue("sub")!;
             var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
             return MapToUserDto(user!);
+        }
+
+        public async Task<UserDto> GetRequiredCurrentUserAsync(ClaimsPrincipal principal)
+        {
+            var sub = principal.FindFirstValue("sub");
+            if (string.IsNullOrWhiteSpace(sub))
+                throw new UnauthorizedAccessException("Missing subject claim.");
+
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
+            if (user is null)
+                throw new UnauthorizedAccessException("Authenticated user was not found in the database.");
+
+            return MapToUserDto(user);
         }
 
         public async Task<IEnumerable<UserDto>> GetAllUsersAsync()

@@ -1,10 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { ProjectStream } from "../types/projects";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
+import { formatDateTime } from "../utils";
+import { TbCopyCheck,TbCopyCheckFilled } from "react-icons/tb";
+import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
 type Props = {
   stream: ProjectStream;
   projectId: number;
+  isLive: boolean;
   onRegenerate: (projectId: number, streamId: string) => Promise<void>;
   onDelete: (projectId: number, streamId: string, displayPath: string) => Promise<void>;
   onToggleRecording: (projectId: number, streamId: string, enabled: boolean) => Promise<void>;
@@ -32,20 +37,17 @@ function CopyButton({ value }: { value: string }) {
       aria-label={copied ? "Copied" : "Copy to clipboard"}
     >
       {copied ? (
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
+        <TbCopyCheckFilled />
       ) : (
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-        </svg>
+        <TbCopyCheck />
       )}
     </button>
   );
 }
 
-export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, onToggleRecording, regenerating, togglingRecording }: Props) {
+
+export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onDelete, onToggleRecording, regenerating, togglingRecording }: Props) {
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(true);
   const [publishProto, setPublishProto] = useState(stream.publishOptions[0]?.protocol ?? "");
   const [playbackProto, setPlaybackProto] = useState(stream.playbackOptions[0]?.protocol ?? "");
@@ -55,6 +57,9 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
 
   const whepUrl = playbackProto === "WebRTC" ? (playbackOption?.url ?? null) : null;
   const whepVideoRef = useWhepPlayer(whepUrl);
+
+  const previewUrl = isLive ? `/webrtc/${stream.path}/whep` : null;
+  const previewRef = useWhepPlayer(previewUrl);
 
   return (
     <article className="project-stream-card">
@@ -66,19 +71,36 @@ export function ProjectStreamCard({ stream, projectId, onRegenerate, onDelete, o
         <div>
           <h4>{stream.displayPath}</h4>
           <p className="project-stream-created">
-            Created {new Date(stream.createdAt).toLocaleString()}
+            Created {formatDateTime(stream.createdAt)}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          {isLive && <span className="stream-live-badge">LIVE</span>}
           {stream.hasVisibleSecret && (
             <span className="project-stream-secret-badge">Key visible now</span>
           )}
-          <span>{collapsed ? "▼" : "▲"}</span>
+          <span style={{ display: "flex" }}>{collapsed ? <FaArrowDown /> : <FaArrowUp />}</span>
         </div>
       </div>
 
+
       {!collapsed && (
         <>
+         {isLive && (
+        <div
+          style={{ cursor: "pointer" }}
+          onClick={() => navigate(`/stream?name=${encodeURIComponent(stream.path)}`)}
+          title="Click to open stream view"
+        >
+          <video
+            ref={previewRef}
+            muted
+            autoPlay
+            playsInline
+            className="project-stream-video"
+          />
+        </div>
+      )}
           <div className="project-stream-proto-row">
             <span className="project-meta-label">Publish via</span>
             <select value={publishProto} onChange={e => setPublishProto(e.target.value)}>

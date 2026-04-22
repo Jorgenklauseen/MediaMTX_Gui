@@ -38,6 +38,14 @@ export function Navbar() {
             Projects
           </NavLink>
         </li>
+        <li>
+          <NavLink
+            to="/guides"
+            className={({ isActive }) => (isActive ? "active" : "")}
+          >
+            Guide
+          </NavLink>
+        </li>
         {user?.role === "admin" && (
           <li>
             <NavLink

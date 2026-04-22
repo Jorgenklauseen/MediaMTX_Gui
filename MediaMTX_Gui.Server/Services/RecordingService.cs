@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
@@ -202,6 +203,115 @@ namespace MediaMTX_Gui.Server.Services
                 CreatedById = recording.CreatedById,
                 CreatedByName = recording.CreatedBy!.Username ?? string.Empty
             };
+        }
+
+        public async Task SyncStreamsAsync(string json)
+        {
+            var data = JsonSerializer.Deserialize<MediaMtxPathsResponse>(json);
+            if (data?.items == null) return;
+
+            foreach (var item in data.items)
+            {
+                var existing = await _context.Streams.FindAsync(item.name);
+                if (existing == null)
+                {
+                    _context.Streams.Add(new MediaStream
+                    {
+                        Id = item.name,
+                        Name = item.name,
+                        Url = item.source?.id ?? "",
+                        Format = item.source?.type ?? ""
+                    });
+                }
+                else
+                {
+                    existing.Name = item.name;
+                    existing.Url = item.source?.id ?? "";
+                    existing.Format = item.source?.type ?? "";
+                }
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task HandleStreamStartedAsync(string streamName)
+        {
+            var projectStream = await _context.ProjectStreams
+                .FirstOrDefaultAsync(ps => ps.Path == streamName && ps.RecordingEnabled);
+
+            if (projectStream == null) return;
+
+            var recordingDir = Path.Combine("/recordings", streamName.Replace("/", Path.DirectorySeparatorChar.ToString()));
+            _context.Recordings.Add(new Recording
+            {
+                Name = $"{streamName} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
+                StreamId = streamName,
+                CreatedById = projectStream.CreatedByUserId,
+                Status = "recording",
+                StartedAt = DateTime.UtcNow,
+                FilePath = recordingDir
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task HandleStreamStoppedAsync(string streamName)
+        {
+            var activeRecording = await _context.Recordings
+                .Where(r => r.StreamId == streamName && r.Status == "recording")
+                .FirstOrDefaultAsync();
+
+            if (activeRecording == null) return;
+
+            activeRecording.Status = "completed";
+            activeRecording.EndedAt = DateTime.UtcNow;
+            if (activeRecording.StartedAt.HasValue)
+                activeRecording.Duration = activeRecording.EndedAt.Value - activeRecording.StartedAt.Value;
+
+            if (!string.IsNullOrEmpty(activeRecording.FilePath) && Directory.Exists(activeRecording.FilePath))
+            {
+                activeRecording.FileSize = GetSessionSegmentPathsFromModel(
+                        activeRecording.FilePath,
+                        activeRecording.StartedAt ?? activeRecording.CreatedAt,
+                        activeRecording.EndedAt ?? DateTime.UtcNow)
+                    .Sum(f => new FileInfo(f).Length);
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public IEnumerable<string> GetSessionSegmentPaths(RecordingDto recording)
+        {
+            if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
+                return Enumerable.Empty<string>();
+
+            return GetSessionSegmentPathsFromModel(
+                recording.FilePath,
+                recording.StartedAt ?? recording.CreatedAt,
+                recording.EndedAt ?? DateTime.UtcNow);
+        }
+
+        private static IEnumerable<string> GetSessionSegmentPathsFromModel(
+            string filePath, DateTime sessionStart, DateTime sessionEnd)
+        {
+            return Directory.GetFiles(filePath, "*.mp4")
+                .Select(f =>
+                {
+                    var stem = Path.GetFileNameWithoutExtension(f);
+                    DateTime.TryParseExact(
+                        stem,
+                        "yyyy-MM-dd_HH-mm-ss",
+                        System.Globalization.CultureInfo.InvariantCulture,
+                        System.Globalization.DateTimeStyles.AssumeUniversal |
+                        System.Globalization.DateTimeStyles.AdjustToUniversal,
+                        out var segmentTime);
+                    return (path: f, segmentTime);
+                })
+                .Where(x =>
+                    x.segmentTime >= sessionStart.AddSeconds(-5) &&
+                    x.segmentTime <= sessionEnd.AddSeconds(35))
+                .OrderBy(x => x.segmentTime)
+                .Select(x => x.path);
         }
     }
 }

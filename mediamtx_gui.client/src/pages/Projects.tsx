@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from "../hooks/useProjects";
+import { formatDate } from "../utils";
+import { SearchBar } from "../components/SearchBar";
 import "../styles/projects.css";
 
 function Projects() {
@@ -11,6 +13,14 @@ function Projects() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+
+  const filteredProjects = search.trim()
+    ? projects.filter(p =>
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        p.description?.toLowerCase().includes(search.toLowerCase())
+      )
+    : projects;
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -40,6 +50,16 @@ function Projects() {
             <h1>Projects</h1>
             <p className="projects-subtitle">
               Every project you belong to is collected here. Click a project to open it.
+            </p>
+            <p className="projects-guide-hint">
+              Not sure how to start a stream?{" "}
+              <button
+                type="button"
+                className="projects-guide-link"
+                onClick={() => navigate("/guides")}
+              >
+                View the user guide
+              </button>
             </p>
           </div>
 
@@ -107,6 +127,14 @@ function Projects() {
           </section>
         )}
 
+        <div className="projects-toolbar">
+          <SearchBar
+            placeholder="Search projects..."
+            value={search}
+            onChange={setSearch}
+          />
+        </div>
+
         <section className="projects-list-section">
           <div className="projects-list-header">
             <div>
@@ -115,7 +143,7 @@ function Projects() {
             </div>
             {!loading && !error && projects.length > 0 && (
               <span className="projects-count">
-                {projects.length} {projects.length === 1 ? "project" : "projects"}
+                {filteredProjects.length}{search.trim() ? ` of ${projects.length}` : ""} {projects.length === 1 ? "project" : "projects"}
               </span>
             )}
           </div>
@@ -136,7 +164,7 @@ function Projects() {
             </div>
           ) : (
             <div className="projects-grid">
-              {projects.map(project => (
+              {filteredProjects.map(project => (
                 <article
                   key={project.id}
                   className="project-card project-card--clickable"
@@ -155,7 +183,7 @@ function Projects() {
                     <div className="project-meta-block">
                       <span className="project-meta-label">Created</span>
                       <span className="project-meta-value">
-                        {new Date(project.createdAt).toLocaleDateString()}
+                        {formatDate(project.createdAt)}
                       </span>
                     </div>
                     <div className="project-meta-block">

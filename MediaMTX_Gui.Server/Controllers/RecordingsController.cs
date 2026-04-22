@@ -2,7 +2,6 @@ using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
 
 namespace MediaMTX_Gui.Server.Controllers
 {
@@ -81,7 +80,7 @@ namespace MediaMTX_Gui.Server.Controllers
             if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
                 return NotFound(new { message = "Recording directory not found. Files may have been auto-deleted." });
 
-            var files = GetSessionSegments(recording)
+            var files = _recordingService.GetSessionSegmentPaths(recording)
                 .Select(path => new
                 {
                     name = Path.GetFileName(path),
@@ -100,40 +99,12 @@ namespace MediaMTX_Gui.Server.Controllers
             if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
                 return NotFound();
 
-            var firstSegment = GetSessionSegments(recording).FirstOrDefault();
+            var firstSegment = _recordingService.GetSessionSegmentPaths(recording).FirstOrDefault();
             if (firstSegment is null || !System.IO.File.Exists(firstSegment))
                 return NotFound();
 
             var stream = System.IO.File.OpenRead(firstSegment);
             return File(stream, "video/mp4", enableRangeProcessing: true);
-        }
-
-        private static IEnumerable<string> GetSessionSegments(DTOs.RecordingDto recording)
-        {
-            if (string.IsNullOrEmpty(recording.FilePath) || !Directory.Exists(recording.FilePath))
-                return Enumerable.Empty<string>();
-
-            var sessionStart = recording.StartedAt ?? recording.CreatedAt;
-            var sessionEnd = recording.EndedAt ?? DateTime.UtcNow;
-
-            return Directory.GetFiles(recording.FilePath, "*.mp4")
-                .Select(f =>
-                {
-                    var stem = Path.GetFileNameWithoutExtension(f);
-                    DateTime.TryParseExact(
-                        stem,
-                        "yyyy-MM-dd_HH-mm-ss",
-                        System.Globalization.CultureInfo.InvariantCulture,
-                        System.Globalization.DateTimeStyles.AssumeUniversal |
-                        System.Globalization.DateTimeStyles.AdjustToUniversal,
-                        out var segmentTime);
-                    return (path: f, segmentTime);
-                })
-                .Where(x =>
-                    x.segmentTime >= sessionStart.AddSeconds(-5) &&
-                    x.segmentTime <= sessionEnd.AddSeconds(35))
-                .OrderBy(x => x.segmentTime)
-                .Select(x => x.path);
         }
 
         [HttpGet("{id:int}/files/{filename}")]
@@ -158,4 +129,4 @@ namespace MediaMTX_Gui.Server.Controllers
             return File(stream, "video/mp4", filename);
         }
     }
-}//Force typ
+}
