@@ -201,6 +201,12 @@
     cursor: not-allowed;
 }
 
+.projects-toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
 .projects-list-section {
     padding: 1.5rem;
     display: grid;

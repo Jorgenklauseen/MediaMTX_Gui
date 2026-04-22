@@ -5,7 +5,7 @@ const streamSteps = [
   
   {
     number: 1,
-    title: "Create a project",
+    title: "Create a project and stream",
     description:
       'Open a current project or create a new one. Under the "Streams" section, type a name for the stream and click the "Create Stream" button to create it.',
     details: [

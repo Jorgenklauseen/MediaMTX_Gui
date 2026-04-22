@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { ProjectStream } from "../types/projects";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
+import { formatDateTime } from "../utils";
 import { TbCopyCheck,TbCopyCheckFilled } from "react-icons/tb";
 import { FaArrowUp, FaArrowDown } from "react-icons/fa";
 
@@ -70,7 +71,7 @@ export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onD
         <div>
           <h4>{stream.displayPath}</h4>
           <p className="project-stream-created">
-            Created {new Date(stream.createdAt).toLocaleString()}
+            Created {formatDateTime(stream.createdAt)}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

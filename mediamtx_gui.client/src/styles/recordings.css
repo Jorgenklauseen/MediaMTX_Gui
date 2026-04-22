@@ -50,25 +50,6 @@
 
 .recordings-search {
     flex: 1;
-    max-width: 400px;
-}
-
-.recordings-search input {
-    width: 100%;
-    padding: 0.9rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    background: var(--bg-color);
-    color: var(--text-color);
-    font: inherit;
-    box-sizing: border-box;
-    transition: border-color 140ms ease, box-shadow 140ms ease;
-}
-
-.recordings-search input:focus {
-    outline: none;
-    border-color: var(--uia-red);
-    box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.1);
 }
 
 .recordings-results-info {

@@ -223,19 +223,21 @@ body {
 
 .search-bar__input {
     width: 100%;
-    padding: 0.5rem 2.2rem 0.5rem 2.2rem;
+    padding: 0.9rem 2.2rem 0.9rem 1rem;
     border: 1px solid var(--border-color);
-    border-radius: 999px;
-    background: var(--surface-color);
+    border-radius: 16px;
+    background: var(--bg-color);
     color: var(--text-color);
     font: inherit;
     font-size: 0.875rem;
     outline: none;
-    transition: border-color 150ms ease;
+    box-sizing: border-box;
+    transition: border-color 140ms ease, box-shadow 140ms ease;
 }
 
 .search-bar__input:focus {
     border-color: var(--uia-red);
+    box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.1);
 }
 
 .search-bar__input::placeholder {

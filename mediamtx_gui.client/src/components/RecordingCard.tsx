@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Recording, RecordingFile } from "../types/recordings";
 import { getRecordingFiles } from "../api/recordingsApi";
+import { parseStreamName, formatDate, formatTimeOfDay } from "../utils";
 import "../styles/recordings.css";
 
 interface RecordingCardProps {
@@ -12,6 +13,7 @@ interface RecordingCardProps {
 }
 
 export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDescription }: RecordingCardProps) {
+    const { streamName, projectName } = parseStreamName(recording.streamName);
     const [files, setFiles] = useState<RecordingFile[] | null>(null);
     const [loadingFiles, setLoadingFiles] = useState(false);
     const [filesError, setFilesError] = useState<string | null>(null);
@@ -138,13 +140,14 @@ export function RecordingCard({ recording, onStart, onStop, onDelete, onEditDesc
             )}
 
             <div className="recording-card__meta">
-                <p className="recording-card__stream">Stream: {recording.streamName}</p>
+                {projectName && <p className="recording-card__stream">{projectName}</p>}
+                <p className="recording-card__stream">{streamName}</p>
                 <p className="recording-card__created">
-                    Created: {new Date(recording.createdAt).toLocaleDateString()}
+                    Created: {formatDate(recording.createdAt)}
                 </p>
                 {recording.startedAt && (
                     <p className="recording-card__created">
-                        Started: {new Date(recording.startedAt).toLocaleTimeString()}
+                        Started: {formatTimeOfDay(recording.startedAt)}
                     </p>
                 )}
                 {recording.duration && recording.duration !== "00:00:00" && (

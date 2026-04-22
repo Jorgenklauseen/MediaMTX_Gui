@@ -9,6 +9,7 @@ import {
 import { inviteUserToProject } from "../api/invitationApi";
 import type { Project, ProjectStream } from "../types/projects";
 import { ProjectStreamCard } from "./ProjectStreamCard";
+import { formatDate } from "../utils";
 
 type Props = {
   project: Project;
@@ -130,7 +131,7 @@ export function ProjectCard({ project, streams, loading, livePaths, onStreamsCha
         <div className="project-meta-block">
           <span className="project-meta-label">Created</span>
           <span className="project-meta-value">
-            {new Date(project.createdAt).toLocaleDateString()}
+            {formatDate(project.createdAt)}
           </span>
         </div>
         <div className="project-meta-block">
