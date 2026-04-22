@@ -11,11 +11,13 @@ namespace MediaMTX_Gui.Server.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IUserService _userService;
+        private readonly IMediaMtxService _mediaMtx;
 
-        public RecordingService(ApplicationDbContext context, IUserService userService)
+        public RecordingService(ApplicationDbContext context, IUserService userService, IMediaMtxService mediaMtx)
         {
             _context = context;
             _userService = userService;
+            _mediaMtx = mediaMtx;
         }
 
         public async Task<IEnumerable<RecordingDto>> GetRecordingsForCurrentUserAsync(ClaimsPrincipal user)
@@ -168,6 +170,7 @@ namespace MediaMTX_Gui.Server.Services
                 recording.Duration = recording.EndedAt.Value - recording.StartedAt.Value;
             }
             await _context.SaveChangesAsync();
+            await _mediaMtx.PatchPathRecordingAsync(recording.StreamId, false);
             return true;
         }
 
