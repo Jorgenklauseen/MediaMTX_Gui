@@ -15,7 +15,7 @@ interface RecordingCardProps {
 export function RecordingCard({
   recording,
   onStart,
-  onStop,
+  //onStop,
   onDelete,
   onEditDescription,
 }: RecordingCardProps) {
