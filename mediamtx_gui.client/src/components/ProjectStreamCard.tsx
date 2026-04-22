@@ -57,9 +57,7 @@ export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onD
   const whepUrl = playbackProto === "WebRTC" ? (playbackOption?.url ?? null) : null;
   const whepVideoRef = useWhepPlayer(whepUrl);
 
-  const previewUrl = isLive
-    ? (stream.playbackOptions.find(o => o.protocol === "WebRTC")?.url ?? null)
-    : null;
+  const previewUrl = isLive ? `/webrtc/${stream.path}/whep` : null;
   const previewRef = useWhepPlayer(previewUrl);
 
   return (

@@ -65,7 +65,7 @@ const streamSteps = [
     number: 5,
     title: "Start streaming from OBS",
     description:
-      'Click "Start Streaming" in OBS. The stream will appear on the Dashboard. Finished recordings can be found under "Recordings" in the menu.',
+      'Click "Start Streaming" in OBS. The stream will appear on the Dashboard and in the project. Finished recordings can be found under "Recordings" if recording was turned on.',
     details: [
       "The stream goes live as soon as OBS connects to the MediaMTX server.",
       'Recording is stopped by clicking "Stop recording" on the stream card in the project or when stopping the stream in OBS.',
@@ -88,7 +88,7 @@ const viewSteps = [
       "Copy the URL — you will need it in the next step.",
     ],
     images: [
-      { src: "/pictures/get_streams_00.png", alt: "Screenshot: Get playback URL" },
+      { src: "/pictures/start_stream_11_get.png", alt: "Screenshot: Get playback URL" },
     ],
   },
   {

@@ -8,7 +8,7 @@ interface SearchBarProps{
 export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
   return (
     <div className="search-bar">
-      <span className="search-bar__icon">🔍</span>
+      <span className="search-bar__icon"></span>
       <input
         className="search-bar__input"
         type="text"
