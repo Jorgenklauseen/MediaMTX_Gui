@@ -46,16 +46,17 @@
 
 .projects-guide-hint {
   margin: 0.5rem 0 0;
-  font-size: 0.88rem;
+  font-size: 1rem;
   color: var(--text-color);
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .projects-guide-link {
   background: none;
   border: none;
   padding: 0;
-  font: inherit;
+  font: bold;
+
   font-size: inherit;
   color: var(--uia-red);
   cursor: pointer;
@@ -216,8 +217,9 @@
 .projects-count {
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(200, 16, 46, 0.1);
-    color: var(--uia-red);
+    background: var(--uia-red);
+    border-color: var(--uia-red);
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
 }
@@ -297,8 +299,9 @@
     flex: 0 0 auto;
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(21, 128, 61, 0.1);
-    color: #166534;
+    background: #166534;
+    border-color: #166534;
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
@@ -386,6 +389,7 @@
 .project-streams-header,
 .project-stream-card-header {
     align-items: flex-start;
+    justify-content: space-between;
 }
 
 .project-streams-header h4,
@@ -432,14 +436,10 @@
 }
 
 .stream-live-badge {
-  padding: 0.3rem 0.7rem;
-  border-radius: 999px;
-  background: #16a34a;
+   background: var(--uia-red);
   color: #fff;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  white-space: nowrap;
   animation: live-pulse 2s ease-in-out infinite;
 }
 
@@ -451,11 +451,46 @@
 .project-stream-secret-badge {
     padding: 0.3rem 0.7rem;
     border-radius: 999px;
-    background: rgba(200, 16, 46, 0.1);
-    color: var(--uia-red);
+    background: var(--uia-red);
+    border-color: var(--uia-red);
+    color: #fff;
     font-size: 0.75rem;
     font-weight: 700;
     white-space: nowrap;
+}
+
+.project-stream-proto-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.project-stream-proto-row select {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font: inherit;
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+    transition: border-color 140ms, background-color 140ms;
+}
+
+.project-stream-proto-row select:hover {
+    border-color: var(--primary-color, #6366f1);
+}
+
+.project-stream-proto-row select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .project-stream-detail-grid {

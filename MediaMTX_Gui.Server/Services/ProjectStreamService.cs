@@ -339,13 +339,13 @@ namespace MediaMTX_Gui.Server.Services
                     {
                         Protocol = "RTSP",
                         Url = $"{_mediaMtxOptions.RtspBaseUrl}/{stream.Path}",
-                        Note = "~1–3s latency, use in OBS Media Source or VLC"
+                        Note = "~1–3s latency, use in OBS Media Source"
                     },
                     new StreamProtocolOption
                     {
                         Protocol = "SRT",
                         Url = $"{_mediaMtxOptions.SrtBaseUrl}?streamid=read:{stream.Path}",
-                        Note = "~1s latency, use in OBS Media Source or VLC"
+                        Note = "~1s latency, use in OBS Media Source"
                     },
                     new StreamProtocolOption
                     {

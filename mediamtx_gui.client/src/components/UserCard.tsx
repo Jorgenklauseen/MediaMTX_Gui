@@ -24,19 +24,19 @@ export function UserCard({ user, onBan, onUnban }: UserCardProps) {
 
       <div className="user-card__meta">
         <div>
-          <div className="user-card__label">E-post</div>
+          <div className="user-card__label">Email</div>
           <div className="user-card__value">{user.email}</div>
         </div>
         <div>
-          <div className="user-card__label">Sist innlogget</div>
+          <div className="user-card__label">Last Login</div>
           <div className="user-card__value">{formatDate(user.lastLogin)}</div>
         </div>
         <div>
-          <div className="user-card__label">Opprettet</div>
+          <div className="user-card__label">Created</div>
           <div className="user-card__value">{formatDate(user.createdAt)}</div>
         </div>
         <div>
-          <div className="user-card__label">Rolle</div>
+          <div className="user-card__label">Role</div>
           <div className="user-card__value">{user.role}</div>
         </div>
       </div>
@@ -47,7 +47,7 @@ export function UserCard({ user, onBan, onUnban }: UserCardProps) {
         <span
           className={`badge ${user.isBanned ? "badge--banned" : "badge--active"}`}
         >
-          {user.isBanned ? "🚫 Bannet" : "✅ Aktiv"}
+          {user.isBanned ? "🚫 Banned" : "✅ Active"}
         </span>
         {user.isBanned ? (
           <button

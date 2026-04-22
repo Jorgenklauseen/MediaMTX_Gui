@@ -5,15 +5,18 @@ const streamSteps = [
   
   {
     number: 1,
-    title: "Add a stream",
+    title: "Create a project",
     description:
-      'Open your project from the project list. Under the "Streams" section, type a name for the stream and click the "+" button to create it.',
+      'Open a current project or create a new one. Under the "Streams" section, type a name for the stream and click the "Create Stream" button to create it.',
     details: [
-      "The stream name is used as an identifier — keep it short and descriptive.",
-      "Want to record the stream? Click the record button now — before opening OBS.",
+      "You become the project owner automatically. Only owners can delete the project.",
+      "You can invite collaborators at any time, they'll receive the member role.",
+      "Only the stream creator can regenerate the key, delete, or record their stream, regardless of role.",
+
     ],
     images: [
-      { src: "/pictures/start_stream_0.png", alt: "Screenshot: Add stream to project" },
+      { src: "/pictures/start_stream_0.png", alt: "Screenshot: Create project" },
+      { src: "/pictures/start_stream_first.png", alt: "Screenshot: Add stream to project" },
     ],
   },
   {
@@ -22,11 +25,12 @@ const streamSteps = [
     description:
       "After creating the stream, choose which protocol to publish with. The credentials you need depend on the protocol. RTMP is most used.",
     details: [
-      "RTMP: both a server URL and a stream key are generated — you need both in OBS.",
+      "RTMP: both a server URL and a stream key are generated. You need both in OBS.",
       "SRT: only a server URL is generated — paste it directly into OBS. No stream key needed.",
+      "Want to record the stream? Click the record button now, before opening OBS.",
     ],
     images: [
-      { src: "/pictures/start_stream_0.png", alt: "Screenshot: Add stream to project" },
+      { src: "/pictures/start_stream_11.png", alt: "Screenshot: Add stream to project" },
 
     ],
   },
