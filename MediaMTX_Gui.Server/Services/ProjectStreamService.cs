@@ -16,11 +16,14 @@ namespace MediaMTX_Gui.Server.Services
         private readonly MediaMtxOptions _mediaMtxOptions;
         private readonly IMediaMtxService _mediaMtx;
 
-        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions, IMediaMtxService mediaMtx)
+        private readonly IUserService _userService;
+
+        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions, IMediaMtxService mediaMtx, IUserService userService)
         {
             _db = db;
             _mediaMtxOptions = mediaMtxOptions.Value;
             _mediaMtx = mediaMtx;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
@@ -170,7 +173,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<string> FilterStreamJsonAsync(string json, ClaimsPrincipal principal)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             if (user.Role == "admin")
                 return json;
@@ -196,9 +199,14 @@ namespace MediaMTX_Gui.Server.Services
             return node?.ToJsonString() ?? json;
         }
 
-        private async Task<User> EnsureProjectMembershipAsync(int projectId, ClaimsPrincipal principal)
+        public async Task<bool> PublicStreamExistsAsync(string path)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            return await _db.ProjectStreams.AnyAsync(s => s.Path == path);
+        }
+
+        private async Task<UserDto> EnsureProjectMembershipAsync(int projectId, ClaimsPrincipal principal)
+        {
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             var isMember = await _db.ProjectMembers
                 .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
@@ -206,25 +214,6 @@ namespace MediaMTX_Gui.Server.Services
             if (!isMember)
             {
                 throw new UnauthorizedAccessException("You do not belong to this project.");
-            }
-
-            return user;
-        }
-
-        private async Task<User> GetCurrentPersistedUserAsync(ClaimsPrincipal principal)
-        {
-            var sub = principal.FindFirstValue("sub");
-
-            if (string.IsNullOrWhiteSpace(sub))
-            {
-                throw new UnauthorizedAccessException("Missing subject claim.");
-            }
-
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
-
-            if (user is null)
-            {
-                throw new UnauthorizedAccessException("Authenticated user was not found in the database.");
             }
 
             return user;

@@ -12,5 +12,6 @@ namespace MediaMTX_Gui.Server.Services
         Task<bool> ValidatePublishCredentialsAsync(MediaMtxAuthRequestDto request);
         Task<ProjectStreamDto> ToggleRecordingAsync(int projectId, Guid streamId, bool enabled, ClaimsPrincipal principal);
         Task<string> FilterStreamJsonAsync(string json, ClaimsPrincipal principal);
+        Task<bool> PublicStreamExistsAsync(string path);
     }
 }

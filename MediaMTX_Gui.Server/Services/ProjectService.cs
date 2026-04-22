@@ -9,15 +9,19 @@ namespace MediaMTX_Gui.Server.Services
     public class ProjectService : IProjectService
     {
         private readonly ApplicationDbContext _db;
+        private readonly IMediaMtxService _mediaMtx;
+        private readonly IUserService _userService;
 
-        public ProjectService(ApplicationDbContext db)
+        public ProjectService(ApplicationDbContext db, IMediaMtxService mediaMtx, IUserService userService)
         {
             _db = db;
+            _mediaMtx = mediaMtx;
+            _userService = userService;
         }
 
         public async Task<IEnumerable<ProjectDto>> GetProjectsForCurrentUserAsync(ClaimsPrincipal principal)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             return await _db.ProjectMembers
                 .Where(pm => pm.UserId == user.Id)
@@ -40,7 +44,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<ProjectDto> CreateProjectAsync(CreateProjectRequest request, ClaimsPrincipal principal)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             // Use a transaction to ensure both project creation and membership assignment succeed together
             await using var transaction = await _db.Database.BeginTransactionAsync();
@@ -75,7 +79,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<ProjectDto?> GetProjectByIdForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             var project = await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId && pm.UserId == user.Id)
@@ -99,28 +103,9 @@ namespace MediaMTX_Gui.Server.Services
         }
 
 
-        private async Task<User> GetCurrentPersistedUserAsync(ClaimsPrincipal principal)
-        {
-            var sub = principal.FindFirstValue("sub");
-
-            if (string.IsNullOrWhiteSpace(sub))
-            {
-                throw new UnauthorizedAccessException("Missing subject claim.");
-            }
-
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
-
-            if (user is null)
-            {
-                throw new UnauthorizedAccessException("Authenticated user was not found in the database.");
-            }
-
-            return user;
-        }
-
         public async Task<bool> DeleteProjectForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
         {
-            var user = await GetCurrentPersistedUserAsync(principal);
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
             var membership = await _db.ProjectMembers
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
@@ -139,15 +124,24 @@ namespace MediaMTX_Gui.Server.Services
 
             await using var transaction = await _db.Database.BeginTransactionAsync();
 
+            var streams = await _db.ProjectStreams
+                .Where(s => s.ProjectId == projectId)
+                .ToListAsync();
+
             var memberships = await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId)
                 .ToListAsync();
 
+            _db.ProjectStreams.RemoveRange(streams);
             _db.ProjectMembers.RemoveRange(memberships);
             _db.Projects.Remove(project);
-
             await _db.SaveChangesAsync();
             await transaction.CommitAsync();
+
+            foreach (var stream in streams)
+            {
+                await _mediaMtx.KickPathAsync(stream.Path);
+            }
 
             return true;
         }

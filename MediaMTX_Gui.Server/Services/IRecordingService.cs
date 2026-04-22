@@ -13,5 +13,10 @@ namespace MediaMTX_Gui.Server.Services
         Task<bool> StartRecordingAsync(int id, ClaimsPrincipal user);
         Task<bool> StopRecordingAsync(int id, ClaimsPrincipal user);
         Task<RecordingDto?> UpdateRecordingAsync(int id, UpdateRecordingRequest request, ClaimsPrincipal user);
+
+        Task SyncStreamsAsync(string json);
+        Task HandleStreamStartedAsync(string streamName);
+        Task HandleStreamStoppedAsync(string streamName);
+        IEnumerable<string> GetSessionSegmentPaths(RecordingDto recording);
     }
 }

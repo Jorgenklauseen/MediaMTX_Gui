@@ -9,26 +9,20 @@ public class InvitationService : IInvitationService
 {
     private readonly ApplicationDbContext _db;
     private readonly IEmailService _emailService;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IUserService _userService;
 
-    private IHttpContextAccessor _httpContextAccessor;
-
-    public InvitationService(ApplicationDbContext db, IEmailService emailService, IHttpContextAccessor httpContextAccessor)
+    public InvitationService(ApplicationDbContext db, IEmailService emailService, IHttpContextAccessor httpContextAccessor, IUserService userService)
     {
         _db = db;
         _emailService = emailService;
         _httpContextAccessor = httpContextAccessor;
-    }
-
-    private async Task<User> GetCurrentUserAsync(ClaimsPrincipal principal)
-    {
-        var sub = principal.FindFirstValue("sub")!;
-        return await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub)
-            ?? throw new UnauthorizedAccessException("User not found.");
+        _userService = userService;
     }
 
     public async Task InviteUserAsync(int projectId, string email, ClaimsPrincipal principal)
     {
-        var currentUser = await GetCurrentUserAsync(principal);
+        var currentUser = await _userService.GetRequiredCurrentUserAsync(principal);
 
         var isMember = await _db.ProjectMembers.AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == currentUser.Id);
 
@@ -76,7 +70,7 @@ public class InvitationService : IInvitationService
 
     public async Task AcceptInvitationAsync(string token, ClaimsPrincipal principal)
     {
-        var currentUser = await GetCurrentUserAsync(principal);
+        var currentUser = await _userService.GetRequiredCurrentUserAsync(principal);
         var invitation = await _db.ProjectInvitations.FirstOrDefaultAsync(i => i.Token == token && !i.IsAccepted);
         if (invitation is null)
         {
