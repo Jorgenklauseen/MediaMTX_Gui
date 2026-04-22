@@ -57,16 +57,6 @@ public class MediaMtxService : IMediaMtxService
             kickResponse.EnsureSuccessStatusCode();
     }
 
-    public async Task PatchPathRecordingAsync(string path, bool record)
-    {
-        var encodedPath = string.Join("/", path.Split('/').Select(Uri.EscapeDataString));
-        var body = JsonSerializer.Serialize(new { record });
-        var content = new StringContent(body, System.Text.Encoding.UTF8, "application/json");
-        var response = await _httpClient.PatchAsync($"/v3/config/paths/patch/{encodedPath}", content);
-        if (response.StatusCode != HttpStatusCode.NotFound)
-            response.EnsureSuccessStatusCode();
-    }
-
     private class MediaMtxPathInfo
     {
         [JsonPropertyName("source")]
