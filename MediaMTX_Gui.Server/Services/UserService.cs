@@ -15,13 +15,6 @@ namespace MediaMTX_Gui.Server.Services
             _db = db;
         }
 
-        public async Task<UserDto> GetCurrentUser(ClaimsPrincipal principal)
-        {
-            var sub = principal.FindFirstValue("sub")!;
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.SubId == sub);
-            return MapToUserDto(user!);
-        }
-
         public async Task<UserDto> GetRequiredCurrentUserAsync(ClaimsPrincipal principal)
         {
             var sub = principal.FindFirstValue("sub");

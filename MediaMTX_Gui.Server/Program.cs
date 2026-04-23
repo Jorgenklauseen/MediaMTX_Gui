@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
+builder.Services.AddMemoryCache();
 
 // Add services to the container.
 

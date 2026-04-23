@@ -6,6 +6,7 @@ using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace MediaMTX_Gui.Server.Services
@@ -15,15 +16,19 @@ namespace MediaMTX_Gui.Server.Services
         private readonly ApplicationDbContext _db;
         private readonly MediaMtxOptions _mediaMtxOptions;
         private readonly IMediaMtxService _mediaMtx;
-
         private readonly IUserService _userService;
+        private readonly IMemoryCache _cache;
 
-        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions, IMediaMtxService mediaMtx, IUserService userService)
+        private const int MaxAuthFailures = 10;
+        private static readonly TimeSpan AuthLockoutDuration = TimeSpan.FromMinutes(5);
+
+        public ProjectStreamService(ApplicationDbContext db, IOptions<MediaMtxOptions> mediaMtxOptions, IMediaMtxService mediaMtx, IUserService userService, IMemoryCache cache)
         {
             _db = db;
             _mediaMtxOptions = mediaMtxOptions.Value;
             _mediaMtx = mediaMtx;
             _userService = userService;
+            _cache = cache;
         }
 
         public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
@@ -157,18 +162,26 @@ namespace MediaMTX_Gui.Server.Services
                 return false;
             }
 
+            var cacheKey = $"auth-fail:{request.User}";
+            if (_cache.TryGetValue(cacheKey, out int failures) && failures >= MaxAuthFailures)
+            {
+                return false;
+            }
+
             var stream = await _db.ProjectStreams
                 .AsNoTracking()
                 .FirstOrDefaultAsync(candidate =>
                     candidate.Path == request.Path &&
                     candidate.PublishUser == request.User);
 
-            if (stream is null)
+            if (stream is null || !SlowEquals(stream.StreamKeyHash, HashSecret(request.Password)))
             {
+                _cache.Set(cacheKey, failures + 1, AuthLockoutDuration);
                 return false;
             }
 
-            return SlowEquals(stream.StreamKeyHash, HashSecret(request.Password));
+            _cache.Remove(cacheKey);
+            return true;
         }
 
         public async Task<string> FilterStreamJsonAsync(string json, ClaimsPrincipal principal)
