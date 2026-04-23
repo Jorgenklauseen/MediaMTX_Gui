@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
     [Authorize]
     public async Task<IActionResult> GetCurrentUser()
     {
-        var users = await _userService.GetCurrentUser(User);
+        var users = await _userService.GetRequiredCurrentUserAsync(User);
         return Ok(users);
     }
 

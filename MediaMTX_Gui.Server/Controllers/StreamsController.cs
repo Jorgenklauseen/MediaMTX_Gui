@@ -16,7 +16,7 @@ public class StreamsController : ControllerBase
     private readonly IHubContext<StreamHub> _hubContext;
     private readonly IProjectStreamService _projectStreamService;
     private readonly IRecordingService _recordingService;
-    private readonly ILogger<StreamsController> _logger;
+
 
     public StreamsController(
         IMediaMtxService mediaService,
@@ -29,7 +29,6 @@ public class StreamsController : ControllerBase
         _hubContext = hubContext;
         _projectStreamService = projectStreamService;
         _recordingService = recordingService;
-        _logger = logger;
     }
 
     [HttpGet("status")]
@@ -114,11 +113,6 @@ public class StreamsController : ControllerBase
     [HttpPost("authenticate")]
     public async Task<IActionResult> Authenticate([FromBody] MediaMtxAuthRequestDto request)
     {
-        _logger.LogInformation(
-            "MediaMTX auth request: Path={Path}, Action={Action}, Protocol={Protocol}, User={User}, PasswordPresent={PasswordPresent}, Query={Query}",
-            request.Path, request.Action, request.Protocol, request.User,
-            !string.IsNullOrWhiteSpace(request.Password), request.Query);
-
         var isAllowed = await _projectStreamService.ValidatePublishCredentialsAsync(request);
         return isAllowed ? Ok() : Unauthorized();
     }

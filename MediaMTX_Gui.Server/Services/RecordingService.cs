@@ -20,8 +20,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<IEnumerable<RecordingDto>> GetRecordingsForCurrentUserAsync(ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return Enumerable.Empty<RecordingDto>();
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recordings = await _context.Recordings
                 .Where(r => r.CreatedById == currentUser.Id)
@@ -51,8 +50,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<RecordingDto?> GetRecordingByIdForCurrentUserAsync(int id, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return null;
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
                 .Where(r => r.Id == id && r.CreatedById == currentUser.Id)
@@ -82,8 +80,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<RecordingDto> CreateRecordingAsync(CreateRecordingRequest request, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) throw new UnauthorizedAccessException("User not found");
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var stream = await _context.Set<MediaStream>().FindAsync(request.StreamId);
             if (stream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
@@ -122,8 +119,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<bool> DeleteRecordingForCurrentUserAsync(int id, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return false;
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
                 .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
@@ -137,8 +133,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<bool> StartRecordingAsync(int id, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return false;
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
                 .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
@@ -153,8 +148,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<bool> StopRecordingAsync(int id, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return false;
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
                 .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
@@ -173,8 +167,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<RecordingDto?> UpdateRecordingAsync(int id, UpdateRecordingRequest request, ClaimsPrincipal user)
         {
-            var currentUser = await _userService.GetCurrentUser(user);
-            if (currentUser == null) return null;
+            var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
                 .Include(r => r.Stream)
