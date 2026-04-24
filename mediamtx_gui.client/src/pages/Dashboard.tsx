@@ -51,7 +51,11 @@ function Dashboard() {
       )}
       {Object.entries(grouped).map(([projectId, projectStreams]) => (
         <div key={projectId} className="dashboard-project-section">
-          <h3 className="dashboard-project-heading">{projectNameMap.get(projectId) ?? projectId}</h3>
+          <h3 className="dashboard-project-heading">
+            {projectNameMap.has(projectId)
+              ? `${projectNameMap.get(projectId)} · ${projectId}`
+              : projectId}
+          </h3>
           <div className="dashboard-grid">
             {projectStreams.map((stream) => (
               <StreamCard
