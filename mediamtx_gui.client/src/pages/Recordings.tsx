@@ -12,7 +12,7 @@ function Recordings() {
   const [search, setSearch] = useState("");
 
   const projectNameMap = useMemo(
-    () => new Map(projects.map((p) => [String(p.id), p.name])),
+    () => new Map(projects.map((p) => [`project-${p.id}`, p.name])),
     [projects]
   );
 
