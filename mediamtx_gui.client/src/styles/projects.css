@@ -444,8 +444,10 @@
 .stream-live-badge {
    background: var(--uia-red);
   color: #fff;
-  font-size: 0.7rem;
+  font-size: 0.95rem;
   font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
   animation: live-pulse 2s ease-in-out infinite;
 }
 
