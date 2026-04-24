@@ -38,9 +38,13 @@ namespace MediaMTX_Gui.Server.Services
             var streams = await _db.ProjectStreams
                 .Where(stream => stream.ProjectId == projectId)
                 .OrderByDescending(stream => stream.CreatedAt)
+                .Join(_db.Users,
+                    stream => stream.CreatedByUserId,
+                    user => user.Id,
+                    (stream, user) => new { stream, creatorName = user.Name ?? user.Username ?? user.Email })
                 .ToListAsync();
 
-            return streams.Select(stream => MapToDto(stream, null, stream.CreatedByUserId == currentUser.Id));
+            return streams.Select(row => MapToDto(row.stream, null, row.stream.CreatedByUserId == currentUser.Id, row.creatorName));
         }
 
         public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal)
@@ -309,7 +313,7 @@ namespace MediaMTX_Gui.Server.Services
             return $"{secret[..4]}****{secret[^4..]}";
         }
 
-        private ProjectStreamDto MapToDto(ProjectStream stream, string? rawStreamKey, bool canRotateKey)
+        private ProjectStreamDto MapToDto(ProjectStream stream, string? rawStreamKey, bool canRotateKey, string? createdByName = null)
         {
             var keyForDisplay = rawStreamKey is null ? "STREAM_KEY_SHOWN_ON_CREATE" : rawStreamKey;
             var maskedKey = rawStreamKey is null ? "Only shown when created, regenerate to get a new one." : MaskSecret(rawStreamKey);
@@ -370,7 +374,8 @@ namespace MediaMTX_Gui.Server.Services
                 RecordingEnabled = stream.RecordingEnabled,
                 CreatedAt = stream.CreatedAt,
                 HasVisibleSecret = rawStreamKey is not null,
-                CanRotateKey = canRotateKey
+                CanRotateKey = canRotateKey,
+                CreatedByName = createdByName
             };
         }
     }

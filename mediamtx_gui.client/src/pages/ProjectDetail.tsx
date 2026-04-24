@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getProjectById, deleteProject, getProjectStreams } from "../api/projectsApi";
+import { getProjectById, deleteProject, leaveProject, getProjectStreams } from "../api/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
 import { useStreams } from "../hooks/useStreams";
 import type { Project, ProjectStream } from "../types/projects";
@@ -48,6 +48,19 @@ function ProjectDetail() {
       }
     })();
   }, [projectId]);
+
+  const handleLeave = async (pid: number, projectName: string) => {
+    const confirmed = window.confirm(`Leave "${projectName}"?`);
+    if (!confirmed) return;
+
+    try {
+      await leaveProject(pid);
+      toast.success(`You have left "${projectName}".`);
+      navigate("/projects");
+    } catch {
+      setError("Could not leave project.");
+    }
+  };
 
   const handleDelete = async (pid: number, projectName: string) => {
     const confirmed = window.confirm(`Delete "${projectName}"? This cannot be undone.`);
@@ -117,6 +130,7 @@ function ProjectDetail() {
           livePaths={livePaths}
           onStreamsChange={handleStreamsChange}
           onDelete={handleDelete}
+          onLeave={handleLeave}
         />
       </div>
     </section>

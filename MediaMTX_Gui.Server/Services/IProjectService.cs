@@ -14,6 +14,7 @@ namespace MediaMTX_Gui.Server.Services
         // Retrieves a specific project by ID if the current user is a member, otherwise returns null.
         Task<ProjectDto?> GetProjectByIdForCurrentUserAsync(int projectId, ClaimsPrincipal principal);
         Task<bool> DeleteProjectForCurrentUserAsync(int projectId, ClaimsPrincipal principal);
+        Task<bool> LeaveProjectAsync(int projectId, ClaimsPrincipal principal);
 
     }
 }

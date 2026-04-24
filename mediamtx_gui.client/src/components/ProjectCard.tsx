@@ -18,9 +18,10 @@ type Props = {
   livePaths: Set<string>;
   onStreamsChange: (projectId: number, streams: ProjectStream[]) => void;
   onDelete: (projectId: number, projectName: string) => Promise<void>;
+  onLeave: (projectId: number, projectName: string) => Promise<void>;
 };
 
-export function ProjectCard({ project, streams, loading, livePaths, onStreamsChange, onDelete }: Props) {
+export function ProjectCard({ project, streams, loading, livePaths, onStreamsChange, onDelete, onLeave }: Props) {
   const [streamName, setStreamName] = useState("");
   const [streamError, setStreamError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -174,6 +175,18 @@ export function ProjectCard({ project, streams, loading, livePaths, onStreamsCha
             <p className="projects-message projects-message-success">Invitation sent!</p>
           )}
         </section>
+      )}
+
+      {!isOwner && (
+        <div className="project-stream-create">
+          <button
+            type="button"
+            className="project-delete-project-button"
+            onClick={() => void onLeave(project.id, project.name)}
+          >
+            Leave project
+          </button>
+        </div>
       )}
 
       <section className="project-streams-section">

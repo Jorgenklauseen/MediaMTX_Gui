@@ -51,6 +51,16 @@ export async function deleteProject(projectId: number): Promise<void> {
     }
 }
 
+export async function leaveProject(projectId: number): Promise<void> {
+    const response = await fetch(`/api/projects/${projectId}/leave`, {
+        method: "DELETE",
+    });
+
+    if (!response.ok) {
+        throw new Error("Could not leave project");
+    }
+}
+
 export async function getProjectStreams(projectId: number): Promise<ProjectStream[]> {
     const response = await fetch(`/api/projects/${projectId}/streams`);
 

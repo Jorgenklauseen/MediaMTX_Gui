@@ -71,7 +71,7 @@ export function ProjectStreamCard({ stream, projectId, isLive, onRegenerate, onD
         <div>
           <h4>{stream.displayPath}</h4>
           <p className="project-stream-created">
-            Created {formatDateTime(stream.createdAt)}
+            Created {formatDateTime(stream.createdAt)}{stream.createdByName ? ` by ${stream.createdByName}` : ""}
           </p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>

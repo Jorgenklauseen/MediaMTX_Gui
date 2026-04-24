@@ -147,6 +147,36 @@ namespace MediaMTX_Gui.Server.Services
         }
 
 
+        public async Task<bool> LeaveProjectAsync(int projectId, ClaimsPrincipal principal)
+        {
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
+
+            var membership = await _db.ProjectMembers
+                .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+
+            if (membership is null || membership.IsOwner)
+            {
+                return false;
+            }
+
+            var streams = await _db.ProjectStreams
+                .Where(s => s.ProjectId == projectId && s.CreatedByUserId == user.Id)
+                .ToListAsync();
+
+            await using var transaction = await _db.Database.BeginTransactionAsync();
+            _db.ProjectStreams.RemoveRange(streams);
+            _db.ProjectMembers.Remove(membership);
+            await _db.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            foreach (var stream in streams)
+            {
+                await _mediaMtx.KickPathAsync(stream.Path);
+            }
+
+            return true;
+        }
+
         private static ProjectDto MapToProjectDto(Project project, string role) => new()
         {
             Id = project.Id,

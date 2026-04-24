@@ -14,5 +14,6 @@ namespace MediaMTX_Gui.Server.DTOs
         public DateTime CreatedAt { get; set; }
         public bool HasVisibleSecret { get; set; }
         public bool CanRotateKey { get; set; }
+        public string? CreatedByName { get; set; }
     }
 }

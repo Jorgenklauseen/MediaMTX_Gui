@@ -64,5 +64,18 @@ namespace MediaMTX_Gui.Server.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{id:int}/leave")]
+        public async Task<IActionResult> LeaveProject(int id)
+        {
+            var left = await _projectService.LeaveProjectAsync(id, User);
+
+            if (!left)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }   

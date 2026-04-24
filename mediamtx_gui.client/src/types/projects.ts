@@ -34,6 +34,7 @@ export type ProjectStream = {
     createdAt: string;
     hasVisibleSecret: boolean;
     canRotateKey: boolean;
+    createdByName: string | null;
 };
 
 export type CreateProjectStreamPayload = {
