@@ -73,8 +73,8 @@ const streamSteps = [
       
     ],
     images: [
-      { src: "/pictures/start_stream_3.png", alt: "Screenshot: Starting stream in OBS" },
-      { src: "/pictures/start_stream_4.png", alt: "Screenshot: Stream live on Dashboard" },
+      { src: "/pictures/start_stream_33.png", alt: "Screenshot: Starting stream in OBS" },
+      { src: "/pictures/start_stream_44.png", alt: "Screenshot: Stream live on Dashboard" },
     ],
   },
 ];
@@ -84,7 +84,7 @@ const viewSteps = [
     number: 1,
     title: "Get the playback URL",
     description:
-      'Open the stream in the project and click "Playback via" to reveal the playback URL. If you are not part of the project, ask the project owner to share the URL with you.',
+      'Open the stream in the project and click "Playback via" to reveal the playback URL options. If you are not part of the project, ask the project owner to share the URL with you.',
     details: [
       'Click "Playback via" on the stream card to expand the playback URL options.',
       "Copy the URL. You will need it in the next step.",
@@ -144,7 +144,7 @@ const viewSteps = [
       "You can now use it as any other source in OBS — resize, reposition, or layer it.",
     ],
     images: [
-      { src: "/pictures/get_stream_3.png", alt: "Screenshot: Stream loaded in OBS." },
+      { src: "/pictures/get_stream_33.png", alt: "Screenshot: Stream loaded in OBS." },
     ],
   },
 ];
