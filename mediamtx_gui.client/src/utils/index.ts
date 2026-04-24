@@ -1,4 +1,6 @@
+export * from "./formatBytes"
 export * from "./formatDate"
+export * from "./formatDuration"
 export * from "./formatTime"
 export * from "./getInitials"
 export * from "./parseStreamName"

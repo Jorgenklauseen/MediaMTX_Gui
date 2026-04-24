@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useStreams } from "../hooks/useStreams";
+import { useProjects } from "../hooks/useProjects";
 import { StreamCard } from "../components/StreamCard";
 import { SearchBar } from "../components/SearchBar";
 import { parseStreamName } from "../utils";
 
 function Dashboard() {
   const { streams, error, loading } = useStreams();
+  const { projects } = useProjects();
   const [query, setQuery] = useState("");
+
+  const projectNameMap = useMemo(
+    () => new Map(projects.map((p) => [String(p.id), p.name])),
+    [projects]
+  );
 
   if (loading) return <div>Laster...</div>;
   if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
@@ -42,12 +49,16 @@ function Dashboard() {
       {filteredProjectCount === 0 && q && (
         <p className="dashboard-empty">No streams match "{query}".</p>
       )}
-      {Object.entries(grouped).map(([project, projectStreams]) => (
-        <div key={project} className="dashboard-project-section">
-          <h3 className="dashboard-project-heading">{project}</h3>
+      {Object.entries(grouped).map(([projectId, projectStreams]) => (
+        <div key={projectId} className="dashboard-project-section">
+          <h3 className="dashboard-project-heading">{projectNameMap.get(projectId) ?? projectId}</h3>
           <div className="dashboard-grid">
             {projectStreams.map((stream) => (
-              <StreamCard key={stream.source?.id ?? stream.name} stream={stream} />
+              <StreamCard
+                key={stream.source?.id ?? stream.name}
+                stream={stream}
+                resolvedProjectName={projectNameMap.get(projectId)}
+              />
             ))}
           </div>
         </div>

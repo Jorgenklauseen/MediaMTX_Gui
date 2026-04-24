@@ -1,11 +1,12 @@
 import { useState } from "react";
 import type { Recording, RecordingFile } from "../types/recordings";
 import { getRecordingFiles } from "../api/recordingsApi";
-import { parseStreamName, formatDate, formatTimeOfDay } from "../utils";
+import { parseStreamName, formatBytes, formatDate, formatDuration, formatTimeOfDay } from "../utils";
 import "../styles/recordings.css";
 
 interface RecordingCardProps {
   recording: Recording;
+  resolvedProjectName?: string;
   onStart?: (id: number) => void;
   onStop?: (id: number) => void;
   onDelete?: (id: number) => void;
@@ -14,12 +15,14 @@ interface RecordingCardProps {
 
 export function RecordingCard({
   recording,
+  resolvedProjectName,
   onStart,
   //onStop,
   onDelete,
   onEditDescription,
 }: RecordingCardProps) {
   const { streamName, projectName } = parseStreamName(recording.streamName);
+  const displayProjectName = resolvedProjectName ?? projectName;
   const [files, setFiles] = useState<RecordingFile[] | null>(null);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [filesError, setFilesError] = useState<string | null>(null);
@@ -30,21 +33,6 @@ export function RecordingCard({
   const [draft, setDraft] = useState(recording.description);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  const formatDuration = (duration: string) => {
-    const match = duration.match(/^(\d+):(\d{2}):(\d{2})/);
-    if (!match) return duration;
-    const [, h, m, s] = match;
-    if (parseInt(h) > 0) return `${h}h ${m}m ${s}s`;
-    if (parseInt(m) > 0) return `${m}m ${s}s`;
-    return `${s}s`;
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 B";
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-  };
 
   const handleLoadFiles = async () => {
     try {
@@ -86,8 +74,12 @@ export function RecordingCard({
       <div className="recording-card__header">
         <div>
           <h3 className="recording-card__title">{streamName}</h3>
-          {projectName && (
-            <p className="recording-card__project">{projectName}</p>
+          {displayProjectName && (
+            <p className="recording-card__project">
+              {resolvedProjectName && projectName
+                ? `${resolvedProjectName} (${projectName})`
+                : displayProjectName}
+            </p>
           )}
         </div>
         <span
@@ -179,7 +171,7 @@ export function RecordingCard({
         )}
         {recording.fileSize > 0 && (
           <p className="recording-card__size">
-            Total size: {formatFileSize(recording.fileSize)}
+            Total size: {formatBytes(recording.fileSize)}
           </p>
         )}
       </div>
@@ -245,7 +237,7 @@ export function RecordingCard({
                 <li key={file.name} className="recording-card__file-item">
                   <span className="recording-card__file-name">{file.name}</span>
                   <span className="recording-card__file-size">
-                    {formatFileSize(file.size)}
+                    {formatBytes(file.size)}
                   </span>
                   <a
                     href={file.url}

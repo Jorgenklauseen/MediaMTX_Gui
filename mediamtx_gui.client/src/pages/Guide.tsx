@@ -26,7 +26,7 @@ const streamSteps = [
       "After creating the stream, choose which protocol to publish with. The credentials you need depend on the protocol. RTMP is most used.",
     details: [
       "RTMP: both a server URL and a stream key are generated. You need both in OBS.",
-      "SRT: only a server URL is generated — paste it directly into OBS. No stream key needed.",
+      "SRT: only a server URL is generated. Paste it directly into OBS. No stream key needed.",
       "Want to record the stream? Click the record button now, before opening OBS.",
     ],
     images: [
@@ -95,7 +95,7 @@ const viewSteps = [
     number: 2,
     title: "Add a Media Source in OBS",
     description:
-      'Open OBS Studio. In the "Sources" panel, click "+" and select "Media Source". Give it a name and click OK.',
+      'Add a new source to your OBS scene. Choose "Media Source" from the list of source types.',
     details: [
       'In the "Sources" panel at the bottom, click the "+" icon.',
       'Select "Media Source" from the list and give it a name.',
@@ -125,7 +125,7 @@ const viewSteps = [
     details: [
       'Make sure "Local File" is unchecked.',
       'Paste the playback URL you copied in step 1 into the "Input" field.',
-      'If "Mpgets appears in "Input format", just remove it.',
+      'If "Mpgets" appears in "Input format", just remove it.',
       'Click OK to confirm.',
     ],
     images: [

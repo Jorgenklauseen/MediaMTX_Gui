@@ -1,12 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRecordings } from "../hooks/useRecordings";
+import { useProjects } from "../hooks/useProjects";
 import { RecordingCard } from "../components/RecordingCard";
 import { SearchBar } from "../components/SearchBar";
+import { parseStreamName } from "../utils";
 import "../styles/recordings.css";
 
 function Recordings() {
   const { recordings, loading, error, removeRecording, startRecordingSession, stopRecordingSession, editDescription } = useRecordings();
+  const { projects } = useProjects();
   const [search, setSearch] = useState("");
+
+  const projectNameMap = useMemo(
+    () => new Map(projects.map((p) => [String(p.id), p.name])),
+    [projects]
+  );
 
   const filteredRecordings = recordings.filter(recording =>
     recording.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -64,16 +72,20 @@ function Recordings() {
           </div>
         ) : (
           <div className="recordings-grid">
-            {filteredRecordings.map((recording) => (
-              <RecordingCard
-                key={recording.id}
-                recording={recording}
-                onStart={startRecordingSession}
-                onStop={stopRecordingSession}
-                onDelete={handleDeleteRecording}
-                onEditDescription={editDescription}
-              />
-            ))}
+            {filteredRecordings.map((recording) => {
+              const { projectName } = parseStreamName(recording.streamName);
+              return (
+                <RecordingCard
+                  key={recording.id}
+                  recording={recording}
+                  resolvedProjectName={projectName ? (projectNameMap.get(projectName) ?? projectName) : undefined}
+                  onStart={startRecordingSession}
+                  onStop={stopRecordingSession}
+                  onDelete={handleDeleteRecording}
+                  onEditDescription={editDescription}
+                />
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,18 +1,20 @@
 import { useNavigate } from "react-router-dom";
 import type { Stream } from "../types/streams";
 import { useWhepPlayer } from "../hooks/useWhepPlayer";
-import { parseStreamName } from "../utils";
+import { parseStreamName, formatBytes } from "../utils";
 import { FaEye} from "react-icons/fa";
 import "../styles/streams.css";
 
 type Props = {
   stream: Stream;
+  resolvedProjectName?: string;
 };
 
-export function StreamCard({ stream }: Props) {
+export function StreamCard({ stream, resolvedProjectName }: Props) {
   const navigate = useNavigate();
   const isLive = stream.online;
   const { streamName, projectName } = parseStreamName(stream.name);
+  const displayProjectName = resolvedProjectName ?? projectName;
   const url = isLive ? `/webrtc/${stream.name}/whep` : null;
   const videoRef = useWhepPlayer(url);
 
@@ -35,10 +37,16 @@ export function StreamCard({ stream }: Props) {
 
       <div className="stream-info">
         <p className="stream-name">
-          {streamName}{projectName && <span className="stream-project"> ({projectName})</span>}
+          {streamName}{displayProjectName && (
+  <span className="stream-project">
+    {resolvedProjectName && projectName
+      ? ` (${resolvedProjectName} · ${projectName})`
+      : ` (${displayProjectName})`}
+  </span>
+)}
         </p>
         <p className="stream-tracks">{stream.tracks.join(" · ")}</p>
-        <p className="stream-bytes">{(stream.bytesReceived / 1000000).toFixed(2)} MB received</p>
+        <p className="stream-bytes">{formatBytes(stream.bytesReceived)} received</p>
       </div>
     </div>
   );
