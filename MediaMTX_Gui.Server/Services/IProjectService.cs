@@ -15,6 +15,6 @@ namespace MediaMTX_Gui.Server.Services
         Task<ProjectDto?> GetProjectByIdForCurrentUserAsync(int projectId, ClaimsPrincipal principal);
         Task<bool> DeleteProjectForCurrentUserAsync(int projectId, ClaimsPrincipal principal);
         Task<bool> LeaveProjectAsync(int projectId, ClaimsPrincipal principal);
-
+        Task<IEnumerable<ProjectMemberDto>?> GetProjectMembersAsync(int projectId, ClaimsPrincipal principal);
     }
 }

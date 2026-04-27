@@ -319,6 +319,30 @@
     gap: 0.9rem;
 }
 
+.project-members-section {
+    display: grid;
+    gap: 0.45rem;
+}
+
+.project-members-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.project-member-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.project-member-name {
+    font-size: 0.9rem;
+}
+
 .project-invite-section {
     display: grid;
     gap: 0.45rem;

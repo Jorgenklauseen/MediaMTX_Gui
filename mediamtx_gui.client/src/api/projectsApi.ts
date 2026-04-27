@@ -2,6 +2,7 @@ import type {
     CreateProjectPayload,
     CreateProjectStreamPayload,
     Project,
+    ProjectMember,
     ProjectStream,
 } from "../types/projects";
 
@@ -121,6 +122,16 @@ export async function toggleStreamRecording(
 
     if (!response.ok) {
         throw new Error("Could not toggle recording");
+    }
+
+    return response.json();
+}
+
+export async function getProjectMembers(projectId: number): Promise<ProjectMember[]> {
+    const response = await fetch(`/api/projects/${projectId}/members`);
+
+    if (!response.ok) {
+        throw new Error("Could not load project members");
     }
 
     return response.json();

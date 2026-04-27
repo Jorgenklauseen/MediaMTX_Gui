@@ -33,7 +33,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<IEnumerable<ProjectStreamDto>> GetProjectStreamsForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
         {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+            var (currentUser, isOwner) = await EnsureProjectMembershipAsync(projectId, principal);
 
             var streams = await _db.ProjectStreams
                 .Where(stream => stream.ProjectId == projectId)
@@ -44,12 +44,12 @@ namespace MediaMTX_Gui.Server.Services
                     (stream, user) => new { stream, creatorName = user.Name ?? user.Username ?? user.Email })
                 .ToListAsync();
 
-            return streams.Select(row => MapToDto(row.stream, null, row.stream.CreatedByUserId == currentUser.Id, row.creatorName));
+            return streams.Select(row => MapToDto(row.stream, null, row.stream.CreatedByUserId == currentUser.Id || isOwner, row.creatorName));
         }
 
         public async Task<ProjectStreamDto> CreateProjectStreamAsync(int projectId, CreateProjectStreamRequest request, ClaimsPrincipal principal)
         {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+            var (currentUser, _) = await EnsureProjectMembershipAsync(projectId, principal);
 
             var trimmedName = request.Name.Trim();
             if (string.IsNullOrWhiteSpace(trimmedName))
@@ -81,7 +81,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<ProjectStreamDto> RegenerateStreamKeyAsync(int projectId, Guid streamId, ClaimsPrincipal principal)
         {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+            var (currentUser, isOwner) = await EnsureProjectMembershipAsync(projectId, principal);
 
             var stream = await _db.ProjectStreams
                 .FirstOrDefaultAsync(candidate => candidate.Id == streamId && candidate.ProjectId == projectId);
@@ -91,7 +91,7 @@ namespace MediaMTX_Gui.Server.Services
                 throw new KeyNotFoundException("Stream was not found.");
             }
 
-            if (stream.CreatedByUserId != currentUser.Id)
+            if (stream.CreatedByUserId != currentUser.Id && !isOwner)
             {
                 throw new UnauthorizedAccessException("Only the stream owner can rotate the stream key.");
             }
@@ -108,7 +108,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task DeleteStreamAsync(int projectId, Guid streamId, ClaimsPrincipal principal)
         {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+            var (currentUser, isOwner) = await EnsureProjectMembershipAsync(projectId, principal);
 
             var stream = await _db.ProjectStreams
                 .FirstOrDefaultAsync(candidate => candidate.Id == streamId && candidate.ProjectId == projectId);
@@ -118,7 +118,7 @@ namespace MediaMTX_Gui.Server.Services
                 throw new KeyNotFoundException("Stream was not found.");
             }
 
-            if (stream.CreatedByUserId != currentUser.Id)
+            if (stream.CreatedByUserId != currentUser.Id && !isOwner)
             {
                 throw new UnauthorizedAccessException("Only the stream owner can delete this stream.");
             }
@@ -130,7 +130,7 @@ namespace MediaMTX_Gui.Server.Services
 
         public async Task<ProjectStreamDto> ToggleRecordingAsync(int projectId, Guid streamId, bool enabled, ClaimsPrincipal principal)
         {
-            var currentUser = await EnsureProjectMembershipAsync(projectId, principal);
+            var (currentUser, isOwner) = await EnsureProjectMembershipAsync(projectId, principal);
 
             var stream = await _db.ProjectStreams
                 .FirstOrDefaultAsync(candidate => candidate.Id == streamId && candidate.ProjectId == projectId);
@@ -140,7 +140,7 @@ namespace MediaMTX_Gui.Server.Services
                 throw new KeyNotFoundException("Stream was not found.");
             }
 
-            if (stream.CreatedByUserId != currentUser.Id)
+            if (stream.CreatedByUserId != currentUser.Id && !isOwner)
             {
                 throw new UnauthorizedAccessException("Only the stream owner can toggle recording.");
             }
@@ -221,19 +221,19 @@ namespace MediaMTX_Gui.Server.Services
             return await _db.ProjectStreams.AnyAsync(s => s.Path == path);
         }
 
-        private async Task<UserDto> EnsureProjectMembershipAsync(int projectId, ClaimsPrincipal principal)
+        private async Task<(UserDto user, bool isOwner)> EnsureProjectMembershipAsync(int projectId, ClaimsPrincipal principal)
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
-            var isMember = await _db.ProjectMembers
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+            var membership = await _db.ProjectMembers
+                .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
 
-            if (!isMember)
+            if (membership is null)
             {
                 throw new UnauthorizedAccessException("You do not belong to this project.");
             }
 
-            return user;
+            return (user, membership.IsOwner);
         }
 
         private async Task<string> GenerateUniquePathAsync(int projectId, string streamName)

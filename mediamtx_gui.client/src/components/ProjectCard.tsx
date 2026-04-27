@@ -7,13 +7,14 @@ import {
   toggleStreamRecording,
 } from "../api/projectsApi";
 import { inviteUserToProject } from "../api/invitationApi";
-import type { Project, ProjectStream } from "../types/projects";
+import type { Project, ProjectMember, ProjectStream } from "../types/projects";
 import { ProjectStreamCard } from "./ProjectStreamCard";
 import { formatDate } from "../utils";
 
 type Props = {
   project: Project;
   streams: ProjectStream[];
+  members: ProjectMember[];
   loading: boolean;
   livePaths: Set<string>;
   onStreamsChange: (projectId: number, streams: ProjectStream[]) => void;
@@ -21,7 +22,7 @@ type Props = {
   onLeave: (projectId: number, projectName: string) => Promise<void>;
 };
 
-export function ProjectCard({ project, streams, loading, livePaths, onStreamsChange, onDelete, onLeave }: Props) {
+export function ProjectCard({ project, streams, members, loading, livePaths, onStreamsChange, onDelete, onLeave }: Props) {
   const [streamName, setStreamName] = useState("");
   const [streamError, setStreamError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -140,6 +141,18 @@ export function ProjectCard({ project, streams, loading, livePaths, onStreamsCha
           <span className="project-meta-value">{project.role}</span>
         </div>
       </div>
+
+      <section className="project-members-section">
+        <span className="project-meta-label">Members ({members.length})</span>
+        <ul className="project-members-list">
+          {members.map(m => (
+            <li key={m.userId} className="project-member-item">
+              <span className="project-member-name">{m.name}</span>
+              {m.isOwner && <span className="project-role-badge">Owner</span>}
+            </li>
+          ))}
+        </ul>
+      </section>
 
       {isOwner && (
         <section className="project-invite-section">
