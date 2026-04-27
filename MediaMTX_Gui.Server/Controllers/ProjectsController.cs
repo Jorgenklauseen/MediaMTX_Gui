@@ -65,6 +65,17 @@ namespace MediaMTX_Gui.Server.Controllers
             return NoContent();
         }
 
+        [HttpGet("{id:int}/members")]
+        public async Task<IActionResult> GetProjectMembers(int id)
+        {
+            var members = await _projectService.GetProjectMembersAsync(id, User);
+
+            if (members is null)
+                return Forbid();
+
+            return Ok(members);
+        }
+
         [HttpDelete("{id:int}/leave")]
         public async Task<IActionResult> LeaveProject(int id)
         {

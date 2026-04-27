@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getProjectById, deleteProject, leaveProject, getProjectStreams } from "../api/projectsApi";
+import { getProjectById, deleteProject, leaveProject, getProjectStreams, getProjectMembers } from "../api/projectsApi";
 import { ProjectCard } from "../components/ProjectCard";
 import { useStreams } from "../hooks/useStreams";
-import type { Project, ProjectStream } from "../types/projects";
+import type { Project, ProjectMember, ProjectStream } from "../types/projects";
 import "../styles/projects.css";
 
 function ProjectDetail() {
@@ -17,6 +17,7 @@ function ProjectDetail() {
 
   const [project, setProject] = useState<Project | null>(null);
   const [streams, setStreams] = useState<ProjectStream[]>([]);
+  const [members, setMembers] = useState<ProjectMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingStreams, setLoadingStreams] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +40,12 @@ function ProjectDetail() {
     void (async () => {
       try {
         setLoadingStreams(true);
-        const s = await getProjectStreams(projectId);
+        const [s, m] = await Promise.all([
+          getProjectStreams(projectId),
+          getProjectMembers(projectId),
+        ]);
         setStreams(s);
+        setMembers(m);
       } catch {
         setStreams([]);
       } finally {
@@ -126,6 +131,7 @@ function ProjectDetail() {
         <ProjectCard
           project={project}
           streams={streams}
+          members={members}
           loading={loadingStreams}
           livePaths={livePaths}
           onStreamsChange={handleStreamsChange}

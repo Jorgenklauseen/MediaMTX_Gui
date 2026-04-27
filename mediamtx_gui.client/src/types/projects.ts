@@ -40,3 +40,10 @@ export type ProjectStream = {
 export type CreateProjectStreamPayload = {
     name: string;
 };
+
+export type ProjectMember = {
+    userId: number;
+    name: string;
+    isOwner: boolean;
+    joinedAt: string | null;
+};

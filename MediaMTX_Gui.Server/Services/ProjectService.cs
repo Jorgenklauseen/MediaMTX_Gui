@@ -177,6 +177,33 @@ namespace MediaMTX_Gui.Server.Services
             return true;
         }
 
+        public async Task<IEnumerable<ProjectMemberDto>?> GetProjectMembersAsync(int projectId, ClaimsPrincipal principal)
+        {
+            var user = await _userService.GetRequiredCurrentUserAsync(principal);
+
+            var isMember = await _db.ProjectMembers
+                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+
+            if (!isMember)
+                return null;
+
+            return await _db.ProjectMembers
+                .Where(pm => pm.ProjectId == projectId)
+                .Join(_db.Users,
+                    pm => pm.UserId,
+                    u => u.Id,
+                    (pm, u) => new ProjectMemberDto
+                    {
+                        UserId = u.Id,
+                        Name = u.Name ?? u.Username ?? u.Email ?? "Unknown",
+                        IsOwner = pm.IsOwner,
+                        JoinedAt = pm.JoinedAt
+                    })
+                .OrderByDescending(m => m.IsOwner)
+                .ThenBy(m => m.Name)
+                .ToListAsync();
+        }
+
         private static ProjectDto MapToProjectDto(Project project, string role) => new()
         {
             Id = project.Id,
