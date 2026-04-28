@@ -1,4 +1,4 @@
-FROM bluenviron/mediamtx:1.17.0 AS mediamtx
+FROM bluenviron/mediamtx:1.17.0-ffmpeg AS mediamtx
 FROM ubuntu:24.04
 
 COPY --from=mediamtx /mediamtx /
