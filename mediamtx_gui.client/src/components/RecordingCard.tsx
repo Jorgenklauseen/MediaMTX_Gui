@@ -73,11 +73,7 @@ export function RecordingCard({
         <div>
           <h3 className="recording-card__title">{streamName}</h3>
           {displayProjectName && (
-            <p className="recording-card__project">
-              {resolvedProjectName && projectName
-                ? `${resolvedProjectName} (${projectName})`
-                : displayProjectName}
-            </p>
+            <p className="recording-card__project">{displayProjectName}</p>
           )}
         </div>
         <span
