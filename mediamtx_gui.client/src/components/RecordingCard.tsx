@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Recording, RecordingFile } from "../types/recordings";
 import { getRecordingFiles } from "../api/recordingsApi";
 import { parseStreamName, formatBytes, formatDate, formatDuration, formatTimeOfDay } from "../utils";
@@ -6,7 +6,6 @@ import "../styles/recordings.css";
 
 interface RecordingCardProps {
   recording: Recording;
-  resolvedProjectName?: string;
   onStart?: (id: number) => void;
   onStop?: (id: number) => void;
   onDelete?: (id: number) => void;
@@ -15,19 +14,21 @@ interface RecordingCardProps {
 
 export function RecordingCard({
   recording,
-  resolvedProjectName,
   onStart,
   //onStop,
   onDelete,
   onEditDescription,
 }: RecordingCardProps) {
-  const { streamName, projectName } = parseStreamName(recording.streamName);
-  const displayProjectName = resolvedProjectName ?? projectName;
+  const { streamName } = parseStreamName(recording.streamName);
+  const displayProjectName = recording.projectName ?? undefined;
   const [files, setFiles] = useState<RecordingFile[] | null>(null);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [filesError, setFilesError] = useState<string | null>(null);
 
   const [previewAvailable, setPreviewAvailable] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(recording.description);
@@ -75,11 +76,7 @@ export function RecordingCard({
         <div>
           <h3 className="recording-card__title">{streamName}</h3>
           {displayProjectName && (
-            <p className="recording-card__project">
-              {resolvedProjectName && projectName
-                ? `${resolvedProjectName} (${projectName})`
-                : displayProjectName}
-            </p>
+            <p className="recording-card__project">{displayProjectName}</p>
           )}
         </div>
         <span
@@ -147,32 +144,43 @@ export function RecordingCard({
 
       {recording.status === "completed" && previewAvailable && (
         <video
+          ref={videoRef}
           className="recording-card__preview"
           src={`/api/recordings/${recording.id}/preview`}
-          preload="metadata"
+          preload="none"
           controls
           onError={() => setPreviewAvailable(false)}
         />
       )}
 
       <div className="recording-card__meta">
-        <p className="recording-card__created">
-          Created: {formatDate(recording.createdAt)}
-        </p>
+        <div className="recording-card__meta-block">
+          <span className="recording-card__meta-label">Created</span>
+          <span className="recording-card__meta-value">{formatDate(recording.createdAt)}</span>
+        </div>
+        {recording.createdByName && (
+          <div className="recording-card__meta-block">
+            <span className="recording-card__meta-label">By</span>
+            <span className="recording-card__meta-value">{recording.createdByName}</span>
+          </div>
+        )}
         {recording.startedAt && (
-          <p className="recording-card__created">
-            Started: {formatTimeOfDay(recording.startedAt)}
-          </p>
+          <div className="recording-card__meta-block">
+            <span className="recording-card__meta-label">Started</span>
+            <span className="recording-card__meta-value">{formatTimeOfDay(recording.startedAt)}</span>
+          </div>
         )}
         {recording.duration && recording.duration !== "00:00:00" && (
-          <p className="recording-card__duration">
-            Duration: {formatDuration(recording.duration)}
-          </p>
+          <div className="recording-card__meta-block">
+            <span className="recording-card__meta-label">Duration</span>
+            <span className="recording-card__meta-value">{formatDuration(recording.duration)}</span>
+          </div>
         )}
         {recording.fileSize > 0 && (
-          <p className="recording-card__size">
-            Total size: {formatBytes(recording.fileSize)}
-          </p>
+          <div className="recording-card__meta-block">
+            <span className="recording-card__meta-label">Size</span>
+            <span className="recording-card__meta-value">{formatBytes(recording.fileSize)}</span>
+          </div>
         )}
       </div>
 

@@ -22,10 +22,19 @@ namespace MediaMTX_Gui.Server.Services
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
-            var recordings = await _context.Recordings
-                .Where(r => r.CreatedById == currentUser.Id)
+            IQueryable<Recording> query = _context.Recordings
                 .Include(r => r.Stream)
-                .Include(r => r.CreatedBy)
+                .Include(r => r.CreatedBy);
+
+            if (currentUser.Role != "admin")
+            {
+                var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
+                query = query.Where(r =>
+                    r.CreatedById == currentUser.Id ||
+                    ownedPaths.Contains(r.StreamId));
+            }
+
+            return await query
                 .Select(r => new RecordingDto
                 {
                     Id = r.Id,
@@ -33,6 +42,7 @@ namespace MediaMTX_Gui.Server.Services
                     Description = r.Description,
                     Status = r.Status,
                     StreamName = r.Stream!.Name,
+                    ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
                     EndedAt = r.EndedAt,
@@ -44,18 +54,26 @@ namespace MediaMTX_Gui.Server.Services
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
                 .ToListAsync();
-
-            return recordings;
         }
 
         public async Task<RecordingDto?> GetRecordingByIdForCurrentUserAsync(int id, ClaimsPrincipal user)
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
-            var recording = await _context.Recordings
-                .Where(r => r.Id == id && r.CreatedById == currentUser.Id)
+            IQueryable<Recording> query = _context.Recordings
+                .Where(r => r.Id == id)
                 .Include(r => r.Stream)
-                .Include(r => r.CreatedBy)
+                .Include(r => r.CreatedBy);
+
+            if (currentUser.Role != "admin")
+            {
+                var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
+                query = query.Where(r =>
+                    r.CreatedById == currentUser.Id ||
+                    ownedPaths.Contains(r.StreamId));
+            }
+
+            return await query
                 .Select(r => new RecordingDto
                 {
                     Id = r.Id,
@@ -63,6 +81,7 @@ namespace MediaMTX_Gui.Server.Services
                     Description = r.Description,
                     Status = r.Status,
                     StreamName = r.Stream!.Name,
+                    ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
                     EndedAt = r.EndedAt,
@@ -74,8 +93,6 @@ namespace MediaMTX_Gui.Server.Services
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
                 .FirstOrDefaultAsync();
-
-            return recording;
         }
 
         public async Task<RecordingDto> CreateRecordingAsync(CreateRecordingRequest request, ClaimsPrincipal user)
@@ -85,12 +102,18 @@ namespace MediaMTX_Gui.Server.Services
             var stream = await _context.Set<MediaStream>().FindAsync(request.StreamId);
             if (stream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
 
+            var projectName = await _context.ProjectStreams
+                .Where(ps => ps.Path == request.StreamId)
+                .Select(ps => ps.Project.Name)
+                .FirstOrDefaultAsync();
+
             var recording = new Recording
             {
                 Name = request.Name,
                 Description = request.Description,
                 StreamId = request.StreamId,
                 CreatedById = currentUser.Id,
+                ProjectName = projectName,
                 Status = "pending",
                 CreatedAt = DateTime.UtcNow
             };
@@ -120,11 +143,10 @@ namespace MediaMTX_Gui.Server.Services
         public async Task<bool> DeleteRecordingForCurrentUserAsync(int id, ClaimsPrincipal user)
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
-
-            var recording = await _context.Recordings
-                .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
+            var recording = await _context.Recordings.FirstOrDefaultAsync(r => r.Id == id);
 
             if (recording == null) return false;
+            if (!await CanManageRecordingAsync(recording, currentUser)) return false;
 
             _context.Recordings.Remove(recording);
             await _context.SaveChangesAsync();
@@ -134,11 +156,10 @@ namespace MediaMTX_Gui.Server.Services
         public async Task<bool> StartRecordingAsync(int id, ClaimsPrincipal user)
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
-
-            var recording = await _context.Recordings
-                .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
+            var recording = await _context.Recordings.FirstOrDefaultAsync(r => r.Id == id);
 
             if (recording == null) return false;
+            if (!await CanManageRecordingAsync(recording, currentUser)) return false;
 
             recording.Status = "recording";
             recording.StartedAt = DateTime.UtcNow;
@@ -149,18 +170,16 @@ namespace MediaMTX_Gui.Server.Services
         public async Task<bool> StopRecordingAsync(int id, ClaimsPrincipal user)
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
-
-            var recording = await _context.Recordings
-                .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
+            var recording = await _context.Recordings.FirstOrDefaultAsync(r => r.Id == id);
 
             if (recording == null) return false;
+            if (!await CanManageRecordingAsync(recording, currentUser)) return false;
 
             recording.Status = "completed";
             recording.EndedAt = DateTime.UtcNow;
             if (recording.StartedAt.HasValue)
-            {
                 recording.Duration = recording.EndedAt.Value - recording.StartedAt.Value;
-            }
+
             await _context.SaveChangesAsync();
             return true;
         }
@@ -172,9 +191,10 @@ namespace MediaMTX_Gui.Server.Services
             var recording = await _context.Recordings
                 .Include(r => r.Stream)
                 .Include(r => r.CreatedBy)
-                .FirstOrDefaultAsync(r => r.Id == id && r.CreatedById == currentUser.Id);
+                .FirstOrDefaultAsync(r => r.Id == id);
 
             if (recording == null) return null;
+            if (!await CanManageRecordingAsync(recording, currentUser)) return null;
 
             recording.Description = request.Description ?? string.Empty;
             await _context.SaveChangesAsync();
@@ -196,6 +216,26 @@ namespace MediaMTX_Gui.Server.Services
                 CreatedById = recording.CreatedById,
                 CreatedByName = recording.CreatedBy!.Username ?? string.Empty
             };
+        }
+
+        private async Task<HashSet<string>> GetOwnedProjectStreamPathsAsync(int userId)
+        {
+            return await _context.ProjectMembers
+                .Where(pm => pm.UserId == userId && pm.IsOwner)
+                .Join(_context.ProjectStreams,
+                    pm => pm.ProjectId,
+                    ps => ps.ProjectId,
+                    (pm, ps) => ps.Path)
+                .ToHashSetAsync();
+        }
+
+        private async Task<bool> CanManageRecordingAsync(Recording recording, UserDto user)
+        {
+            if (user.Role == "admin") return true;
+            if (recording.CreatedById == user.Id) return true;
+
+            var ownedPaths = await GetOwnedProjectStreamPathsAsync(user.Id);
+            return ownedPaths.Contains(recording.StreamId);
         }
 
         public async Task SyncStreamsAsync(string json)
@@ -230,6 +270,7 @@ namespace MediaMTX_Gui.Server.Services
         public async Task HandleStreamStartedAsync(string streamName)
         {
             var projectStream = await _context.ProjectStreams
+                .Include(ps => ps.Project)
                 .FirstOrDefaultAsync(ps => ps.Path == streamName && ps.RecordingEnabled);
 
             if (projectStream == null) return;
@@ -240,6 +281,7 @@ namespace MediaMTX_Gui.Server.Services
                 Name = $"{streamName} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
                 StreamId = streamName,
                 CreatedById = projectStream.CreatedByUserId,
+                ProjectName = projectStream.Project?.Name,
                 Status = "recording",
                 StartedAt = DateTime.UtcNow,
                 FilePath = recordingDir

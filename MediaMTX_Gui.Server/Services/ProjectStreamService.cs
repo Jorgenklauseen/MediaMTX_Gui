@@ -225,6 +225,9 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
+            if (user.Role == "admin")
+                return (user, true);
+
             var membership = await _db.ProjectMembers
                 .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
 

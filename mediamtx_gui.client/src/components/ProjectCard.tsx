@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 import {
   createProjectStream,
   deleteProjectStream,
@@ -34,7 +35,12 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [inviting, setInviting] = useState(false);
 
-  const isOwner = project.role.toLowerCase() === "owner";
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const role = project.role.toLowerCase();
+  const isOwner = role === "owner" || (isAdmin && role !== "member");
+  const canDelete = role === "owner" || isAdmin;
+  const canLeave = role === "member";
 
   const handleCreateStream = async () => {
     const trimmed = streamName.trim();
@@ -42,13 +48,27 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
       setStreamError("Stream name is required.");
       return;
     }
+    if (!/^[a-zA-Z0-9 \-_]+$/.test(trimmed)) {
+      setStreamError("Stream name can only contain letters (a-z), digits, spaces, hyphens and underscores.");
+      return;
+    }
 
     try {
       setCreating(true);
       setStreamError(null);
       const stream = await createProjectStream(project.id, { name: trimmed });
-      onStreamsChange(project.id, [stream, ...streams]);
       setStreamName("");
+
+      const enableRecording = window.confirm(
+        `Want to turn on recording for "${trimmed}"?\n\nYou can always change this later using the Recording toggle on the stream.`
+      );
+
+      if (enableRecording) {
+        const updated = await toggleStreamRecording(project.id, stream.id, true);
+        onStreamsChange(project.id, [updated, ...streams]);
+      } else {
+        onStreamsChange(project.id, [stream, ...streams]);
+      }
     } catch {
       setStreamError("Could not create stream.");
     } finally {
@@ -173,13 +193,6 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
             >
               {inviting ? "Sending..." : "Send invite"}
             </button>
-            <button
-              type="button"
-              className="project-delete-project-button"
-              onClick={() => void onDelete(project.id, project.name)}
-            >
-              Delete project
-            </button>
           </div>
           {inviteError && (
             <p className="projects-message projects-message-error">{inviteError}</p>
@@ -190,15 +203,26 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
         </section>
       )}
 
-      {!isOwner && (
+      {(canDelete || canLeave) && (
         <div className="project-stream-create">
-          <button
-            type="button"
-            className="project-delete-project-button"
-            onClick={() => void onLeave(project.id, project.name)}
-          >
-            Leave project
-          </button>
+          {canLeave && (
+            <button
+              type="button"
+              className="project-delete-project-button"
+              onClick={() => void onLeave(project.id, project.name)}
+            >
+              Leave project
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              className="project-delete-project-button"
+              onClick={() => void onDelete(project.id, project.name)}
+            >
+              Delete project
+            </button>
+          )}
         </div>
       )}
 

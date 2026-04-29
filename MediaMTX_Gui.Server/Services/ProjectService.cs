@@ -23,6 +23,29 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
+            if (user.Role == "admin")
+            {
+                return await _db.Projects
+                    .GroupJoin(
+                        _db.ProjectMembers.Where(pm => pm.UserId == user.Id),
+                        project => project.Id,
+                        pm => pm.ProjectId,
+                        (project, memberships) => new { project, memberships })
+                    .SelectMany(
+                        x => x.memberships.DefaultIfEmpty(),
+                        (x, membership) => new ProjectDto
+                        {
+                            Id = x.project.Id,
+                            Name = x.project.Name,
+                            Description = x.project.Description,
+                            Role = membership != null ? membership.Role : "Admin",
+                            CreatedByUserId = x.project.CreatedByUserId,
+                            CreatedAt = x.project.CreatedAt,
+                            UpdatedAt = x.project.UpdatedAt
+                        })
+                    .ToListAsync();
+            }
+
             return await _db.ProjectMembers
                 .Where(pm => pm.UserId == user.Id)
                 .Join(
@@ -81,7 +104,31 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
-            var project = await _db.ProjectMembers
+            if (user.Role == "admin")
+            {
+                return await _db.Projects
+                    .Where(p => p.Id == projectId)
+                    .GroupJoin(
+                        _db.ProjectMembers.Where(pm => pm.UserId == user.Id),
+                        p => p.Id,
+                        pm => pm.ProjectId,
+                        (p, memberships) => new { p, memberships })
+                    .SelectMany(
+                        x => x.memberships.DefaultIfEmpty(),
+                        (x, membership) => new ProjectDto
+                        {
+                            Id = x.p.Id,
+                            Name = x.p.Name,
+                            Description = x.p.Description,
+                            Role = membership != null ? membership.Role : "Admin",
+                            CreatedByUserId = x.p.CreatedByUserId,
+                            CreatedAt = x.p.CreatedAt,
+                            UpdatedAt = x.p.UpdatedAt
+                        })
+                    .FirstOrDefaultAsync();
+            }
+
+            return await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId && pm.UserId == user.Id)
                 .Join(
                     _db.Projects,
@@ -98,8 +145,6 @@ namespace MediaMTX_Gui.Server.Services
                         UpdatedAt = project.UpdatedAt
                     })
                 .FirstOrDefaultAsync();
-
-            return project;
         }
 
 
@@ -107,12 +152,13 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
-            var membership = await _db.ProjectMembers
-                .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
-
-            if (membership is null || !membership.IsOwner)
+            if (user.Role != "admin")
             {
-                return false;
+                var membership = await _db.ProjectMembers
+                    .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+
+                if (membership is null || !membership.IsOwner)
+                    return false;
             }
 
             var project = await _db.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
@@ -181,11 +227,14 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
-            var isMember = await _db.ProjectMembers
-                .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+            if (user.Role != "admin")
+            {
+                var isMember = await _db.ProjectMembers
+                    .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
 
-            if (!isMember)
-                return null;
+                if (!isMember)
+                    return null;
+            }
 
             return await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId)

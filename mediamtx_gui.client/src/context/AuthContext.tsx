@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
 interface AuthUser {
+    id: number;
     name: string;
     username: string;
     email: string;

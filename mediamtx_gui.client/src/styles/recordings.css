@@ -80,8 +80,42 @@
 
 .recordings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+    max-height: calc(3 * 260px + 2 * 1rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.recordings-section {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    border-radius: 22px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.recordings-section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.recordings-section-header h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.recordings-section-eyebrow {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #888);
+    margin: 0 0 0.2rem;
 }
 
 /* Recording Card */
@@ -92,7 +126,7 @@
     border-radius: 22px;
     padding: 1.2rem;
     display: grid;
-    gap: 0.75rem;
+    gap: 1rem;
     transition: transform 150ms ease, box-shadow 150ms ease;
 }
 
@@ -118,7 +152,7 @@
 
 .recording-card__title {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 1.15rem;
     font-weight: 600;
     color: var(--text-color);
 }
@@ -231,14 +265,29 @@
 
 .recording-card__meta {
     display: grid;
-    gap: 0.2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem;
 }
 
-.recording-card__meta p {
-    margin: 0;
-    font-size: 0.8rem;
+.recording-card__meta-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.recording-card__meta-label {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--text-color);
-    opacity: 0.65;
+    opacity: 0.55;
+    font-weight: 600;
+}
+
+.recording-card__meta-value {
+    font-size: 0.875rem;
+    color: var(--text-color);
+    font-weight: 500;
 }
 
 .recording-card__actions {

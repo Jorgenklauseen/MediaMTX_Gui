@@ -11,7 +11,7 @@ function StreamView() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const name = params.get("name") ?? "";
-  const url = name ? `/webrtc/${name}/whep` : null;
+  const url = name ? `/webrtc/${name}_webrtc/whep` : null;
 
   const { status: streamStatus, loading } = usePublicStreamStatus(name || null);
   const status = loading ? "loading" : streamStatus.online ? "online" : "offline";
