@@ -4,7 +4,6 @@ FROM ubuntu:24.04
 COPY --from=mediamtx /mediamtx /
 COPY --from=mediamtx /mediamtx.yml /
 
-RUN apt update && apt install -y curl
-Run apt update && apt install -y ffmpeg
+RUN apt update && apt install -y curl ffmpeg
 
 ENTRYPOINT ["/mediamtx"]
