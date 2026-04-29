@@ -130,6 +130,7 @@
   position: absolute;
   top: 1rem;
   left: 1rem;
+  z-index: 20;
   background: rgba(0, 0, 0, 0.55);
   border: none;
   border-radius: 8px;
