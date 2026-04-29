@@ -1,13 +1,51 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useProjects } from "../hooks/useProjects";
+import { useAuth } from "../context/AuthContext";
 import { formatDate } from "../utils";
 import { SearchBar } from "../components/SearchBar";
+import type { Project } from "../types/projects";
 import "../styles/projects.css";
+
+function ProjectGrid({ projects, onNavigate }: { projects: Project[]; onNavigate: (id: number) => void }) {
+  return (
+    <div className="projects-grid">
+      {projects.map(project => (
+        <article
+          key={project.id}
+          className="project-card project-card--clickable"
+          onClick={() => onNavigate(project.id)}
+        >
+          <div className="project-card-top">
+            <div>
+              <h3>{project.name}</h3>
+              <p className="project-description">
+                {project.description || "No description provided."}
+              </p>
+            </div>
+            <span className="project-role-badge">{project.role}</span>
+          </div>
+          <div className="project-card-meta">
+            <div className="project-meta-block">
+              <span className="project-meta-label">Created</span>
+              <span className="project-meta-value">{formatDate(project.createdAt)}</span>
+            </div>
+            <div className="project-meta-block">
+              <span className="project-meta-label">Access</span>
+              <span className="project-meta-value">{project.role}</span>
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
 
 function Projects() {
   const navigate = useNavigate();
   const { projects, loading, creating, error, submitProject } = useProjects();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [name, setName] = useState("");
@@ -15,12 +53,18 @@ function Projects() {
   const [formError, setFormError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  const filteredProjects = search.trim()
-    ? projects.filter(p =>
+  const myProjects = projects.filter(p => p.role !== "Admin");
+  const otherProjects = projects.filter(p => p.role === "Admin");
+
+  const filter = (list: typeof projects) => search.trim()
+    ? list.filter(p =>
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.description?.toLowerCase().includes(search.toLowerCase())
       )
-    : projects;
+    : list;
+
+  const filteredMine = filter(myProjects);
+  const filteredOther = filter(otherProjects);
 
   const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -139,11 +183,11 @@ function Projects() {
           <div className="projects-list-header">
             <div>
               <p className="projects-eyebrow">Overview</p>
-              <h2>Your projects</h2>
+              <h2>My projects</h2>
             </div>
-            {!loading && !error && projects.length > 0 && (
+            {!loading && !error && myProjects.length > 0 && (
               <span className="projects-count">
-                {filteredProjects.length}{search.trim() ? ` of ${projects.length}` : ""} {projects.length === 1 ? "project" : "projects"}
+                {filteredMine.length}{search.trim() ? ` of ${myProjects.length}` : ""} {myProjects.length === 1 ? "project" : "projects"}
               </span>
             )}
           </div>
@@ -157,45 +201,30 @@ function Projects() {
               <h3>Loading projects...</h3>
               <p>Fetching the projects you are a part of.</p>
             </div>
-          ) : projects.length === 0 ? (
+          ) : myProjects.length === 0 ? (
             <div className="projects-state-card">
               <h3>No projects yet</h3>
               <p>Press the + button to create your first project and it will appear here.</p>
             </div>
           ) : (
-            <div className="projects-grid">
-              {filteredProjects.map(project => (
-                <article
-                  key={project.id}
-                  className="project-card project-card--clickable"
-                  onClick={() => navigate(`/projects/${project.id}`)}
-                >
-                  <div className="project-card-top">
-                    <div>
-                      <h3>{project.name}</h3>
-                      <p className="project-description">
-                        {project.description || "No description provided."}
-                      </p>
-                    </div>
-                    <span className="project-role-badge">{project.role}</span>
-                  </div>
-                  <div className="project-card-meta">
-                    <div className="project-meta-block">
-                      <span className="project-meta-label">Created</span>
-                      <span className="project-meta-value">
-                        {formatDate(project.createdAt)}
-                      </span>
-                    </div>
-                    <div className="project-meta-block">
-                      <span className="project-meta-label">Access</span>
-                      <span className="project-meta-value">{project.role}</span>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <ProjectGrid projects={filteredMine} onNavigate={id => navigate(`/projects/${id}`)} />
           )}
         </section>
+
+        {isAdmin && !loading && otherProjects.length > 0 && (
+          <section className="projects-list-section">
+            <div className="projects-list-header">
+              <div>
+                <p className="projects-eyebrow">Admin access</p>
+                <h2>All other projects</h2>
+              </div>
+              <span className="projects-count">
+                {filteredOther.length}{search.trim() ? ` of ${otherProjects.length}` : ""} {otherProjects.length === 1 ? "project" : "projects"}
+              </span>
+            </div>
+            <ProjectGrid projects={filteredOther} onNavigate={id => navigate(`/projects/${id}`)} />
+          </section>
+        )}
       </div>
     </section>
   );
