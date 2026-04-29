@@ -54,8 +54,18 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
       setCreating(true);
       setStreamError(null);
       const stream = await createProjectStream(project.id, { name: trimmed });
-      onStreamsChange(project.id, [stream, ...streams]);
       setStreamName("");
+
+      const enableRecording = window.confirm(
+        `Want to turn on recording for "${trimmed}"?\n\nYou can always change this later using the Recording toggle on the stream.`
+      );
+
+      if (enableRecording) {
+        const updated = await toggleStreamRecording(project.id, stream.id, true);
+        onStreamsChange(project.id, [updated, ...streams]);
+      } else {
+        onStreamsChange(project.id, [stream, ...streams]);
+      }
     } catch {
       setStreamError("Could not create stream.");
     } finally {

@@ -1,54 +1,41 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useRecordings } from "../hooks/useRecordings";
-import { useProjects } from "../hooks/useProjects";
 import { useAuth } from "../context/AuthContext";
 import { RecordingCard } from "../components/RecordingCard";
 import { SearchBar } from "../components/SearchBar";
-import { parseStreamName } from "../utils";
 import type { Recording } from "../types/recordings";
 import "../styles/recordings.css";
 
 type GridProps = {
   recordings: Recording[];
-  projectNameMap: Map<string, string>;
   onStart: (id: number) => void;
   onStop: (id: number) => void;
   onDelete: (id: number) => void;
   onEditDescription: (id: number, description: string) => Promise<void>;
 };
 
-function RecordingGrid({ recordings, projectNameMap, onStart, onStop, onDelete, onEditDescription }: GridProps) {
+function RecordingGrid({ recordings, onStart, onStop, onDelete, onEditDescription }: GridProps) {
   return (
     <div className="recordings-grid">
-      {recordings.map((recording) => {
-        const { projectName } = parseStreamName(recording.streamName);
-        return (
-          <RecordingCard
-            key={recording.id}
-            recording={recording}
-            resolvedProjectName={projectName ? (projectNameMap.get(projectName) ?? projectName) : undefined}
-            onStart={onStart}
-            onStop={onStop}
-            onDelete={onDelete}
-            onEditDescription={onEditDescription}
-          />
-        );
-      })}
+      {recordings.map((recording) => (
+        <RecordingCard
+          key={recording.id}
+          recording={recording}
+          onStart={onStart}
+          onStop={onStop}
+          onDelete={onDelete}
+          onEditDescription={onEditDescription}
+        />
+      ))}
     </div>
   );
 }
 
 function Recordings() {
   const { recordings, loading, error, removeRecording, startRecordingSession, stopRecordingSession, editDescription } = useRecordings();
-  const { projects } = useProjects();
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const [search, setSearch] = useState("");
-
-  const projectNameMap = useMemo(
-    () => new Map(projects.map((p) => [`project-${p.id}`, p.name])),
-    [projects]
-  );
 
   const filter = (list: Recording[]) => search.trim()
     ? list.filter(r =>
@@ -71,7 +58,6 @@ function Recordings() {
   };
 
   const gridProps = {
-    projectNameMap,
     onStart: startRecordingSession,
     onStop: stopRecordingSession,
     onDelete: handleDeleteRecording,

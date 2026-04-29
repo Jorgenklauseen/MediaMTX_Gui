@@ -16,6 +16,7 @@ namespace MediaMTX_Gui.Server.DTOs
         public TimeSpan Duration { get; set; }
         public string StreamId { get; set; } = string.Empty;
         public string StreamName { get; set; } = string.Empty;
+        public string? ProjectName { get; set; }
         public int CreatedById { get; set; }
         public string CreatedByName { get; set; } = string.Empty;
     }

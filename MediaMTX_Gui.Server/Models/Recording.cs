@@ -26,6 +26,8 @@ namespace MediaMTX_Gui.Server.Models
 
         public TimeSpan Duration { get; set; }
 
+        public string? ProjectName { get; set; }
+
         // Foreign keys
         public string StreamId { get; set; } = string.Empty;
         public MediaStream? Stream { get; set; }

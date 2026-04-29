@@ -11,6 +11,7 @@ export interface Recording {
     duration: string; // ISO 8601 duration
     streamId: string;
     streamName: string;
+    projectName: string | null;
     createdById: number;
     createdByName: string;
 }

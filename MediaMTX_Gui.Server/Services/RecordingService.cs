@@ -42,6 +42,7 @@ namespace MediaMTX_Gui.Server.Services
                     Description = r.Description,
                     Status = r.Status,
                     StreamName = r.Stream!.Name,
+                    ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
                     EndedAt = r.EndedAt,
@@ -80,6 +81,7 @@ namespace MediaMTX_Gui.Server.Services
                     Description = r.Description,
                     Status = r.Status,
                     StreamName = r.Stream!.Name,
+                    ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
                     EndedAt = r.EndedAt,
@@ -100,12 +102,18 @@ namespace MediaMTX_Gui.Server.Services
             var stream = await _context.Set<MediaStream>().FindAsync(request.StreamId);
             if (stream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
 
+            var projectName = await _context.ProjectStreams
+                .Where(ps => ps.Path == request.StreamId)
+                .Select(ps => ps.Project.Name)
+                .FirstOrDefaultAsync();
+
             var recording = new Recording
             {
                 Name = request.Name,
                 Description = request.Description,
                 StreamId = request.StreamId,
                 CreatedById = currentUser.Id,
+                ProjectName = projectName,
                 Status = "pending",
                 CreatedAt = DateTime.UtcNow
             };
@@ -262,6 +270,7 @@ namespace MediaMTX_Gui.Server.Services
         public async Task HandleStreamStartedAsync(string streamName)
         {
             var projectStream = await _context.ProjectStreams
+                .Include(ps => ps.Project)
                 .FirstOrDefaultAsync(ps => ps.Path == streamName && ps.RecordingEnabled);
 
             if (projectStream == null) return;
@@ -272,6 +281,7 @@ namespace MediaMTX_Gui.Server.Services
                 Name = $"{streamName} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
                 StreamId = streamName,
                 CreatedById = projectStream.CreatedByUserId,
+                ProjectName = projectStream.Project?.Name,
                 Status = "recording",
                 StartedAt = DateTime.UtcNow,
                 FilePath = recordingDir
