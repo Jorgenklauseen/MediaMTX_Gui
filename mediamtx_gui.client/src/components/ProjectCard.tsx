@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/AuthContext";
 import {
   createProjectStream,
   deleteProjectStream,
@@ -34,7 +35,9 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [inviting, setInviting] = useState(false);
 
-  const isOwner = project.role.toLowerCase() === "owner";
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
+  const isOwner = project.role.toLowerCase() === "owner" || isAdmin;
 
   const handleCreateStream = async () => {
     const trimmed = streamName.trim();

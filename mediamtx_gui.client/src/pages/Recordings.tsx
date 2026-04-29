@@ -1,14 +1,48 @@
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRecordings } from "../hooks/useRecordings";
 import { useProjects } from "../hooks/useProjects";
+import { useAuth } from "../context/AuthContext";
 import { RecordingCard } from "../components/RecordingCard";
 import { SearchBar } from "../components/SearchBar";
 import { parseStreamName } from "../utils";
+import type { Recording } from "../types/recordings";
 import "../styles/recordings.css";
+
+type GridProps = {
+  recordings: Recording[];
+  projectNameMap: Map<string, string>;
+  onStart: (id: number) => void;
+  onStop: (id: number) => void;
+  onDelete: (id: number) => void;
+  onEditDescription: (id: number, description: string) => Promise<void>;
+};
+
+function RecordingGrid({ recordings, projectNameMap, onStart, onStop, onDelete, onEditDescription }: GridProps) {
+  return (
+    <div className="recordings-grid">
+      {recordings.map((recording) => {
+        const { projectName } = parseStreamName(recording.streamName);
+        return (
+          <RecordingCard
+            key={recording.id}
+            recording={recording}
+            resolvedProjectName={projectName ? (projectNameMap.get(projectName) ?? projectName) : undefined}
+            onStart={onStart}
+            onStop={onStop}
+            onDelete={onDelete}
+            onEditDescription={onEditDescription}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 function Recordings() {
   const { recordings, loading, error, removeRecording, startRecordingSession, stopRecordingSession, editDescription } = useRecordings();
   const { projects } = useProjects();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [search, setSearch] = useState("");
 
   const projectNameMap = useMemo(
@@ -16,16 +50,32 @@ function Recordings() {
     [projects]
   );
 
-  const filteredRecordings = recordings.filter(recording =>
-    recording.name.toLowerCase().includes(search.toLowerCase()) ||
-    recording.streamName.toLowerCase().includes(search.toLowerCase()) ||
-    recording.status.toLowerCase().includes(search.toLowerCase())
-  );
+  const filter = (list: Recording[]) => search.trim()
+    ? list.filter(r =>
+        r.name.toLowerCase().includes(search.toLowerCase()) ||
+        r.streamName.toLowerCase().includes(search.toLowerCase()) ||
+        r.status.toLowerCase().includes(search.toLowerCase())
+      )
+    : list;
+
+  const myRecordings = recordings.filter(r => !isAdmin || r.createdById === user?.id);
+  const otherRecordings = isAdmin ? recordings.filter(r => r.createdById !== user?.id) : [];
+
+  const filteredMine = filter(myRecordings);
+  const filteredOther = filter(otherRecordings);
 
   const handleDeleteRecording = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this recording?")) {
       await removeRecording(id);
     }
+  };
+
+  const gridProps = {
+    projectNameMap,
+    onStart: startRecordingSession,
+    onStop: stopRecordingSession,
+    onDelete: handleDeleteRecording,
+    onEditDescription: editDescription,
   };
 
   return (
@@ -51,10 +101,6 @@ function Recordings() {
           </div>
         </div>
 
-        <div className="recordings-results-info">
-          {filteredRecordings.length} of {recordings.length} recordings
-        </div>
-
         {loading ? (
           <div className="recordings-state-card">
             <h3>Loading recordings...</h3>
@@ -65,28 +111,44 @@ function Recordings() {
             <h3>Error loading recordings</h3>
             <p>{error}</p>
           </div>
-        ) : recordings.length === 0 ? (
-          <div className="recordings-state-card">
-            <h3>No recordings yet</h3>
-            <p>Enable recording on a stream in the Projects page to get started.</p>
-          </div>
         ) : (
-          <div className="recordings-grid">
-            {filteredRecordings.map((recording) => {
-              const { projectName } = parseStreamName(recording.streamName);
-              return (
-                <RecordingCard
-                  key={recording.id}
-                  recording={recording}
-                  resolvedProjectName={projectName ? (projectNameMap.get(projectName) ?? projectName) : undefined}
-                  onStart={startRecordingSession}
-                  onStop={stopRecordingSession}
-                  onDelete={handleDeleteRecording}
-                  onEditDescription={editDescription}
-                />
-              );
-            })}
-          </div>
+          <>
+            <section className="recordings-section">
+              <div className="recordings-section-header">
+                <div>
+                  <p className="recordings-section-eyebrow">Overview</p>
+                  <h2>My recordings</h2>
+                </div>
+                <span className="recordings-results-info">
+                  {filteredMine.length}{search.trim() ? ` of ${myRecordings.length}` : ""} recordings
+                </span>
+              </div>
+
+              {myRecordings.length === 0 ? (
+                <div className="recordings-state-card">
+                  <h3>No recordings yet</h3>
+                  <p>Enable recording on a stream in the Projects page to get started.</p>
+                </div>
+              ) : (
+                <RecordingGrid recordings={filteredMine} {...gridProps} />
+              )}
+            </section>
+
+            {isAdmin && otherRecordings.length > 0 && (
+              <section className="recordings-section">
+                <div className="recordings-section-header">
+                  <div>
+                    <p className="recordings-section-eyebrow">Admin access</p>
+                    <h2>All other recordings</h2>
+                  </div>
+                  <span className="recordings-results-info">
+                    {filteredOther.length}{search.trim() ? ` of ${otherRecordings.length}` : ""} recordings
+                  </span>
+                </div>
+                <RecordingGrid recordings={filteredOther} {...gridProps} />
+              </section>
+            )}
+          </>
         )}
       </div>
     </section>
