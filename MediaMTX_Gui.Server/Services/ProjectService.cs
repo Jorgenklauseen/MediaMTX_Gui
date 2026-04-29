@@ -108,16 +108,23 @@ namespace MediaMTX_Gui.Server.Services
             {
                 return await _db.Projects
                     .Where(p => p.Id == projectId)
-                    .Select(p => new ProjectDto
-                    {
-                        Id = p.Id,
-                        Name = p.Name,
-                        Description = p.Description,
-                        Role = "Admin",
-                        CreatedByUserId = p.CreatedByUserId,
-                        CreatedAt = p.CreatedAt,
-                        UpdatedAt = p.UpdatedAt
-                    })
+                    .GroupJoin(
+                        _db.ProjectMembers.Where(pm => pm.UserId == user.Id),
+                        p => p.Id,
+                        pm => pm.ProjectId,
+                        (p, memberships) => new { p, memberships })
+                    .SelectMany(
+                        x => x.memberships.DefaultIfEmpty(),
+                        (x, membership) => new ProjectDto
+                        {
+                            Id = x.p.Id,
+                            Name = x.p.Name,
+                            Description = x.p.Description,
+                            Role = membership != null ? membership.Role : "Admin",
+                            CreatedByUserId = x.p.CreatedByUserId,
+                            CreatedAt = x.p.CreatedAt,
+                            UpdatedAt = x.p.UpdatedAt
+                        })
                     .FirstOrDefaultAsync();
             }
 

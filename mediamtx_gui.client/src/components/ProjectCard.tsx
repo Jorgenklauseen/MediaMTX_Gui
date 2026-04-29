@@ -37,7 +37,9 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
 
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const isOwner = project.role.toLowerCase() === "owner" || isAdmin;
+  const role = project.role.toLowerCase();
+  const isOwner = role === "owner" || (isAdmin && role !== "member");
+  const canLeave = role === "member";
 
   const handleCreateStream = async () => {
     const trimmed = streamName.trim();
@@ -207,7 +209,7 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
         </section>
       )}
 
-      {!isOwner && (
+      {canLeave && (
         <div className="project-stream-create">
           <button
             type="button"

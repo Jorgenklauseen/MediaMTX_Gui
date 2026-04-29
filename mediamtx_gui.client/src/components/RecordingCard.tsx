@@ -143,7 +143,7 @@ export function RecordingCard({
         <video
           className="recording-card__preview"
           src={`/api/recordings/${recording.id}/preview`}
-          preload="metadata"
+          preload="none"
           controls
           onError={() => setPreviewAvailable(false)}
         />
