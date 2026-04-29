@@ -140,13 +140,19 @@ function Projects() {
               </div>
 
               <div className="projects-field">
-                <label htmlFor="project-description">Description</label>
+                <label htmlFor="project-description">
+                  Description
+                  <span className={`projects-char-count ${description.length > 150 ? "projects-char-count--over" : ""}`}>
+                    {description.length}/150
+                  </span>
+                </label>
                 <textarea
                   id="project-description"
                   value={description}
-                  onChange={e => setDescription(e.target.value)}
+                  onChange={e => setDescription(e.target.value.slice(0, 150))}
                   disabled={creating}
                   placeholder="Optional description"
+                  maxLength={150}
                 />
               </div>
 

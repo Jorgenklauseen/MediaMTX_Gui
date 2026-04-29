@@ -42,6 +42,10 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
       setStreamError("Stream name is required.");
       return;
     }
+    if (!/^[a-zA-Z0-9 \-_]+$/.test(trimmed)) {
+      setStreamError("Stream name can only contain letters (a-z), digits, spaces, hyphens and underscores.");
+      return;
+    }
 
     try {
       setCreating(true);

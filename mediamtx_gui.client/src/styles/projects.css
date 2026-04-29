@@ -133,6 +133,19 @@
 .projects-field label {
     font-weight: 600;
     color: var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.projects-char-count {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text-muted, #888);
+}
+
+.projects-char-count--over {
+    color: var(--uia-red);
 }
 
 .projects-field input,
@@ -261,8 +274,11 @@
 
 .projects-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 1rem;
+    max-height: calc(3 * 160px + 2 * 1rem);
+    overflow-y: auto;
+    padding-right: 0.25rem;
 }
 
 .project-card {

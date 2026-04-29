@@ -145,12 +145,13 @@ namespace MediaMTX_Gui.Server.Services
         {
             var user = await _userService.GetRequiredCurrentUserAsync(principal);
 
-            var membership = await _db.ProjectMembers
-                .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
-
-            if (membership is null || !membership.IsOwner)
+            if (user.Role != "admin")
             {
-                return false;
+                var membership = await _db.ProjectMembers
+                    .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == user.Id);
+
+                if (membership is null || !membership.IsOwner)
+                    return false;
             }
 
             var project = await _db.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
