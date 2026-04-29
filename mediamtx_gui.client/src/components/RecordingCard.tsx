@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Recording, RecordingFile } from "../types/recordings";
 import { getRecordingFiles } from "../api/recordingsApi";
 import { parseStreamName, formatBytes, formatDate, formatDuration, formatTimeOfDay } from "../utils";
@@ -26,6 +26,17 @@ export function RecordingCard({
   const [filesError, setFilesError] = useState<string | null>(null);
 
   const [previewAvailable, setPreviewAvailable] = useState(true);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && videoRef.current) {
+        videoRef.current.pause();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(recording.description);
@@ -141,6 +152,7 @@ export function RecordingCard({
 
       {recording.status === "completed" && previewAvailable && (
         <video
+          ref={videoRef}
           className="recording-card__preview"
           src={`/api/recordings/${recording.id}/preview`}
           preload="none"

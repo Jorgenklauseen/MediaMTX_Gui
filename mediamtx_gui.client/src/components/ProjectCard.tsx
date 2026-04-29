@@ -39,6 +39,7 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
   const isAdmin = user?.role === "admin";
   const role = project.role.toLowerCase();
   const isOwner = role === "owner" || (isAdmin && role !== "member");
+  const canDelete = role === "owner" || isAdmin;
   const canLeave = role === "member";
 
   const handleCreateStream = async () => {
@@ -192,13 +193,6 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
             >
               {inviting ? "Sending..." : "Send invite"}
             </button>
-            <button
-              type="button"
-              className="project-delete-project-button"
-              onClick={() => void onDelete(project.id, project.name)}
-            >
-              Delete project
-            </button>
           </div>
           {inviteError && (
             <p className="projects-message projects-message-error">{inviteError}</p>
@@ -209,15 +203,26 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
         </section>
       )}
 
-      {canLeave && (
+      {(canDelete || canLeave) && (
         <div className="project-stream-create">
-          <button
-            type="button"
-            className="project-delete-project-button"
-            onClick={() => void onLeave(project.id, project.name)}
-          >
-            Leave project
-          </button>
+          {canLeave && (
+            <button
+              type="button"
+              className="project-delete-project-button"
+              onClick={() => void onLeave(project.id, project.name)}
+            >
+              Leave project
+            </button>
+          )}
+          {canDelete && (
+            <button
+              type="button"
+              className="project-delete-project-button"
+              onClick={() => void onDelete(project.id, project.name)}
+            >
+              Delete project
+            </button>
+          )}
         </div>
       )}
 
