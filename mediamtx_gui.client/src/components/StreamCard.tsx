@@ -15,7 +15,7 @@ export function StreamCard({ stream, resolvedProjectName }: Props) {
   const isLive = stream.online;
   const { streamName, projectName } = parseStreamName(stream.name);
   const displayProjectName = resolvedProjectName ?? projectName;
-  const url = isLive ? `/webrtc/${stream.name}_webrtc/whep` : null;
+  const url = isLive ? `/webrtc/${stream.name}/whep` : null;
   const videoRef = useWhepPlayer(url);
 
   return (
