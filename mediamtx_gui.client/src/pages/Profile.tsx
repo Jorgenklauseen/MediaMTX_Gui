@@ -13,7 +13,9 @@ function Profile() {
   const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    getProjects().then(setProjects).catch(console.error);
+    getProjects()
+      .then(all => setProjects(all.filter(p => p.role !== "Admin")))
+      .catch(console.error);
   }, []);
 
   const handleDeleteAccount = async () => {

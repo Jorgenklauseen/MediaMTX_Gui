@@ -61,7 +61,10 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> DeleteCurrentUser()
     {
         await _userService.DeleteCurrentUserAsync(User);
-        return SignOut();
+        return SignOut(
+            new AuthenticationProperties { RedirectUri = "/" },
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
          // DOES NOT WORK YET, AS THE ADMIN FOR OUR HYDRA INSTANCE HAS NOT ADDED THE LOGOUT URL
         /* return SignOut(
             new Microsoft.AspNetCore.Authentication.AuthenticationProperties
