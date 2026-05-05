@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { deleteCurrentUser } from "../api/usersApi";
 import { getProjects } from "../api/projectsApi";
@@ -68,6 +68,10 @@ function Profile() {
             </ul>
           </div>
         )}
+
+        <div className="profile-privacy">
+          <p>Read more about your privacy policy <Link to="/">here</Link>.</p>
+        </div>
 
         <div className="profile-danger-zone">
           <h3>Danger zone</h3>

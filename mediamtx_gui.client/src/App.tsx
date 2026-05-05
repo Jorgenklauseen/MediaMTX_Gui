@@ -12,6 +12,7 @@ import { ToastContainer } from 'react-toastify';
 import AcceptInvitation from './pages/sidePages/AcceptInvitation';
 import Profile from './pages/Profile';
 import StreamView from './pages/StreamView';
+import Home from './pages/Home';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
 
@@ -21,11 +22,15 @@ function App() {
       <BrowserRouter>
       <ToastContainer position="bottom-right" />
         <Routes>
-          <Route path="/" element={
+          <Route element={<RootLayout />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/privacy" element={<Home />} />
+          </Route>
+          <Route element={
             <ProtectedRoute>
               <RootLayout />
             </ProtectedRoute>}>
-            <Route index element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/recordings" element={<Recordings />} />
             <Route path="/guides" element={<Gudies />} />
             <Route path="/projects" element={<Projects />} />

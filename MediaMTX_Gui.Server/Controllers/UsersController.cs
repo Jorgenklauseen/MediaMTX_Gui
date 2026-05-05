@@ -85,13 +85,13 @@ public class UsersController : ControllerBase
     [HttpGet("logout")]
     public IActionResult Logout()
     {
-        return SignOut();
-        // DOES NOT WORK YET, AS THE ADMIN FOR OUR HYDRA INSTANCE HAS NOT ADDED THE LOGOUT URL
+        return SignOut(
+            new AuthenticationProperties { RedirectUri = "/" },
+            CookieAuthenticationDefaults.AuthenticationScheme
+        );
+        // Full OIDC logout does not work yet — the Hydra admin has not registered the post-logout redirect URI.
         /* return SignOut(
-            new Microsoft.AspNetCore.Authentication.AuthenticationProperties
-            {
-                RedirectUri = "/"
-            },
+            new AuthenticationProperties { RedirectUri = "/" },
             OpenIdConnectDefaults.AuthenticationScheme,
             CookieAuthenticationDefaults.AuthenticationScheme
         ); */

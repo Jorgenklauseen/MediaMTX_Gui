@@ -117,6 +117,30 @@
     text-transform: capitalize;
 }
 
+.profile-privacy {
+    width: 100%;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.profile-privacy p {
+    margin: 0;
+}
+
+.profile-privacy a {
+    color: var(--uia-red);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.profile-privacy a:hover {
+    text-decoration: underline;
+}
+
 .profile-danger-zone {
     width: 100%;
     margin-top: 1.5rem;
