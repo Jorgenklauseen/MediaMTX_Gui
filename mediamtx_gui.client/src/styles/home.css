@@ -1,0 +1,165 @@
+
+@keyframes privacy-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes privacy-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes privacy-line-grow {
+  from { height: 0; }
+  to   { height: 40px; }
+}
+
+.privacy-hero {
+  min-height: unset;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 4rem 2rem 3rem;
+  max-width: 860px;
+  margin: 0 auto;
+  gap: 1.5rem;
+}
+
+.privacy-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--uia-red);
+  animation: privacy-fade-up 0.5s ease both;
+  animation-delay: 0.05s;
+}
+
+.privacy-hero h1 {
+  margin: 0;
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: var(--text-color);
+  animation: privacy-fade-up 0.6s ease both;
+  animation-delay: 0.15s;
+}
+
+.privacy-hero-sub {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  max-width: 36rem;
+  line-height: 1.65;
+  animation: privacy-fade-up 0.6s ease both;
+  animation-delay: 0.28s;
+}
+
+.privacy-cta {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--uia-red), var(--uia-red-dark));
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 4px 20px rgba(200, 16, 46, 0.3);
+  transition: opacity 140ms ease, transform 140ms ease;
+  animation: privacy-fade-up 0.6s ease both;
+  animation-delay: 0.4s;
+}
+
+.privacy-cta:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.privacy-scroll-hint {
+  margin-top: auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  animation: privacy-fade-in 1s ease both;
+  animation-delay: 0.8s;
+}
+
+.privacy-scroll-hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 40px;
+  background: var(--text-muted);
+  opacity: 0.4;
+  animation: privacy-line-grow 0.6s ease both;
+  animation-delay: 1s;
+}
+
+.privacy-doc {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 2rem 6rem;
+  animation: privacy-fade-up 0.7s ease both;
+  animation-delay: 0.2s;
+}
+
+.privacy-doc-header {
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0;
+}
+
+.privacy-doc-header h2 {
+  margin: 0.25rem 0 0;
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
+  color: var(--text-color);
+}
+
+.privacy-doc-date {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.privacy-doc-section {
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.privacy-doc-section h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-color);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.privacy-doc-section p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .privacy-hero {
+    padding: 3rem 1.25rem 4rem;
+  }
+
+  .privacy-doc {
+    padding: 3rem 1.25rem 4rem;
+  }
+}

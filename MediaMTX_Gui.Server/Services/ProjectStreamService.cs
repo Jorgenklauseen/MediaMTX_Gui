@@ -178,7 +178,7 @@ namespace MediaMTX_Gui.Server.Services
                     candidate.Path == request.Path &&
                     candidate.PublishUser == request.User);
 
-            if (stream is null || !SlowEquals(stream.StreamKeyHash, HashSecret(request.Password)))
+            if (stream is null || !VerifySecret(stream.StreamKeyHash, request.Password))
             {
                 _cache.Set(cacheKey, failures + 1, AuthLockoutDuration);
                 return false;
@@ -292,18 +292,46 @@ namespace MediaMTX_Gui.Server.Services
             return builder.Length == 0 ? "stream" : builder.ToString();
         }
 
+        private const int Pbkdf2Iterations = 100_000;
+        private const int Pbkdf2SaltSize = 16;
+        private const int Pbkdf2KeySize = 32;
+
         private static string HashSecret(string value)
         {
-            var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
-            return Convert.ToBase64String(hash);
+            var salt = RandomNumberGenerator.GetBytes(Pbkdf2SaltSize);
+            var hash = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(value),
+                salt,
+                Pbkdf2Iterations,
+                HashAlgorithmName.SHA256,
+                Pbkdf2KeySize);
+            return $"{Convert.ToBase64String(salt)}:{Convert.ToBase64String(hash)}";
         }
 
-        private static bool SlowEquals(string left, string right)
+        private static bool VerifySecret(string storedHash, string candidate)
         {
-            var leftBytes = Encoding.UTF8.GetBytes(left);
-            var rightBytes = Encoding.UTF8.GetBytes(right);
+            var parts = storedHash.Split(':');
+            if (parts.Length != 2) return false;
 
-            return CryptographicOperations.FixedTimeEquals(leftBytes, rightBytes);
+            byte[] salt, expected;
+            try
+            {
+                salt = Convert.FromBase64String(parts[0]);
+                expected = Convert.FromBase64String(parts[1]);
+            }
+            catch (FormatException)
+            {
+                return false;
+            }
+
+            var actual = Rfc2898DeriveBytes.Pbkdf2(
+                Encoding.UTF8.GetBytes(candidate),
+                salt,
+                Pbkdf2Iterations,
+                HashAlgorithmName.SHA256,
+                Pbkdf2KeySize);
+
+            return CryptographicOperations.FixedTimeEquals(actual, expected);
         }
 
         private static string MaskSecret(string secret)

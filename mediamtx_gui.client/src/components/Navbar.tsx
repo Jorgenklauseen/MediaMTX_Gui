@@ -6,60 +6,61 @@ import { useAuth } from "../context/AuthContext";
 import { UserMenu } from "./UserMenu";
 
 export function Navbar() {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   return (
     <nav className="navbar">
-      {/*   <div className="navbar__logo">
-        <img src={uiaLogo} alt="UIA Logo" className="navbar__logo-image" />
-      </div> */}
-      <ul className="navbar__links">
-        <li>
-          <NavLink
-            to="/"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            Dashboard
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/recordings"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            Recordings
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/projects"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            Projects
-          </NavLink>
-        </li>
-        <li>
-          <NavLink
-            to="/guides"
-            className={({ isActive }) => (isActive ? "active" : "")}
-          >
-            Guide
-          </NavLink>
-        </li>
-        {user?.role === "admin" && (
+      {isAuthenticated && (
+        <ul className="navbar__links">
           <li>
             <NavLink
-              to="/users"
+              to="/dashboard"
               className={({ isActive }) => (isActive ? "active" : "")}
             >
-              Users
+              Dashboard
             </NavLink>
           </li>
-        )}
-      </ul>
+          <li>
+            <NavLink
+              to="/recordings"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Recordings
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/projects"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Projects
+            </NavLink>
+          </li>
+          <li>
+            <NavLink
+              to="/guides"
+              className={({ isActive }) => (isActive ? "active" : "")}
+            >
+              Guide
+            </NavLink>
+          </li>
+          {user?.role === "admin" && (
+            <li>
+              <NavLink
+                to="/users"
+                className={({ isActive }) => (isActive ? "active" : "")}
+              >
+                Users
+              </NavLink>
+            </li>
+          )}
+        </ul>
+      )}
       <div className="navbar__actions">
-        {/* <LogoutButton /> */}
-        <UserMenu />
+        {isAuthenticated
+          ? <UserMenu />
+          : <a className="navbar__logout" href="/api/users/login?returnUrl=/dashboard">Log in</a>
+        }
         <ThemeToggle />
       </div>
     </nav>
