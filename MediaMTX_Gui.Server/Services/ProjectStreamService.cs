@@ -184,6 +184,13 @@ namespace MediaMTX_Gui.Server.Services
                 return false;
             }
 
+            var owner = await _db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == stream.CreatedByUserId);
+
+            if (owner is null || owner.IsBanned)
+                return false;
+
             _cache.Remove(cacheKey);
             return true;
         }
