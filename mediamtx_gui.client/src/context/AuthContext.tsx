@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import { streamsHubConnection, ensureConnected } from '../lib/streamsHub';
 
 interface AuthUser {
     id: number;
@@ -49,6 +50,17 @@ useEffect(() => {
             setLoading(false);
         });
 }, []);
+
+useEffect(() => {
+    if (!user) return;
+    ensureConnected();
+    streamsHubConnection.on("Banned", () => {
+        window.location.href = "/api/users/logout";
+    });
+    return () => {
+        streamsHubConnection.off("Banned");
+    };
+}, [user]);
 
     return (
         <AuthContext.Provider value={{ user, isAuthenticated: !!isAuthenticated, loading }}>
