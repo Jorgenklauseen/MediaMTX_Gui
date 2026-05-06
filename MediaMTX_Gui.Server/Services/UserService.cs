@@ -9,10 +9,12 @@ namespace MediaMTX_Gui.Server.Services
     public class UserService : IUserService
     {
         private readonly ApplicationDbContext _db;
+        private readonly IMediaMtxService _mediaMtx;
 
-        public UserService(ApplicationDbContext db)
+        public UserService(ApplicationDbContext db, IMediaMtxService mediaMtx)
         {
             _db = db;
+            _mediaMtx = mediaMtx;
         }
 
         public async Task<UserDto> GetRequiredCurrentUserAsync(ClaimsPrincipal principal)
@@ -55,11 +57,17 @@ namespace MediaMTX_Gui.Server.Services
         public async Task BanUserAsync(int id)
         {
             var user = await _db.Users.FindAsync(id);
-            if (user != null)
-            {
-                user.IsBanned = true;
-                await _db.SaveChangesAsync();
-            }
+            if (user is null) return;
+
+            user.IsBanned = true;
+            await _db.SaveChangesAsync();
+
+            var streams = await _db.ProjectStreams
+                .Where(s => s.CreatedByUserId == id)
+                .ToListAsync();
+
+            foreach (var stream in streams)
+                await _mediaMtx.KickPathAsync(stream.Path);
         }
 
         public async Task UnbanUserAsync(int id)
