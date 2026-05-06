@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using MediaMTX_Gui.Server.Services;
 using MediaMTX_Gui.Server.DTOs;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.SignalR;
+using MediaMTX_Gui.Server.Hubs;
 
 
 
@@ -17,10 +19,12 @@ public class UsersController : ControllerBase
 {
 
     private readonly IUserService _userService;
+    private readonly IHubContext<StreamHub> _hubContext;
 
-    public UsersController(IUserService userService)
+    public UsersController(IUserService userService, IHubContext<StreamHub> hubContext)
     {
         _userService = userService;
+        _hubContext = hubContext;
     }
 
 
@@ -45,6 +49,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> BanUser(int id)
     {
         await _userService.BanUserAsync(id);
+        await _hubContext.Clients.User(id.ToString()).SendAsync("Banned");
         return Ok();
     }
 
@@ -53,6 +58,7 @@ public class UsersController : ControllerBase
     public async Task<IActionResult> UnbanUser(int id)
     {
         await _userService.UnbanUserAsync(id);
+        await _hubContext.Clients.User(id.ToString()).SendAsync("Unbanned");
         return Ok();
     }
 

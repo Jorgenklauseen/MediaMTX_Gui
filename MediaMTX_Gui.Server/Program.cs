@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, DbUserIdProvider>();
 builder.Services.AddMemoryCache();
 
 // Add services to the container.
@@ -97,6 +98,7 @@ builder.Services.AddAuthentication(options =>
 
             var identity = new ClaimsIdentity();
             identity.AddClaim(new Claim(ClaimTypes.Role, userDto.Role));
+            identity.AddClaim(new Claim("db_id", userDto.Id.ToString()));
             context.Principal!.AddIdentity(identity);
         },
 
