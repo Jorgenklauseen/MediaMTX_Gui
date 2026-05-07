@@ -189,7 +189,10 @@ namespace MediaMTX_Gui.Server.Services
                 .FirstOrDefaultAsync(u => u.Id == stream.CreatedByUserId);
 
             if (owner is null || owner.IsBanned)
+            {
+                _cache.Set(cacheKey, failures + 1, AuthLockoutDuration);
                 return false;
+            }
 
             _cache.Remove(cacheKey);
             return true;
