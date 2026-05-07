@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text.Json;
 using MediaMTX_Gui.Server.Data;
 using MediaMTX_Gui.Server.DTOs;
 using MediaMTX_Gui.Server.Models;
@@ -23,7 +22,6 @@ namespace MediaMTX_Gui.Server.Services
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             IQueryable<Recording> query = _context.Recordings
-                .Include(r => r.Stream)
                 .Include(r => r.CreatedBy);
 
             if (currentUser.Role != "admin")
@@ -41,7 +39,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.Stream!.Name,
+                    StreamName = r.StreamId,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -62,7 +60,6 @@ namespace MediaMTX_Gui.Server.Services
 
             IQueryable<Recording> query = _context.Recordings
                 .Where(r => r.Id == id)
-                .Include(r => r.Stream)
                 .Include(r => r.CreatedBy);
 
             if (currentUser.Role != "admin")
@@ -80,7 +77,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.Stream!.Name,
+                    StreamName = r.StreamId,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -99,8 +96,9 @@ namespace MediaMTX_Gui.Server.Services
         {
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
-            var stream = await _context.Set<MediaStream>().FindAsync(request.StreamId);
-            if (stream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
+            var projectStream = await _context.ProjectStreams
+                .FirstOrDefaultAsync(ps => ps.Path == request.StreamId);
+            if (projectStream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
 
             var projectName = await _context.ProjectStreams
                 .Where(ps => ps.Path == request.StreamId)
@@ -127,7 +125,7 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = stream.Name,
+                StreamName = recording.StreamId,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
@@ -189,7 +187,6 @@ namespace MediaMTX_Gui.Server.Services
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var recording = await _context.Recordings
-                .Include(r => r.Stream)
                 .Include(r => r.CreatedBy)
                 .FirstOrDefaultAsync(r => r.Id == id);
 
@@ -205,7 +202,7 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = recording.Stream!.Name,
+                StreamName = recording.StreamId,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
@@ -236,35 +233,6 @@ namespace MediaMTX_Gui.Server.Services
 
             var ownedPaths = await GetOwnedProjectStreamPathsAsync(user.Id);
             return ownedPaths.Contains(recording.StreamId);
-        }
-
-        public async Task SyncStreamsAsync(string json)
-        {
-            var data = JsonSerializer.Deserialize<MediaMtxPathsResponse>(json);
-            if (data?.items == null) return;
-
-            foreach (var item in data.items)
-            {
-                var existing = await _context.Streams.FindAsync(item.name);
-                if (existing == null)
-                {
-                    _context.Streams.Add(new MediaStream
-                    {
-                        Id = item.name,
-                        Name = item.name,
-                        Url = item.source?.id ?? "",
-                        Format = item.source?.type ?? ""
-                    });
-                }
-                else
-                {
-                    existing.Name = item.name;
-                    existing.Url = item.source?.id ?? "";
-                    existing.Format = item.source?.type ?? "";
-                }
-            }
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task HandleStreamStartedAsync(string streamName)

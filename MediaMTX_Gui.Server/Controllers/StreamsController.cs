@@ -36,8 +36,6 @@ public class StreamsController : ControllerBase
     public async Task<IActionResult> GetStatus()
     {
         var json = await _mediaService.GetPathsAsync();
-        await _recordingService.SyncStreamsAsync(json);
-
         var filteredJson = await _projectStreamService.FilterStreamJsonAsync(json, User);
         return Content(filteredJson, "application/json");
     }
@@ -46,7 +44,6 @@ public class StreamsController : ControllerBase
     public async Task<IActionResult> StreamStarted([FromQuery] string name)
     {
         var json = await _mediaService.GetPathsAsync();
-        await _recordingService.SyncStreamsAsync(json);
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
         await _recordingService.HandleStreamStartedAsync(name);
         return Ok();
@@ -56,7 +53,6 @@ public class StreamsController : ControllerBase
     public async Task<IActionResult> StreamStopped([FromQuery] string name)
     {
         var json = await _mediaService.GetPathsAsync();
-        await _recordingService.SyncStreamsAsync(json);
         await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
         await _recordingService.HandleStreamStoppedAsync(name);
         return Ok();

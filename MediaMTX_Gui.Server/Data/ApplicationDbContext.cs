@@ -6,7 +6,6 @@ namespace MediaMTX_Gui.Server.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext>options) : DbContext(options)
     {
-        public DbSet<MediaStream> Streams => Set<MediaStream>();
         public DbSet<User> Users => Set<User>();
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<ProjectMember> ProjectMembers => Set<ProjectMember>();

@@ -30,7 +30,6 @@ namespace MediaMTX_Gui.Server.Models
 
         // Foreign keys
         public string StreamId { get; set; } = string.Empty;
-        public MediaStream? Stream { get; set; }
 
         public int CreatedById { get; set; }
         public User? CreatedBy { get; set; }
