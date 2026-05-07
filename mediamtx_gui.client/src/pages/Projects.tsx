@@ -189,7 +189,7 @@ function Projects() {
 
         <div className="projects-toolbar">
           <SearchBar
-            placeholder="Search projects..."
+            placeholder="Search for projects..."
             value={search}
             onChange={setSearch}
           />

@@ -12,7 +12,7 @@ export function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
       <input
         className="search-bar__input"
         type="text"
-        placeholder={placeholder ?? "Søk..."}
+        placeholder={placeholder ?? "Search..."}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

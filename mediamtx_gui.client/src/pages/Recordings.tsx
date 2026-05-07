@@ -72,7 +72,7 @@ function Recordings() {
             <p className="recordings-eyebrow">Media Management</p>
             <h1>Recordings</h1>
             <p className="recordings-subtitle">
-              Manage and monitor your media recordings
+              Manage and monitor your media recordings. Recordings is available for download for 5 days after creation.
             </p>
           </div>
         </header>
@@ -80,7 +80,7 @@ function Recordings() {
         <div className="recordings-toolbar">
           <div className="recordings-search">
             <SearchBar
-              placeholder="Search recordings..."
+              placeholder="Search for recordings..."
               value={search}
               onChange={setSearch}
             />
