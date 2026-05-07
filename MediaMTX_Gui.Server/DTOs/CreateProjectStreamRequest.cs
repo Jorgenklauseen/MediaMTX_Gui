@@ -5,7 +5,7 @@ namespace MediaMTX_Gui.Server.DTOs
     public class CreateProjectStreamRequest
     {
         [Required]
-        [StringLength(100, MinimumLength = 1)]
+        [StringLength(50, MinimumLength = 1)]
         [RegularExpression(@"^[a-zA-Z0-9 \-_]+$", ErrorMessage = "Stream name can only contain letters (a-z), digits, spaces, hyphens and underscores.")]
         public string Name { get; set; }
     }

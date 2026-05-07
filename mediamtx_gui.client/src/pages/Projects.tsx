@@ -13,7 +13,7 @@ function ProjectGrid({ projects, onNavigate }: { projects: Project[]; onNavigate
       {projects.map(project => (
         <article
           key={project.id}
-          className="project-card project-card--clickable"
+          className="project-card project-card--clickable project-card--list"
           onClick={() => onNavigate(project.id)}
         >
           <div className="project-card-top">
@@ -74,8 +74,8 @@ function Projects() {
       setFormError("Project name is required.");
       return;
     }
-    if (name.trim().length > 100) {
-      setFormError("Project name cannot exceed 100 characters.");
+    if (name.trim().length > 50) {
+      setFormError("Project name cannot exceed 50 characters.");
       return;
     }
 
@@ -134,18 +134,18 @@ function Projects() {
               <div className="projects-field">
                 <label htmlFor="project-name">
                   Name
-                  <span className={`projects-char-count ${name.length > 100 ? "projects-char-count--over" : ""}`}>
-                    {name.length}/100
+                  <span className={`projects-char-count ${name.length > 50 ? "projects-char-count--over" : ""}`}>
+                    {name.length}/50
                   </span>
                 </label>
                 <input
                   id="project-name"
                   type="text"
                   value={name}
-                  onChange={e => setName(e.target.value.slice(0, 100))}
+                  onChange={e => setName(e.target.value.slice(0, 50))}
                   disabled={creating}
                   placeholder="Enter a project name"
-                  maxLength={100}
+                  maxLength={50}
                 />
               </div>
 

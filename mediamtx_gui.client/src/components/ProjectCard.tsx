@@ -48,8 +48,8 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
       setStreamError("Stream name is required.");
       return;
     }
-    if (trimmed.length > 100) {
-      setStreamError("Stream name cannot exceed 100 characters.");
+    if (trimmed.length > 50) {
+      setStreamError("Stream name cannot exceed 50 characters.");
       return;
     }
     if (!/^[a-zA-Z0-9 \-_]+$/.test(trimmed)) {
@@ -143,29 +143,6 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
 
   return (
     <article className="project-card">
-      <div className="project-card-top">
-        <div>
-          <h3>{project.name}</h3>
-          <p className="project-description">
-            {project.description || "No description provided."}
-          </p>
-        </div>
-        <span className="project-role-badge">{project.role}</span>
-      </div>
-
-      <div className="project-card-meta">
-        <div className="project-meta-block">
-          <span className="project-meta-label">Created</span>
-          <span className="project-meta-value">
-            {formatDate(project.createdAt)}
-          </span>
-        </div>
-        <div className="project-meta-block">
-          <span className="project-meta-label">Access</span>
-          <span className="project-meta-value">{project.role}</span>
-        </div>
-      </div>
-
       <section className="project-members-section">
         <span className="project-meta-label">Members ({members.length})</span>
         <ul className="project-members-list">
@@ -177,6 +154,17 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
           ))}
         </ul>
       </section>
+
+      <div className="project-card-meta">
+        <div className="project-meta-block">
+          <span className="project-meta-label">Created</span>
+          <span className="project-meta-value">{formatDate(project.createdAt)}</span>
+        </div>
+        <div className="project-meta-block">
+          <span className="project-meta-label">Access</span>
+          <span className="project-meta-value">{project.role}</span>
+        </div>
+      </div>
 
       {isOwner && (
         <section className="project-invite-section">
@@ -244,11 +232,11 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
               <input
                 type="text"
                 value={streamName}
-                onChange={e => setStreamName(e.target.value.slice(0, 100))}
+                onChange={e => setStreamName(e.target.value.slice(0, 50))}
                 onKeyDown={e => { if (e.key === "Enter") void handleCreateStream(); }}
                 placeholder="New stream name"
                 disabled={creating}
-                maxLength={100}
+                maxLength={50}
               />
               <button
                 type="button"
@@ -289,6 +277,7 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
             )}
         </>
       </section>
+
     </article>
   );
 }

@@ -17,7 +17,7 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
     });
     const [submitting, setSubmitting] = useState(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
         e.preventDefault();
         setSubmitting(true);
         try {
