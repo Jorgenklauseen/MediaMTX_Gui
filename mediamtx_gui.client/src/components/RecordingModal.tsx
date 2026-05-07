@@ -41,24 +41,32 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
 
                 <form onSubmit={handleSubmit} className="recording-modal__form">
                     <div className="recording-modal__field">
-                        <label htmlFor="name" className="recording-modal__label">Name</label>
+                        <label htmlFor="name" className="recording-modal__label">
+                            Name
+                            <span className="recording-modal__char-count">{formData.name.length}/100</span>
+                        </label>
                         <input
                             type="text"
                             id="name"
                             value={formData.name}
-                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value.slice(0, 100) }))}
                             className="recording-modal__input"
+                            maxLength={100}
                             required
                         />
                     </div>
 
                     <div className="recording-modal__field">
-                        <label htmlFor="description" className="recording-modal__label">Description</label>
+                        <label htmlFor="description" className="recording-modal__label">
+                            Description
+                            <span className="recording-modal__char-count">{(formData.description ?? "").length}/300</span>
+                        </label>
                         <textarea
                             id="description"
                             value={formData.description}
-                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value.slice(0, 300) }))}
                             className="recording-modal__textarea"
+                            maxLength={300}
                         />
                     </div>
 

@@ -48,6 +48,10 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
       setStreamError("Stream name is required.");
       return;
     }
+    if (trimmed.length > 100) {
+      setStreamError("Stream name cannot exceed 100 characters.");
+      return;
+    }
     if (!/^[a-zA-Z0-9 \-_]+$/.test(trimmed)) {
       setStreamError("Stream name can only contain letters (a-z), digits, spaces, hyphens and underscores.");
       return;
@@ -240,10 +244,11 @@ export function ProjectCard({ project, streams, members, loading, livePaths, onS
               <input
                 type="text"
                 value={streamName}
-                onChange={e => setStreamName(e.target.value)}
+                onChange={e => setStreamName(e.target.value.slice(0, 100))}
                 onKeyDown={e => { if (e.key === "Enter") void handleCreateStream(); }}
                 placeholder="New stream name"
                 disabled={creating}
+                maxLength={100}
               />
               <button
                 type="button"

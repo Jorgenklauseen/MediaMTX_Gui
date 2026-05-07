@@ -462,6 +462,15 @@
 .recording-modal__label {
     font-weight: 600;
     color: var(--text-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.recording-modal__char-count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--text-muted, #888);
 }
 
 .recording-modal__input,

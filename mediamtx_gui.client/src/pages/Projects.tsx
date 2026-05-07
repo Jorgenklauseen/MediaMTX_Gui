@@ -74,6 +74,10 @@ function Projects() {
       setFormError("Project name is required.");
       return;
     }
+    if (name.trim().length > 100) {
+      setFormError("Project name cannot exceed 100 characters.");
+      return;
+    }
 
     try {
       await submitProject({ name: name.trim(), description: description.trim() || undefined });
@@ -128,31 +132,37 @@ function Projects() {
 
             <form className="projects-form" onSubmit={handleSubmit}>
               <div className="projects-field">
-                <label htmlFor="project-name">Name</label>
+                <label htmlFor="project-name">
+                  Name
+                  <span className={`projects-char-count ${name.length > 100 ? "projects-char-count--over" : ""}`}>
+                    {name.length}/100
+                  </span>
+                </label>
                 <input
                   id="project-name"
                   type="text"
                   value={name}
-                  onChange={e => setName(e.target.value)}
+                  onChange={e => setName(e.target.value.slice(0, 100))}
                   disabled={creating}
                   placeholder="Enter a project name"
+                  maxLength={100}
                 />
               </div>
 
               <div className="projects-field">
                 <label htmlFor="project-description">
                   Description
-                  <span className={`projects-char-count ${description.length > 150 ? "projects-char-count--over" : ""}`}>
-                    {description.length}/150
+                  <span className={`projects-char-count ${description.length > 300 ? "projects-char-count--over" : ""}`}>
+                    {description.length}/300
                   </span>
                 </label>
                 <textarea
                   id="project-description"
                   value={description}
-                  onChange={e => setDescription(e.target.value.slice(0, 150))}
+                  onChange={e => setDescription(e.target.value.slice(0, 300))}
                   disabled={creating}
                   placeholder="Optional description"
-                  maxLength={150}
+                  maxLength={300}
                 />
               </div>
 
