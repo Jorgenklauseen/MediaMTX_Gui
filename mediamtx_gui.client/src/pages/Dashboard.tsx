@@ -41,7 +41,7 @@ function Dashboard() {
     <div className="dashboard-page">
       <div className="dashboard-header">
         <h2>Livestreams</h2>
-        <SearchBar value={query} onChange={setQuery} placeholder="Search streams or projects..." />
+        <SearchBar value={query} onChange={setQuery} placeholder="Search for streams or projects..." />
       </div>
       <p className="dashboard-results-info">
         {filtered.length}/{streams.length} streams · {filteredProjectCount}/{totalProjects} projects
