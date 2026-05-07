@@ -112,12 +112,14 @@ export function RecordingCard({
         </div>
       ) : (
         <div className="recording-card__edit-form">
+          <div className="recording-card__edit-char-count">{draft.length}/300</div>
           <textarea
             className="recording-card__edit-textarea"
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => setDraft(e.target.value.slice(0, 300))}
             placeholder="Add a description..."
             rows={3}
+            maxLength={300}
             disabled={saving}
           />
           {saveError && (
