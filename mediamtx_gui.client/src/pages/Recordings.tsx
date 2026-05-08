@@ -72,7 +72,7 @@ function Recordings() {
             <p className="recordings-eyebrow">Media Management</p>
             <h1>Recordings</h1>
             <p className="recordings-subtitle">
-              Manage and monitor your media recordings. Recordings is available for download for 5 days after creation.
+              Manage and monitor your media recordings. Recordings are available for download for 5 days after creation. Big recordings may take some time to process before they're ready for download.
             </p>
           </div>
         </header>
