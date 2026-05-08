@@ -3,7 +3,7 @@ name: Build and push to Docker Hub
 on:
   push:
     branches:
-      - liveBan
+      - main
 
 jobs:
   docker-build:
