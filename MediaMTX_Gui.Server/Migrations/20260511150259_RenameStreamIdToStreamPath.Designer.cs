@@ -3,6 +3,7 @@ using System;
 using MediaMTX_Gui.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaMTX_Gui.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511150259_RenameStreamIdToStreamPath")]
+    partial class RenameStreamIdToStreamPath
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
@@ -192,13 +195,7 @@ namespace MediaMTX_Gui.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("ProjectName")
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid?>("ProjectStreamId")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("StartedAt")
@@ -208,17 +205,13 @@ namespace MediaMTX_Gui.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("StreamName")
+                    b.Property<string>("StreamPath")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedById");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("ProjectStreamId");
 
                     b.ToTable("Recordings");
                 });
@@ -264,7 +257,7 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CreatedByUser");
@@ -275,7 +268,7 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "InvitedByUser")
                         .WithMany()
                         .HasForeignKey("InvitedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MediaMTX_Gui.Server.Models.Project", "Project")
@@ -313,7 +306,7 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedByUser")
                         .WithMany()
                         .HasForeignKey("CreatedByUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MediaMTX_Gui.Server.Models.Project", "Project")
@@ -332,18 +325,8 @@ namespace MediaMTX_Gui.Server.Migrations
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedBy")
                         .WithMany()
                         .HasForeignKey("CreatedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("MediaMTX_Gui.Server.Models.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("MediaMTX_Gui.Server.Models.ProjectStream", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectStreamId")
-                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("CreatedBy");
                 });

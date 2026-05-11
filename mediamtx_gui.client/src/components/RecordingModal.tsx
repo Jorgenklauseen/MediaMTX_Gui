@@ -13,7 +13,7 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
     const [formData, setFormData] = useState<CreateRecordingPayload>({
         name: "",
         description: "",
-        streamId: "",
+        projectStreamId: "",
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -22,7 +22,7 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
         setSubmitting(true);
         try {
             await onSubmit(formData);
-            setFormData({ name: "", description: "", streamId: "" });
+            setFormData({ name: "", description: "", projectStreamId: "" });
             onClose();
         } catch (err) {
             // Error handled by hook
@@ -71,11 +71,11 @@ export function RecordingModal({ isOpen, onClose, onSubmit, streams }: Recording
                     </div>
 
                     <div className="recording-modal__field">
-                        <label htmlFor="streamId" className="recording-modal__label">Stream</label>
+                        <label htmlFor="projectStreamId" className="recording-modal__label">Stream</label>
                         <select
-                            id="streamId"
-                            value={formData.streamId}
-                            onChange={(e) => setFormData(prev => ({ ...prev, streamId: e.target.value }))}
+                            id="projectStreamId"
+                            value={formData.projectStreamId}
+                            onChange={(e) => setFormData(prev => ({ ...prev, projectStreamId: e.target.value }))}
                             className="recording-modal__select"
                             required
                         >

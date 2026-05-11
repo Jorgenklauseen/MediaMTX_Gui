@@ -11,6 +11,6 @@ namespace MediaMTX_Gui.Server.DTOs
         [MaxLength(300)]
         public string Description { get; set; } = string.Empty;
 
-        public string StreamId { get; set; } = string.Empty;
+        public Guid ProjectStreamId { get; set; }
     }
 }

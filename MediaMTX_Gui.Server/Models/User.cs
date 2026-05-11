@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace MediaMTX_Gui.Server.Models
 {
     public class User
@@ -13,6 +11,5 @@ namespace MediaMTX_Gui.Server.Models
         public DateTime? LastLogin { get; set; }
         public bool IsBanned { get; set; } = false;
         public string Role { get; set; } = "student";
- 
     }
 }
