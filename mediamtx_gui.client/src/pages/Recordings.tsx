@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import { useRecordings } from "../hooks/useRecordings";
 import { useAuth } from "../context/AuthContext";
 import { RecordingCard } from "../components/RecordingCard";
@@ -54,6 +55,7 @@ function Recordings() {
   const handleDeleteRecording = async (id: number) => {
     if (window.confirm("Are you sure you want to delete this recording?")) {
       await removeRecording(id);
+      toast.success("Recording deleted.");
     }
   };
 

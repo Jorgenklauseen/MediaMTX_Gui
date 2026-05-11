@@ -26,8 +26,8 @@ namespace MediaMTX_Gui.Server.Models
 
         public TimeSpan Duration { get; set; }
 
-        public string? ProjectName { get; set; }
-        public string StreamName { get; set; } = string.Empty;
+        public string? ProjectName { get; set; } // Just for holding name UI so it remberes it even when deleted, not a foreign key
+        public string StreamName { get; set; } = string.Empty; // Just for holding name UI so it remberes it even when deleted, not a foreign key
 
         public int? ProjectId { get; set; }
 
