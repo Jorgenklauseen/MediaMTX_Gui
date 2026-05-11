@@ -50,7 +50,7 @@ namespace MediaMTX_Gui.Server.Data
                 .HasOne(project => project.CreatedByUser)
                 .WithMany()
                 .HasForeignKey(project => project.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProjectStream>()
                 .HasIndex(stream => stream.Path)
@@ -66,7 +66,7 @@ namespace MediaMTX_Gui.Server.Data
                 .HasOne(stream => stream.CreatedByUser)
                 .WithMany()
                 .HasForeignKey(stream => stream.CreatedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ProjectInvitation>()
                 .HasOne(invitation => invitation.Project)
@@ -78,13 +78,13 @@ namespace MediaMTX_Gui.Server.Data
                 .HasOne(invitation => invitation.InvitedByUser)
                 .WithMany()
                 .HasForeignKey(invitation => invitation.InvitedByUserId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recording>()
                 .HasOne(recording => recording.CreatedBy)
                 .WithMany()
                 .HasForeignKey(recording => recording.CreatedById)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Recording>()
                 .HasOne<ProjectStream>()
