@@ -14,7 +14,7 @@ namespace MediaMTX_Gui.Server.DTOs
         public string FilePath { get; set; } = string.Empty;
         public long FileSize { get; set; }
         public TimeSpan Duration { get; set; }
-        public string StreamId { get; set; } = string.Empty;
+        public string StreamPath { get; set; } = string.Empty;
         public string StreamName { get; set; } = string.Empty;
         public string? ProjectName { get; set; }
         public int CreatedById { get; set; }

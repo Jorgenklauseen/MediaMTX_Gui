@@ -38,10 +38,13 @@ namespace MediaMTX_Gui.Server.Services
             var streams = await _db.ProjectStreams
                 .Where(stream => stream.ProjectId == projectId)
                 .OrderByDescending(stream => stream.CreatedAt)
-                .Join(_db.Users,
-                    stream => stream.CreatedByUserId,
-                    user => user.Id,
-                    (stream, user) => new { stream, creatorName = user.Name ?? user.Username ?? user.Email })
+                .Select(stream => new
+                {
+                    stream,
+                    creatorName = stream.CreatedByUser != null
+                        ? stream.CreatedByUser.Name ?? stream.CreatedByUser.Username ?? stream.CreatedByUser.Email
+                        : null
+                })
                 .ToListAsync();
 
             return streams.Select(row => MapToDto(row.stream, null, row.stream.CreatedByUserId == currentUser.Id || isOwner, row.creatorName));
@@ -207,10 +210,7 @@ namespace MediaMTX_Gui.Server.Services
 
             var allowedPaths = await _db.ProjectMembers
                 .Where(pm => pm.UserId == user.Id)
-                .Join(_db.ProjectStreams,
-                    pm => pm.ProjectId,
-                    ps => ps.ProjectId,
-                    (pm, ps) => ps.Path)
+                .SelectMany(pm => pm.Project.Streams.Select(stream => stream.Path))
                 .ToHashSetAsync();
 
             var node = JsonNode.Parse(json);

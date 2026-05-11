@@ -29,7 +29,7 @@ namespace MediaMTX_Gui.Server.Services
                 var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
                 query = query.Where(r =>
                     r.CreatedById == currentUser.Id ||
-                    ownedPaths.Contains(r.StreamId));
+                    ownedPaths.Contains(r.StreamPath));
             }
 
             return await query
@@ -39,7 +39,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.StreamId,
+                    StreamName = r.StreamPath,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -47,7 +47,7 @@ namespace MediaMTX_Gui.Server.Services
                     FilePath = r.FilePath,
                     FileSize = r.FileSize,
                     Duration = r.Duration,
-                    StreamId = r.StreamId,
+                    StreamPath = r.StreamPath,
                     CreatedById = r.CreatedById,
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
@@ -67,7 +67,7 @@ namespace MediaMTX_Gui.Server.Services
                 var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
                 query = query.Where(r =>
                     r.CreatedById == currentUser.Id ||
-                    ownedPaths.Contains(r.StreamId));
+                    ownedPaths.Contains(r.StreamPath));
             }
 
             return await query
@@ -77,7 +77,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.StreamId,
+                    StreamName = r.StreamPath,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -85,7 +85,7 @@ namespace MediaMTX_Gui.Server.Services
                     FilePath = r.FilePath,
                     FileSize = r.FileSize,
                     Duration = r.Duration,
-                    StreamId = r.StreamId,
+                    StreamPath = r.StreamPath,
                     CreatedById = r.CreatedById,
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
@@ -97,11 +97,11 @@ namespace MediaMTX_Gui.Server.Services
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var projectStream = await _context.ProjectStreams
-                .FirstOrDefaultAsync(ps => ps.Path == request.StreamId);
-            if (projectStream == null) throw new ArgumentException("Stream not found", nameof(request.StreamId));
+                .FirstOrDefaultAsync(ps => ps.Path == request.StreamPath);
+            if (projectStream == null) throw new ArgumentException("Stream not found", nameof(request.StreamPath));
 
             var projectName = await _context.ProjectStreams
-                .Where(ps => ps.Path == request.StreamId)
+                .Where(ps => ps.Path == request.StreamPath)
                 .Select(ps => ps.Project.Name)
                 .FirstOrDefaultAsync();
 
@@ -109,7 +109,7 @@ namespace MediaMTX_Gui.Server.Services
             {
                 Name = request.Name,
                 Description = request.Description,
-                StreamId = request.StreamId,
+                StreamPath = request.StreamPath,
                 CreatedById = currentUser.Id,
                 ProjectName = projectName,
                 Status = "pending",
@@ -125,14 +125,14 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = recording.StreamId,
+                StreamName = recording.StreamPath,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
                 FilePath = recording.FilePath,
                 FileSize = recording.FileSize,
                 Duration = recording.Duration,
-                StreamId = recording.StreamId,
+                StreamPath = recording.StreamPath,
                 CreatedById = recording.CreatedById,
                 CreatedByName = currentUser.Username ?? string.Empty
             };
@@ -202,14 +202,14 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = recording.StreamId,
+                StreamName = recording.StreamPath,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
                 FilePath = recording.FilePath,
                 FileSize = recording.FileSize,
                 Duration = recording.Duration,
-                StreamId = recording.StreamId,
+                StreamPath = recording.StreamPath,
                 CreatedById = recording.CreatedById,
                 CreatedByName = recording.CreatedBy!.Username ?? string.Empty
             };
@@ -219,10 +219,7 @@ namespace MediaMTX_Gui.Server.Services
         {
             return await _context.ProjectMembers
                 .Where(pm => pm.UserId == userId && pm.IsOwner)
-                .Join(_context.ProjectStreams,
-                    pm => pm.ProjectId,
-                    ps => ps.ProjectId,
-                    (pm, ps) => ps.Path)
+                .SelectMany(pm => pm.Project.Streams.Select(stream => stream.Path))
                 .ToHashSetAsync();
         }
 
@@ -232,7 +229,7 @@ namespace MediaMTX_Gui.Server.Services
             if (recording.CreatedById == user.Id) return true;
 
             var ownedPaths = await GetOwnedProjectStreamPathsAsync(user.Id);
-            return ownedPaths.Contains(recording.StreamId);
+            return ownedPaths.Contains(recording.StreamPath);
         }
 
         public async Task HandleStreamStartedAsync(string streamName)
@@ -247,7 +244,7 @@ namespace MediaMTX_Gui.Server.Services
             _context.Recordings.Add(new Recording
             {
                 Name = $"{streamName} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
-                StreamId = streamName,
+                StreamPath = streamName,
                 CreatedById = projectStream.CreatedByUserId,
                 ProjectName = projectStream.Project?.Name,
                 Status = "recording",
@@ -261,7 +258,7 @@ namespace MediaMTX_Gui.Server.Services
         public async Task HandleStreamStoppedAsync(string streamName)
         {
             var activeRecording = await _context.Recordings
-                .Where(r => r.StreamId == streamName && r.Status == "recording")
+                .Where(r => r.StreamPath == streamName && r.Status == "recording")
                 .FirstOrDefaultAsync();
 
             if (activeRecording == null) return;

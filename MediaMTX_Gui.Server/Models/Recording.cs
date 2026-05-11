@@ -28,8 +28,7 @@ namespace MediaMTX_Gui.Server.Models
 
         public string? ProjectName { get; set; }
 
-        // Foreign keys
-        public string StreamId { get; set; } = string.Empty;
+        public string StreamPath { get; set; } = string.Empty; // MediaMTX path retained as historical recording metadata
 
         public int CreatedById { get; set; }
         public User? CreatedBy { get; set; }

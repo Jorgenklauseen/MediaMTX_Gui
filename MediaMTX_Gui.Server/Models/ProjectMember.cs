@@ -4,8 +4,10 @@ namespace MediaMTX_Gui.Server.Models
     {
         public int ProjectId { get; set; }
         public int UserId { get; set; }
-        public string Role { get; set; }
+        public string Role { get; set; } = string.Empty;
         public bool IsOwner { get; set; } = false;
         public DateTime? JoinedAt { get; set; }
+        public Project Project { get; set; } = null!;
+        public User User { get; set; } = null!;
     }
 }

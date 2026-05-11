@@ -34,6 +34,24 @@ namespace MediaMTX_Gui.Server.Data
             modelBuilder.Entity<ProjectMember>()
                 .HasKey(pm => new { pm.ProjectId, pm.UserId });
 
+            modelBuilder.Entity<ProjectMember>()
+                .HasOne(pm => pm.Project)
+                .WithMany(project => project.Members)
+                .HasForeignKey(pm => pm.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectMember>()
+                .HasOne(pm => pm.User)
+                .WithMany()
+                .HasForeignKey(pm => pm.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Project>()
+                .HasOne(project => project.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(project => project.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<ProjectStream>()
                 .HasIndex(stream => stream.Path)
                 .IsUnique();
@@ -43,6 +61,30 @@ namespace MediaMTX_Gui.Server.Data
                 .WithMany(project => project.Streams)
                 .HasForeignKey(stream => stream.ProjectId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectStream>()
+                .HasOne(stream => stream.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(stream => stream.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ProjectInvitation>()
+                .HasOne(invitation => invitation.Project)
+                .WithMany()
+                .HasForeignKey(invitation => invitation.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectInvitation>()
+                .HasOne(invitation => invitation.InvitedByUser)
+                .WithMany()
+                .HasForeignKey(invitation => invitation.InvitedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recording>()
+                .HasOne(recording => recording.CreatedBy)
+                .WithMany()
+                .HasForeignKey(recording => recording.CreatedById)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

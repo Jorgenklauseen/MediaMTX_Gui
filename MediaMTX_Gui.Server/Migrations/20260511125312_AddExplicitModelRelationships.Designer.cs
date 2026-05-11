@@ -3,6 +3,7 @@ using System;
 using MediaMTX_Gui.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MediaMTX_Gui.Server.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260511125312_AddExplicitModelRelationships")]
+    partial class AddExplicitModelRelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.3");
@@ -202,7 +205,7 @@ namespace MediaMTX_Gui.Server.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("StreamPath")
+                    b.Property<string>("StreamId")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
@@ -252,7 +255,7 @@ namespace MediaMTX_Gui.Server.Migrations
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Project", b =>
                 {
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedByUser")
-                        .WithMany()
+                        .WithMany("CreatedProjects")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -263,13 +266,13 @@ namespace MediaMTX_Gui.Server.Migrations
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectInvitation", b =>
                 {
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "InvitedByUser")
-                        .WithMany()
+                        .WithMany("SentProjectInvitations")
                         .HasForeignKey("InvitedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MediaMTX_Gui.Server.Models.Project", "Project")
-                        .WithMany()
+                        .WithMany("Invitations")
                         .HasForeignKey("ProjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -288,7 +291,7 @@ namespace MediaMTX_Gui.Server.Migrations
                         .IsRequired();
 
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "User")
-                        .WithMany()
+                        .WithMany("ProjectMemberships")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -301,7 +304,7 @@ namespace MediaMTX_Gui.Server.Migrations
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.ProjectStream", b =>
                 {
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedByUser")
-                        .WithMany()
+                        .WithMany("CreatedStreams")
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -320,7 +323,7 @@ namespace MediaMTX_Gui.Server.Migrations
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Recording", b =>
                 {
                     b.HasOne("MediaMTX_Gui.Server.Models.User", "CreatedBy")
-                        .WithMany()
+                        .WithMany("Recordings")
                         .HasForeignKey("CreatedById")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -330,9 +333,24 @@ namespace MediaMTX_Gui.Server.Migrations
 
             modelBuilder.Entity("MediaMTX_Gui.Server.Models.Project", b =>
                 {
+                    b.Navigation("Invitations");
+
                     b.Navigation("Members");
 
                     b.Navigation("Streams");
+                });
+
+            modelBuilder.Entity("MediaMTX_Gui.Server.Models.User", b =>
+                {
+                    b.Navigation("CreatedProjects");
+
+                    b.Navigation("CreatedStreams");
+
+                    b.Navigation("ProjectMemberships");
+
+                    b.Navigation("Recordings");
+
+                    b.Navigation("SentProjectInvitations");
                 });
 #pragma warning restore 612, 618
         }

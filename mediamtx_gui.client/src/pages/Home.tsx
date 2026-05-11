@@ -42,10 +42,9 @@ function Home() {
         <div className="privacy-doc-section">
           <h3>1. Who we are</h3>
           <p>
-            This system is operated by the University of Agder (UiA) as part of
+            This system is operated by student members of the University of Agder (UiA) as part of
             the UiA Esports program. The service is self-hosted on
-            university-controlled infrastructure. UiA is the data controller
-            responsible for the personal data processed through this system.
+            university-controlled infrastructure. 
           </p>
         </div>
 
@@ -117,9 +116,9 @@ function Home() {
           <h3>7. Contact</h3>
           <p>
             For questions about this privacy policy or requests regarding your
-            personal data, contact UiA at{" "}
-            <a href="https://www.uia.no" target="_blank" rel="noreferrer">
-              www.uia.no
+            personal data, contact admin at{" "}
+            <a href="jorgennk@uia.no" target="_blank" rel="noreferrer">
+              jorgennk@uia.no
             </a>
             .
           </p>

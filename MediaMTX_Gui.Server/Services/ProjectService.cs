@@ -48,19 +48,15 @@ namespace MediaMTX_Gui.Server.Services
 
             return await _db.ProjectMembers
                 .Where(pm => pm.UserId == user.Id)
-                .Join(
-                    _db.Projects,
-                    membership => membership.ProjectId,
-                    project => project.Id,
-                    (membership, project) => new ProjectDto
+                .Select(membership => new ProjectDto
                     {
-                        Id = project.Id,
-                        Name = project.Name,
-                        Description = project.Description,
+                        Id = membership.Project.Id,
+                        Name = membership.Project.Name,
+                        Description = membership.Project.Description,
                         Role = membership.Role,
-                        CreatedByUserId = project.CreatedByUserId,
-                        CreatedAt = project.CreatedAt,
-                        UpdatedAt = project.UpdatedAt
+                        CreatedByUserId = membership.Project.CreatedByUserId,
+                        CreatedAt = membership.Project.CreatedAt,
+                        UpdatedAt = membership.Project.UpdatedAt
                     })
                 .ToListAsync();
         }
@@ -130,19 +126,15 @@ namespace MediaMTX_Gui.Server.Services
 
             return await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId && pm.UserId == user.Id)
-                .Join(
-                    _db.Projects,
-                    membership => membership.ProjectId,
-                    project => project.Id,
-                    (membership, project) => new ProjectDto
+                .Select(membership => new ProjectDto
                     {
-                        Id = project.Id,
-                        Name = project.Name,
-                        Description = project.Description,
+                        Id = membership.Project.Id,
+                        Name = membership.Project.Name,
+                        Description = membership.Project.Description,
                         Role = membership.Role,
-                        CreatedByUserId = project.CreatedByUserId,
-                        CreatedAt = project.CreatedAt,
-                        UpdatedAt = project.UpdatedAt
+                        CreatedByUserId = membership.Project.CreatedByUserId,
+                        CreatedAt = membership.Project.CreatedAt,
+                        UpdatedAt = membership.Project.UpdatedAt
                     })
                 .FirstOrDefaultAsync();
         }
@@ -238,13 +230,10 @@ namespace MediaMTX_Gui.Server.Services
 
             return await _db.ProjectMembers
                 .Where(pm => pm.ProjectId == projectId)
-                .Join(_db.Users,
-                    pm => pm.UserId,
-                    u => u.Id,
-                    (pm, u) => new ProjectMemberDto
+                .Select(pm => new ProjectMemberDto
                     {
-                        UserId = u.Id,
-                        Name = u.Name ?? u.Username ?? u.Email ?? "Unknown",
+                        UserId = pm.User.Id,
+                        Name = pm.User.Name ?? pm.User.Username ?? pm.User.Email ?? "Unknown",
                         IsOwner = pm.IsOwner,
                         JoinedAt = pm.JoinedAt
                     })
