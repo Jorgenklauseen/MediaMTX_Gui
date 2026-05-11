@@ -26,10 +26,12 @@ namespace MediaMTX_Gui.Server.Services
 
             if (currentUser.Role != "admin")
             {
-                var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
+                var ownedStreamIds = await GetOwnedProjectStreamIdsAsync(currentUser.Id);
+                var ownedProjectIds = await GetOwnedProjectIdsAsync(currentUser.Id);
                 query = query.Where(r =>
                     r.CreatedById == currentUser.Id ||
-                    ownedPaths.Contains(r.StreamPath));
+                    (r.ProjectStreamId != null && ownedStreamIds.Contains(r.ProjectStreamId.Value)) ||
+                    (r.ProjectId != null && ownedProjectIds.Contains(r.ProjectId.Value)));
             }
 
             return await query
@@ -39,7 +41,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.StreamPath,
+                    StreamName = r.StreamName,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -47,7 +49,7 @@ namespace MediaMTX_Gui.Server.Services
                     FilePath = r.FilePath,
                     FileSize = r.FileSize,
                     Duration = r.Duration,
-                    StreamPath = r.StreamPath,
+                    ProjectStreamId = r.ProjectStreamId,
                     CreatedById = r.CreatedById,
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
@@ -64,10 +66,12 @@ namespace MediaMTX_Gui.Server.Services
 
             if (currentUser.Role != "admin")
             {
-                var ownedPaths = await GetOwnedProjectStreamPathsAsync(currentUser.Id);
+                var ownedStreamIds = await GetOwnedProjectStreamIdsAsync(currentUser.Id);
+                var ownedProjectIds = await GetOwnedProjectIdsAsync(currentUser.Id);
                 query = query.Where(r =>
                     r.CreatedById == currentUser.Id ||
-                    ownedPaths.Contains(r.StreamPath));
+                    (r.ProjectStreamId != null && ownedStreamIds.Contains(r.ProjectStreamId.Value)) ||
+                    (r.ProjectId != null && ownedProjectIds.Contains(r.ProjectId.Value)));
             }
 
             return await query
@@ -77,7 +81,7 @@ namespace MediaMTX_Gui.Server.Services
                     Name = r.Name,
                     Description = r.Description,
                     Status = r.Status,
-                    StreamName = r.StreamPath,
+                    StreamName = r.StreamName,
                     ProjectName = r.ProjectName,
                     CreatedAt = r.CreatedAt,
                     StartedAt = r.StartedAt,
@@ -85,7 +89,7 @@ namespace MediaMTX_Gui.Server.Services
                     FilePath = r.FilePath,
                     FileSize = r.FileSize,
                     Duration = r.Duration,
-                    StreamPath = r.StreamPath,
+                    ProjectStreamId = r.ProjectStreamId,
                     CreatedById = r.CreatedById,
                     CreatedByName = r.CreatedBy!.Username ?? string.Empty
                 })
@@ -97,21 +101,19 @@ namespace MediaMTX_Gui.Server.Services
             var currentUser = await _userService.GetRequiredCurrentUserAsync(user);
 
             var projectStream = await _context.ProjectStreams
-                .FirstOrDefaultAsync(ps => ps.Path == request.StreamPath);
-            if (projectStream == null) throw new ArgumentException("Stream not found", nameof(request.StreamPath));
-
-            var projectName = await _context.ProjectStreams
-                .Where(ps => ps.Path == request.StreamPath)
-                .Select(ps => ps.Project.Name)
-                .FirstOrDefaultAsync();
+                .Include(ps => ps.Project)
+                .FirstOrDefaultAsync(ps => ps.Id == request.ProjectStreamId);
+            if (projectStream == null) throw new ArgumentException("Stream not found", nameof(request));
 
             var recording = new Recording
             {
                 Name = request.Name,
                 Description = request.Description,
-                StreamPath = request.StreamPath,
+                ProjectStreamId = projectStream.Id,
+                StreamName = projectStream.Name,
+                ProjectId = projectStream.ProjectId,
+                ProjectName = projectStream.Project?.Name,
                 CreatedById = currentUser.Id,
-                ProjectName = projectName,
                 Status = "pending",
                 CreatedAt = DateTime.UtcNow
             };
@@ -125,14 +127,15 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = recording.StreamPath,
+                StreamName = recording.StreamName,
+                ProjectName = recording.ProjectName,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
                 FilePath = recording.FilePath,
                 FileSize = recording.FileSize,
                 Duration = recording.Duration,
-                StreamPath = recording.StreamPath,
+                ProjectStreamId = recording.ProjectStreamId,
                 CreatedById = recording.CreatedById,
                 CreatedByName = currentUser.Username ?? string.Empty
             };
@@ -202,24 +205,33 @@ namespace MediaMTX_Gui.Server.Services
                 Name = recording.Name,
                 Description = recording.Description,
                 Status = recording.Status,
-                StreamName = recording.StreamPath,
+                StreamName = recording.StreamName,
+                ProjectName = recording.ProjectName,
                 CreatedAt = recording.CreatedAt,
                 StartedAt = recording.StartedAt,
                 EndedAt = recording.EndedAt,
                 FilePath = recording.FilePath,
                 FileSize = recording.FileSize,
                 Duration = recording.Duration,
-                StreamPath = recording.StreamPath,
+                ProjectStreamId = recording.ProjectStreamId,
                 CreatedById = recording.CreatedById,
                 CreatedByName = recording.CreatedBy!.Username ?? string.Empty
             };
         }
 
-        private async Task<HashSet<string>> GetOwnedProjectStreamPathsAsync(int userId)
+        private async Task<HashSet<Guid>> GetOwnedProjectStreamIdsAsync(int userId)
         {
             return await _context.ProjectMembers
                 .Where(pm => pm.UserId == userId && pm.IsOwner)
-                .SelectMany(pm => pm.Project.Streams.Select(stream => stream.Path))
+                .SelectMany(pm => pm.Project.Streams.Select(stream => stream.Id))
+                .ToHashSetAsync();
+        }
+
+        private async Task<HashSet<int>> GetOwnedProjectIdsAsync(int userId)
+        {
+            return await _context.ProjectMembers
+                .Where(pm => pm.UserId == userId && pm.IsOwner)
+                .Select(pm => pm.ProjectId)
                 .ToHashSetAsync();
         }
 
@@ -228,25 +240,38 @@ namespace MediaMTX_Gui.Server.Services
             if (user.Role == "admin") return true;
             if (recording.CreatedById == user.Id) return true;
 
-            var ownedPaths = await GetOwnedProjectStreamPathsAsync(user.Id);
-            return ownedPaths.Contains(recording.StreamPath);
+            if (recording.ProjectStreamId.HasValue)
+            {
+                var ownedStreamIds = await GetOwnedProjectStreamIdsAsync(user.Id);
+                if (ownedStreamIds.Contains(recording.ProjectStreamId.Value)) return true;
+            }
+
+            if (recording.ProjectId.HasValue)
+            {
+                var ownedProjectIds = await GetOwnedProjectIdsAsync(user.Id);
+                if (ownedProjectIds.Contains(recording.ProjectId.Value)) return true;
+            }
+
+            return false;
         }
 
-        public async Task HandleStreamStartedAsync(string streamName)
+        public async Task HandleStreamStartedAsync(string streamPath)
         {
             var projectStream = await _context.ProjectStreams
                 .Include(ps => ps.Project)
-                .FirstOrDefaultAsync(ps => ps.Path == streamName && ps.RecordingEnabled);
+                .FirstOrDefaultAsync(ps => ps.Path == streamPath && ps.RecordingEnabled);
 
             if (projectStream == null) return;
 
-            var recordingDir = Path.Combine("/recordings", streamName.Replace("/", Path.DirectorySeparatorChar.ToString()));
+            var recordingDir = Path.Combine("/recordings", streamPath.Replace("/", Path.DirectorySeparatorChar.ToString()));
             _context.Recordings.Add(new Recording
             {
-                Name = $"{streamName} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
-                StreamPath = streamName,
-                CreatedById = projectStream.CreatedByUserId,
+                Name = $"{streamPath} — {DateTime.UtcNow:yyyy-MM-dd HH:mm} UTC",
+                ProjectStreamId = projectStream.Id,
+                StreamName = projectStream.Name,
+                ProjectId = projectStream.ProjectId,
                 ProjectName = projectStream.Project?.Name,
+                CreatedById = projectStream.CreatedByUserId,
                 Status = "recording",
                 StartedAt = DateTime.UtcNow,
                 FilePath = recordingDir
@@ -255,10 +280,15 @@ namespace MediaMTX_Gui.Server.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task HandleStreamStoppedAsync(string streamName)
+        public async Task HandleStreamStoppedAsync(string streamPath)
         {
+            var projectStream = await _context.ProjectStreams
+                .FirstOrDefaultAsync(ps => ps.Path == streamPath);
+
+            if (projectStream == null) return;
+
             var activeRecording = await _context.Recordings
-                .Where(r => r.StreamPath == streamName && r.Status == "recording")
+                .Where(r => r.ProjectStreamId == projectStream.Id && r.Status == "recording")
                 .FirstOrDefaultAsync();
 
             if (activeRecording == null) return;

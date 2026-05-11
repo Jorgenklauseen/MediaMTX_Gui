@@ -27,11 +27,13 @@ namespace MediaMTX_Gui.Server.Models
         public TimeSpan Duration { get; set; }
 
         public string? ProjectName { get; set; }
+        public string StreamName { get; set; } = string.Empty;
 
-        public string StreamPath { get; set; } = string.Empty; // MediaMTX path retained as historical recording metadata
+        public int? ProjectId { get; set; }
+
+        public Guid? ProjectStreamId { get; set; }
 
         public int CreatedById { get; set; }
         public User? CreatedBy { get; set; }
     }
 }
-

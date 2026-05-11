@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MediaMTX_Gui.Server.Models;
 
@@ -85,6 +85,18 @@ namespace MediaMTX_Gui.Server.Data
                 .WithMany()
                 .HasForeignKey(recording => recording.CreatedById)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Recording>()
+                .HasOne<ProjectStream>()
+                .WithMany()
+                .HasForeignKey(recording => recording.ProjectStreamId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Recording>()
+                .HasOne<Project>()
+                .WithMany()
+                .HasForeignKey(recording => recording.ProjectId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
