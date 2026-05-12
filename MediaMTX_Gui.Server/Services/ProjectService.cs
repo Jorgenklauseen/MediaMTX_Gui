@@ -38,7 +38,7 @@ namespace MediaMTX_Gui.Server.Services
                             Id = x.project.Id,
                             Name = x.project.Name,
                             Description = x.project.Description,
-                            Role = membership != null ? membership.Role : "Admin",
+                            Role = membership != null ? (membership.IsOwner ? "Owner" : "Member") : "Admin",
                             CreatedByUserId = x.project.CreatedByUserId,
                             CreatedAt = x.project.CreatedAt,
                             UpdatedAt = x.project.UpdatedAt
@@ -53,7 +53,7 @@ namespace MediaMTX_Gui.Server.Services
                         Id = membership.Project.Id,
                         Name = membership.Project.Name,
                         Description = membership.Project.Description,
-                        Role = membership.Role,
+                        Role = membership.IsOwner ? "Owner" : "Member",
                         CreatedByUserId = membership.Project.CreatedByUserId,
                         CreatedAt = membership.Project.CreatedAt,
                         UpdatedAt = membership.Project.UpdatedAt
@@ -83,7 +83,6 @@ namespace MediaMTX_Gui.Server.Services
             {
                 ProjectId = project.Id,
                 UserId = user.Id,
-                Role = "Owner",
                 IsOwner = true,
                 JoinedAt = DateTime.UtcNow
             };
@@ -93,7 +92,7 @@ namespace MediaMTX_Gui.Server.Services
 
             await transaction.CommitAsync();
 
-            return MapToProjectDto(project, membership.Role);
+            return MapToProjectDto(project, "Owner");
         }
 
         public async Task<ProjectDto?> GetProjectByIdForCurrentUserAsync(int projectId, ClaimsPrincipal principal)
@@ -116,7 +115,7 @@ namespace MediaMTX_Gui.Server.Services
                             Id = x.p.Id,
                             Name = x.p.Name,
                             Description = x.p.Description,
-                            Role = membership != null ? membership.Role : "Admin",
+                            Role = membership != null ? (membership.IsOwner ? "Owner" : "Member") : "Admin",
                             CreatedByUserId = x.p.CreatedByUserId,
                             CreatedAt = x.p.CreatedAt,
                             UpdatedAt = x.p.UpdatedAt
@@ -131,7 +130,7 @@ namespace MediaMTX_Gui.Server.Services
                         Id = membership.Project.Id,
                         Name = membership.Project.Name,
                         Description = membership.Project.Description,
-                        Role = membership.Role,
+                        Role = membership.IsOwner ? "Owner" : "Member",
                         CreatedByUserId = membership.Project.CreatedByUserId,
                         CreatedAt = membership.Project.CreatedAt,
                         UpdatedAt = membership.Project.UpdatedAt

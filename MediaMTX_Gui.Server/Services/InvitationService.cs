@@ -86,7 +86,6 @@ public class InvitationService : IInvitationService
         {
             ProjectId = invitation.ProjectId,
             UserId = currentUser.Id,
-            Role = "Member",
             IsOwner = false,
             JoinedAt = DateTime.UtcNow
         };

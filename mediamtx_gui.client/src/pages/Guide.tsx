@@ -9,9 +9,9 @@ const streamSteps = [
     description:
       'Open a current project or create a new one. Under the "Streams" section, type a name for the stream and click the "Create Stream" button to create it.',
     details: [
-      "You become the project owner automatically. Only owners can delete the project.",
+      "You become the project owner automatically. Only owners and admins can delete the project.",
       "You can invite collaborators at any time, they'll receive the member role.",
-      "Only the stream creator can regenerate the key, delete, or record their stream, regardless of role.",
+      "Stream creators can regenerate the key, delete, or record their own stream, while owners and admins can do it for any stream in the project.",
 
     ],
     images: [
@@ -23,10 +23,10 @@ const streamSteps = [
     number: 2,
     title: "Copy the server URL and stream key",
     description:
-      "After creating the stream, choose which protocol to publish with. The credentials you need depend on the protocol. RTMP is most used.",
+      "After creating the stream, choose which protocol to publish with. The credentials you need depend on the protocol.",
     details: [
-      "RTMP: both a server URL and a stream key are generated. You need both in OBS.",
       "SRT: only a server URL is generated. Paste it directly into OBS. No stream key needed.",
+      "RTMP: both a server URL and a stream key are generated. You need both in OBS.",
       "Want to record the stream? Click the record button now, before opening OBS.",
     ],
     images: [
@@ -38,7 +38,7 @@ const streamSteps = [
     number: 3,
     title: "Configure stream settings in OBS",
     description:
-      'Open OBS Studio and go to File → Settings → Stream. Select "Custom" as the service, then paste the RTMP URL and stream key.',
+      'Open OBS Studio and go to File → Settings → Stream. Select "Custom" as the service, and then paste the RTMP URL (in this example) and stream key. NOTE: RTMP does not support audio streaming at the moment. Use SRT for audio support.',
     details: [
       'Click "Apply" and "OK" to save.',
     ],
@@ -54,7 +54,9 @@ const streamSteps = [
       'To allow viewers to watch via WebRTC, go to File → Settings → Output and enable custom encoder settings.',
     details: [
       'Enable "Custom Encoder Settings (Advanced)".',
+      'Set the video encoder to "Software (x264)".',
       'Enter "bframes=0" in the "Encoder Settings" field.',
+      'Choose default audio settings for RTMP (AAC) or Opus for SRT',
       'Click "Apply" and "OK".',
     ],
     images: [
