@@ -376,13 +376,6 @@ namespace MediaMTX_Gui.Server.Services
                 [
                     new StreamProtocolOption
                     {
-                        Protocol = "RTMP",
-                        ServerUrl = _mediaMtxOptions.RtmpBaseUrl,
-                        StreamKey = rawStreamKey is null ? maskedKey : rtmpStreamKey,
-                        Note = "Recommended for OBS"
-                    },
-                    new StreamProtocolOption
-                    {
                         Protocol = "SRT",
                         ServerUrl = srtPublishUrl,
                         StreamKey = null,
@@ -390,20 +383,27 @@ namespace MediaMTX_Gui.Server.Services
                             ? "Key only shown on create — regenerate to get a new one"
                             : "Paste the full URL into OBS Server field — no separate stream key"
                     },
+                    new StreamProtocolOption
+                    {
+                        Protocol = "RTMP",
+                        ServerUrl = _mediaMtxOptions.RtmpBaseUrl,
+                        StreamKey = rawStreamKey is null ? maskedKey : rtmpStreamKey,
+                        Note = "Recommended for OBS"
+                    },
                 ],
                 PlaybackOptions =
                 [
                     new StreamProtocolOption
                     {
-                        Protocol = "RTSP",
-                        Url = $"{_mediaMtxOptions.RtspBaseUrl}/{stream.Path}",
-                        Note = "~1–3s latency, use in OBS Media Source"
-                    },
-                    new StreamProtocolOption
-                    {
                         Protocol = "SRT",
                         Url = $"{_mediaMtxOptions.SrtBaseUrl}?streamid=read:{stream.Path}",
                         Note = "~1s latency, use in OBS Media Source"
+                    },
+                    new StreamProtocolOption
+                    {
+                        Protocol = "RTSP",
+                        Url = $"{_mediaMtxOptions.RtspBaseUrl}/{stream.Path}",
+                        Note = "~1–3s latency, use in OBS Media Source"
                     },
                     new StreamProtocolOption
                     {
