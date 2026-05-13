@@ -43,8 +43,7 @@ public class StreamsController : ControllerBase
     [HttpPost("started")]
     public async Task<IActionResult> StreamStarted([FromQuery] string name)
     {
-        var json = await _mediaService.GetPathsAsync();
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
         await _recordingService.HandleStreamStartedAsync(name);
         return Ok();
     }
@@ -52,8 +51,7 @@ public class StreamsController : ControllerBase
     [HttpPost("stopped")]
     public async Task<IActionResult> StreamStopped([FromQuery] string name)
     {
-        var json = await _mediaService.GetPathsAsync();
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
         await _recordingService.HandleStreamStoppedAsync(name);
         return Ok();
     }
@@ -61,16 +59,14 @@ public class StreamsController : ControllerBase
     [HttpPost("reader-started")]
     public async Task<IActionResult> ReaderStarted()
     {
-        var json = await _mediaService.GetPathsAsync();
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
         return Ok();
     }
 
     [HttpPost("reader-stopped")]
     public async Task<IActionResult> ReaderStopped()
     {
-        var json = await _mediaService.GetPathsAsync();
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated", json);
+        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
         return Ok();
     }
 
