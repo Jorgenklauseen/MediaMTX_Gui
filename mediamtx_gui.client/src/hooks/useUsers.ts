@@ -19,7 +19,7 @@ export function useUsers() {
         try {
             await apiBanUser(id);
             setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: true } : u));
-            toast.error("User banned 🚫");
+            toast.error("User banned");
         } catch {
             toast.error("Could not ban user");
         }
@@ -29,7 +29,7 @@ export function useUsers() {
         try {
             await apiUnbanUser(id);
             setUsers(prev => prev.map(u => u.id === id ? { ...u, isBanned: false } : u));
-            toast.success("User unbanned ✅");
+            toast.success("User unbanned");
         } catch {
             toast.error("Could not unban user");
         }
