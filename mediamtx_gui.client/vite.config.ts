@@ -63,7 +63,7 @@ export default defineConfig({
                 secure: false
             },
             '^/hls': {
-                target: 'http://localhost:8888',
+                target: 'http://localhost:18888',
                 secure: false,
                 rewrite: (path) => path.replace(/^\/hls/, '')
             },

@@ -414,8 +414,7 @@
     color: #b91c1c;
     opacity: 1;
 }
-
-/* Modal */
+/* Not used at the moment, since recording modal is not used. */
 .recording-modal {
     position: fixed;
     top: 0;
