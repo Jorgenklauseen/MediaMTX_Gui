@@ -57,16 +57,16 @@ public class StreamsController : ControllerBase
     }
 
     [HttpPost("reader-started")]
-    public async Task<IActionResult> ReaderStarted()
+    public async Task<IActionResult> ReaderStarted([FromQuery] string name)
     {
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
+        await _hubContext.Clients.All.SendAsync("ViewerUpdated", name);
         return Ok();
     }
 
     [HttpPost("reader-stopped")]
-    public async Task<IActionResult> ReaderStopped()
+    public async Task<IActionResult> ReaderStopped([FromQuery] string name)
     {
-        await _hubContext.Clients.All.SendAsync("StreamsUpdated");
+        await _hubContext.Clients.All.SendAsync("ViewerUpdated", name);
         return Ok();
     }
 
