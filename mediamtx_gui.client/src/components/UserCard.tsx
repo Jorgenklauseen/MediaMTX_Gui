@@ -47,7 +47,7 @@ export function UserCard({ user, onBan, onUnban }: UserCardProps) {
         <span
           className={`badge ${user.isBanned ? "badge--banned" : "badge--active"}`}
         >
-          {user.isBanned ? "🚫 Banned" : "✅ Active"}
+          {user.isBanned ? "Banned" : "Active"}
         </span>
         {user.isBanned ? (
           <button

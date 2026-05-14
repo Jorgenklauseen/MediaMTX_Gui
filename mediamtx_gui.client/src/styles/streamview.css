@@ -14,7 +14,7 @@
   display: block;
 }
 
-/* Status overlay (loading / offline) */
+
 .sv-overlay {
   position: absolute;
   inset: 0;
@@ -39,7 +39,6 @@
   opacity: 0.6;
 }
 
-/* Controls overlay */
 .sv-controls {
   position: absolute;
   bottom: 0;
