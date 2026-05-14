@@ -36,11 +36,17 @@ export function usePublicStreamStatus(path: string | null) {
 
         fetchStatus();
 
+        const onViewerUpdated = (updatedPath: string) => {
+            if (updatedPath === path) fetchStatus();
+        };
+
         streamsHubConnection.on("StreamsUpdated", fetchStatus);
+        streamsHubConnection.on("ViewerUpdated", onViewerUpdated);
         ensureConnected();
 
         return () => {
             streamsHubConnection.off("StreamsUpdated", fetchStatus);
+            streamsHubConnection.off("ViewerUpdated", onViewerUpdated);
         };
     }, [path]);
 
